@@ -360,7 +360,14 @@ function problemPage(pid) {
           '<button class="btn btn-primary" id="submit">Submit</button>' +
         "</div>" +
         '<div class="editor-host" id="editor-host"></div>' +
-        '<div class="console" id="console"></div>' +
+        '<div class="results" id="results" hidden>' +
+          '<button class="results-bar" id="results-toggle" aria-expanded="true" ' +
+                  'aria-controls="console" title="Hide results">' +
+            '<span class="results-summary" id="results-summary"></span>' +
+            '<span class="chev" aria-hidden="true">' + CHEVRON + "</span>" +
+          "</button>" +
+          '<div class="console" id="console"></div>' +
+        "</div>" +
       "</div>" +
     "</div>";
 
@@ -388,6 +395,7 @@ function problemPage(pid) {
   });
   el("run").addEventListener("click", function () { execute(false); });
   el("submit").addEventListener("click", function () { execute(true); });
+  el("results-toggle").addEventListener("click", function () { collapseResults(!collapsed); });
 
   cm = CodeMirror(el("editor-host"), {
     value: "",
@@ -515,7 +523,32 @@ function drawSolution() {
 
 // ------------------------------------------------------------------ running
 
-function say(html) { el("console").innerHTML = html; }
+// A chevron pointing down. Collapsed state rotates it, so the two arrows are exact
+// mirrors of each other rather than two glyphs that happen to look related.
+var CHEVRON = '<svg viewBox="0 0 16 16" width="13" height="13"><path d="M3.5 6l4.5 4.5L12.5 6"'
+  + ' fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+  + ' stroke-linejoin="round"/></svg>';
+
+var collapsed = false;
+
+function collapseResults(want) {
+  collapsed = want;
+  var box = el("results");
+  if (!box) return;
+  box.classList.toggle("collapsed", collapsed);
+  var btn = el("results-toggle");
+  btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  btn.title = collapsed ? "Show results" : "Hide results";
+  // The editor grows into the space the results gave up, so it needs to remeasure.
+  if (cm) cm.refresh();
+}
+
+function showResults(summary, detail) {
+  el("results").hidden = false;
+  el("results-summary").innerHTML = summary;
+  el("console").innerHTML = detail || "";
+  collapseResults(false);
+}
 
 function execute(full) {
   var p = curProblem;
@@ -523,7 +556,8 @@ function execute(full) {
   var stdin = cases.map(function (c) { return c["in"].join("\n"); }).join("\n") + "\n";
   el("run").disabled = true;
   el("submit").disabled = true;
-  say('<span class="muted">Compiling and running ' + cases.length + " test cases...</span>");
+  showResults('<span class="muted">Compiling and running ' + cases.length
+              + " test cases...</span>", "");
 
   fetch("/api/run", {
     method: "POST",
@@ -532,23 +566,22 @@ function execute(full) {
   }).then(function (r) { return r.json(); })
     .then(function (res) { report(res, cases, full); })
     .catch(function (e) {
-      say('<span class="res-line"><span class="st no">ERROR</span></span>' +
-          '<div class="res-detail">Could not reach the code runner. ' + esc(e.message) +
-          "</div>");
+      showResults('<span class="st no">Error</span><span>could not reach the code runner</span>',
+                  '<div class="res-detail">' + esc(e.message) + "</div>");
     })
     .then(function () { el("run").disabled = false; el("submit").disabled = false; });
 }
 
 function report(res, cases, full) {
   if (res.status === "compile_error") {
-    return say('<div class="res-line"><span class="st no">COMPILE</span>' +
-      "<span>The compiler rejected this.</span></div>" +
-      '<div class="res-detail">' + esc(res.message) + "</div>");
+    return showResults('<span class="st no">Compile error</span>'
+                       + "<span>the compiler rejected this</span>",
+                       '<div class="res-detail">' + esc(res.message) + "</div>");
   }
   if (res.status === "error" || res.status === "timeout") {
-    return say('<div class="res-line"><span class="st no">' +
-      (res.status === "timeout" ? "TIMEOUT" : "ERROR") + "</span></div>" +
-      '<div class="res-detail">' + esc(res.message || "") + "</div>");
+    return showResults('<span class="st no">'
+                       + (res.status === "timeout" ? "Timed out" : "Error") + "</span>",
+                       '<div class="res-detail">' + esc(res.message || "") + "</div>");
   }
 
   var lines = (res.stdout || "").split("\n");
@@ -582,10 +615,12 @@ function report(res, cases, full) {
       "</div>";
   }
 
-  var head = '<div class="res-line"><span class="n">Score</span><span class="st ' +
-    (pass === cases.length ? "ok" : "no") + '">' + pass + " / " + cases.length + "</span>" +
-    "<span>" + (full ? "all twelve test cases" : "the six visible test cases") + "</span></div>";
-  say(head + html);
+  // With the panel collapsed the bar is all you see, so it has to mention a crash.
+  showResults('<span class="st ' + (pass === cases.length ? "ok" : "no") + '">' + pass + " / "
+              + cases.length + "</span><span>"
+              + (full ? "all twelve test cases" : "the six visible test cases")
+              + (res.stderr ? ", and the program wrote to stderr" : "") + "</span>",
+              html);
 
   if (full && pass === cases.length && store("frq:" + curProblem.id, null) !== "gaveup") {
     save("frq:" + curProblem.id, "solved");
