@@ -27,11 +27,17 @@ without revealing the inputs or the answers.
 
 ## Storage
 
-Everything is kept in `localStorage` in the visitor's own browser: which division they picked,
-which questions they got right, whether they solved or gave up on a problem, and the code they
-typed for each problem and language. No cookies, no accounts, and nothing leaves the browser
-except the source code sent to the compiler when someone presses Run or Submit. A line in the
-footer says so, with a button that wipes all of it.
+Everything a visitor does is kept in `localStorage` in their own browser: which division they
+picked, which questions they got right, whether they solved or gave up on a problem, and the code
+they typed for each problem and language. No cookies and no accounts. A line in the footer says
+so, with a button that wipes all of it.
+
+Two things do leave the browser. Source code goes to the compiler when someone presses Run or
+Submit, and Vercel Web Analytics counts page views. Analytics is the plain HTML snippet in
+`index.html`, which is cookieless and collects no personal data. Enable it under Analytics in the
+Vercel dashboard for the project, otherwise the script simply 404s and nothing is counted. To
+delete it, remove the two script tags at the bottom of `public/index.html` and drop the sentence
+about page views from the footer.
 
 ## Running it locally
 

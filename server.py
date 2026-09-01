@@ -98,6 +98,16 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def do_GET(self):
+        # Vercel serves this in production. Locally it would 404 on every page load and
+        # bury real errors in the console, so answer it with an empty script.
+        if self.path.startswith("/_vercel/insights/"):
+            self.send_response(204)
+            self.send_header("Content-Type", "application/javascript")
+            self.end_headers()
+            return
+        return super().do_GET()
+
     def do_POST(self):
         if self.path.rstrip("/") not in ("/run", "/api/run"):
             return self._json({"status": "error", "message": "unknown endpoint"}, 404)

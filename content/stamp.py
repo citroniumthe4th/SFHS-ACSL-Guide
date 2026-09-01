@@ -20,6 +20,9 @@ def main():
 
     def fix(m):
         path = m.group(2).split("?")[0]
+        # Anything absolute or remote is served by someone else, so there is nothing to hash.
+        if path.startswith(("/", "http:", "https:", "//")):
+            return m.group(0)
         full = os.path.join(PUBLIC, path)
         if not os.path.exists(full):
             print("missing asset: %s" % path)
