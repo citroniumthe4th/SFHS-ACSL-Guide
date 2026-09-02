@@ -17,16 +17,16 @@ with "None of the above" as E, which is the correct answer about 11 percent of t
 question shows its reasoning once you answer. Anything you get wrong lands in a missed questions
 list, and getting it right later takes it off again.
 
-**Mock exam.** Six questions in thirty minutes, which is the real contest format per the ACSL
-student guide, drawn from one contest's own categories with What Does This Program Do at the end.
-Nothing is marked while the clock runs. At the end you get a score and every question back with
-the reasoning, and the ones you missed go to the missed list. An unfinished exam survives a
-refresh, deadline included.
+**Mock exam.** Two questions from each of a contest's three topics, six in all, in thirty
+minutes. acsl.org states both halves of that outright: "Each contest has 6 problems: two problems
+from each of the 3 topics", and the student guide gives the thirty minute limit. Nothing is marked
+while the clock runs. At the end you get a score and every question back with the reasoning, and
+the ones you missed go to the missed list. An unfinished exam survives a refresh, deadline
+included.
 
-Junior lists a What Does This Program Do flavor among the three topics of every contest, so those
-two slots come from the contest itself. Senior lists it only in Contest 1, so for Senior contests
-2 through 4 one slot is borrowed for the general version to keep the tail consistent with the
-finals papers.
+Because the paper follows the published topic table, What Does This Program Do appears in every
+Junior contest, as branching, looping, arrays, and strings respectively, and in Senior only in
+Contest 1. Senior Contest 2 is LISP. Where it does appear it is sorted to the end of the paper.
 
 **Programming.** Twenty four problems, twelve Junior and twelve Senior, three per contest each,
 written the way the finals problems are written: a narrative statement, a worked example, an input and output spec, three sets of

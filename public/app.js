@@ -351,7 +351,7 @@ function answer(idx) {
 // ------------------------------------------------------------------ mock exam
 
 // A real contest is 6 short answer questions in 30 minutes, per the ACSL student guide.
-var EXAM_QUESTIONS = 6;
+var PER_TOPIC = 2;
 var EXAM_SECONDS = 30 * 60;
 
 var exam = null;
@@ -360,52 +360,23 @@ var clockTimer = null;
 function isWdtpd(topicId) { return topicId.indexOf("wdtpd") === 0; }
 
 function buildExam(contest) {
+  // acsl.org states the format outright: "Each contest has 6 problems: two problems from each
+  // of the 3 topics." So the paper is entirely determined by the contest's own topic list, and
+  // there is nothing to borrow or top up.
   var div = division;
   var topics = topicsFor(div).filter(function (t) { return t.contest === contest; });
-  var wd = topics.filter(function (t) { return isWdtpd(t.id); });
-  var rest = shuffle(topics.filter(function (t) { return !isWdtpd(t.id); }));
-
-  // Junior lists a What Does This Program Do flavor among the three topics of every contest,
-  // and Senior lists it only in Contest 1. Where it is a listed topic it gets two of the six
-  // slots like any other. Where it is not, borrow a single slot so the paper still ends on
-  // one, which is how the finals are laid out.
-  var listed = wd.length > 0;
-  if (!listed) {
-    var general = topicById("wdtpd");
-    if (general && questionsFor("wdtpd", div).length) wd = [general];
-  }
-
-  function draw(topicId, n, taken) {
-    var pool = shuffle(questionsFor(topicId, div).filter(function (q) {
-      return taken.indexOf(q.id) < 0;
-    }));
-    return pool.slice(0, n);
-  }
-
-  var picked = [];
   var ids = [];
-  var wdWanted = wd.length ? (listed ? 2 : 1) : 0;
-  var mainWanted = EXAM_QUESTIONS - wdWanted;
+  var picked = [];
 
-  rest.forEach(function (t, i) {
-    var n = Math.floor(mainWanted / rest.length) + (i < mainWanted % rest.length ? 1 : 0);
-    draw(t.id, n, ids).forEach(function (q) { picked.push(q); ids.push(q.id); });
-  });
-  wd.forEach(function (t) {
-    draw(t.id, wdWanted, ids).forEach(function (q) { picked.push(q); ids.push(q.id); });
+  topics.forEach(function (t) {
+    shuffle(questionsFor(t.id, div).slice())
+      .filter(function (q) { return ids.indexOf(q.id) < 0; })
+      .slice(0, PER_TOPIC)
+      .forEach(function (q) { picked.push(q); ids.push(q.id); });
   });
 
-  // Top up from anything in this contest if a category ran short.
-  var i = 0;
-  while (picked.length < EXAM_QUESTIONS && i < topics.length * 4) {
-    var t = topics[i % topics.length];
-    var extra = draw(t.id, 1, ids);
-    if (extra.length) { picked.push(extra[0]); ids.push(extra[0].id); }
-    i++;
-  }
-  picked = picked.slice(0, EXAM_QUESTIONS);
-
-  // What Does This Program Do goes last, the way it sits at the end of a real paper.
+  // What Does This Program Do sits at the end of a real paper. Junior has a flavor of it in
+  // every contest and Senior only in Contest 1, so this quietly does nothing elsewhere.
   picked.sort(function (x, y) {
     return (isWdtpd(x.topic) ? 1 : 0) - (isWdtpd(y.topic) ? 1 : 0);
   });
@@ -453,8 +424,9 @@ function examIndex() {
   var running = loadExam();
   var html = '<div class="wrap"><div class="eyebrow">' + division + " division</div>" +
     "<h1>Mock exam</h1>" +
-    '<p class="note">Six short answer questions in thirty minutes, which is the real contest ' +
-    "format. No feedback while the clock runs. You get every explanation at the end.</p>";
+    '<p class="note">Two questions from each of the contest\'s three topics, six in all, in ' +
+    "thirty minutes. That is the format acsl.org publishes. No feedback while the clock runs, " +
+    "and you get every explanation at the end.</p>";
 
   if (running && !running.submitted && running.division === division) {
     html += '<div class="banner">You have an exam in progress for Contest ' + running.contest +
@@ -468,7 +440,7 @@ function examIndex() {
     var topics = topicsFor(division).filter(function (t) { return t.contest === c; });
     html += '<a class="card" href="#/exam/' + c + '"><h3>Contest ' + c + "</h3><p>" +
       esc(topics.map(function (t) { return t.name; }).join(", ")) + "</p>" +
-      '<div class="card-foot"><span class="chip">6 questions</span>' +
+      '<div class="card-foot"><span class="chip">2 per topic</span>' +
       '<span class="chip">30 minutes</span></div></a>';
   });
   el("main").innerHTML = html + "</div></div>";
