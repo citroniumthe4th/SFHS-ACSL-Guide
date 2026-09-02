@@ -16,8 +16,8 @@ that actually cost points.
 with "None of the above" as E, which is the correct answer about 11 percent of the time. Every
 question shows its reasoning once you answer.
 
-**Programming.** Twelve problems, six Junior and six Senior, written the way the finals problems
-are written: a narrative statement, a worked example, an input and output spec, three sets of
+**Programming.** Twenty four problems, twelve Junior and twelve Senior, three per contest each,
+written the way the finals problems are written: a narrative statement, a worked example, an input and output spec, three sets of
 sample data, twelve test cases with the last six sealed, a named function to complete, and
 constraints. You write inside the function, a visible driver reads the test data and prints what
 you return, and the editor really compiles and runs your code in Python, Java, or C++.
@@ -59,7 +59,9 @@ usually finish in a few seconds, so the 10 second default is workable.
 
 Test case outputs are never typed by hand. `content/build.py` runs the Python reference solution
 for each problem to produce them, then runs the Java and C++ references and fails the build if
-any of the three disagree:
+any of the three disagree. It also re-derives the worked Example in each problem statement and
+fails if the trace disagrees with what the code actually does, because a stale hand written trace
+is worse than none: a student will trust it over their own arithmetic.
 
 ```bash
 python3 content/build.py     # rewrites public/data/frq.js

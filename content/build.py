@@ -17,13 +17,44 @@ sys.path.insert(0, os.path.dirname(HERE))
 import codegen  # noqa: E402
 import server   # noqa: E402
 
+import html as _html
+import re as _re
+
 LANGS = ["python", "java", "cpp"]
-MODULES = ("frq_a", "frq_b", "frq_c")
+MODULES = ("frq_a", "frq_b", "frq_c", "frq_d", "frq_e", "frq_f")
 
 
 def as_block(case):
     """A test case is one line per parameter. A bare string is the one parameter shorthand."""
     return [case] if isinstance(case, str) else list(case)
+
+
+def cell(example, label):
+    """Pull one row out of the worked Example table as plain text."""
+    m = _re.search(r"<tr><th>%s</th><td>(.*?)</td></tr>" % label, example, _re.S)
+    if not m:
+        return None
+    text = m.group(1).replace("<br>", "\n")
+    text = _re.sub(r"<[^>]+>", "", text)
+    return _html.unescape(text).strip()
+
+
+def check_example(pid, example, sample_in, sample_out):
+    """The worked Example has to agree with what the reference solution actually does.
+
+    Every Example in this file states sample 1. A hand written trace that drifts from the
+    code is worse than no trace at all, because a student will trust it over their own
+    arithmetic, so a mismatch fails the build.
+    """
+    shown_in, shown_out = cell(example, "Input"), cell(example, "Output")
+    if shown_in is None or shown_out is None:
+        raise SystemExit("%s: Example needs both an Input row and an Output row" % pid)
+    if shown_in != "\n".join(sample_in):
+        raise SystemExit("%s: Example Input is %r but sample 1 is %r"
+                         % (pid, shown_in, "\n".join(sample_in)))
+    if shown_out != sample_out:
+        raise SystemExit("%s: Example says the output is %r, the solution produces %r"
+                         % (pid, shown_out, sample_out))
 
 
 def run_all(lang, program, blocks):
@@ -73,6 +104,8 @@ def build(only=None):
                        for i in range(len(got)) if got[i] != expected[i]]
                 raise SystemExit("%s: %s disagrees with python on %d case(s):\n%s"
                                  % (p["id"], L, len(bad), "\n".join(map(str, bad[:4]))))
+
+        check_example(p["id"], p["example"], samples[0], expected[0])
 
         rec = {k: p[k] for k in ("id", "division", "contest", "title", "blurb", "statement",
                                  "example", "input_spec", "output_spec", "constraints",

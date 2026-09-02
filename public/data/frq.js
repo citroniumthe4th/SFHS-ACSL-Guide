@@ -1267,7 +1267,7 @@ window.FRQ = [
  {
   "id": "knight-moves",
   "division": "Senior",
-  "contest": 3,
+  "contest": 1,
   "title": "KNIGHT MOVES",
   "blurb": "Fewest knight hops between two squares of a chessboard.",
   "statement": "\n<p>A knight on a chessboard moves in an L: two squares along one direction and then one square at\na right angle to it. From the middle of the board it has eight possible destinations, and from a\ncorner only two.</p>\n\n<p>Squares are named the usual way. The file is a letter from a through h counting from the left,\nand the rank is a digit from 1 through 8 counting from the bottom, so a1 is the bottom left corner\nand h8 is the top right.</p>\n\n<p>Given a starting square and a target square, find the fewest moves a knight needs to get from\none to the other. The board is empty, so nothing blocks the way.</p>\n",
@@ -1401,7 +1401,7 @@ window.FRQ = [
  {
   "id": "shuffle-cycles",
   "division": "Senior",
-  "contest": 4,
+  "contest": 2,
   "title": "SHUFFLE CYCLES",
   "blurb": "Riffle a deck perfectly, over and over, until it comes back to where it started.",
   "statement": "\n<p>A perfect riffle shuffle of a deck with an even number of cards works like this. Cut the deck\nexactly in half, so the top half and the bottom half hold the same number of cards. Then rebuild\nthe deck by laying down the first card of the top half, then the first card of the bottom half,\nthen the second card of the top half, then the second card of the bottom half, and so on until\nboth halves are used up.</p>\n\n<p>The card that started on top is still on top afterwards, so the deck is scrambled but not\ncompletely. Shuffle again, and again, and eventually every card is back exactly where it began.</p>\n\n<p>Given the number of cards in the deck, report how many perfect riffle shuffles it takes to\nreturn the deck to its original order.</p>\n",
@@ -1515,6 +1515,1584 @@ window.FRQ = [
    "python": "import sys\n\ndef shuffleCount(n: int) -> int:\n\n    deck = list(range(n))\n    original = list(range(n))\n    half = n // 2\n    count = 0\n    while True:\n        nxt = [0] * n\n        for i in range(half):\n            nxt[2 * i] = deck[i]\n            nxt[2 * i + 1] = deck[half + i]\n        deck = nxt\n        count += 1\n        if deck == original:\n            return count\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        n = int(_lines[_i + 0].strip())\n        print(shuffleCount(n))\n\n\n_driver()\n",
    "java": "import java.util.*;\n\npublic class Solution {\n\n    static int shuffleCount(int n) {\n\n        int[] deck = new int[n], original = new int[n], nxt = new int[n];\n        for (int i = 0; i < n; i++) { deck[i] = i; original[i] = i; }\n        int half = n / 2, count = 0;\n        while (true) {\n            for (int i = 0; i < half; i++) {\n                nxt[2 * i] = deck[i];\n                nxt[2 * i + 1] = deck[half + i];\n            }\n            int[] swap = deck; deck = nxt; nxt = swap;\n            count++;\n            if (Arrays.equals(deck, original)) return count;\n        }\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int n = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(shuffleCount(n)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint shuffleCount(int n) {\n\n    vector<int> deck(n), original(n), nxt(n);\n    for (int i = 0; i < n; i++) { deck[i] = i; original[i] = i; }\n    int half = n / 2, count = 0;\n    while (true) {\n        for (int i = 0; i < half; i++) {\n            nxt[2 * i] = deck[i];\n            nxt[2 * i + 1] = deck[half + i];\n        }\n        deck.swap(nxt);\n        count++;\n        if (deck == original) return count;\n    }\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 1;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int n = stoi(_lines[_i + 0]);\n        cout << shuffleCount(n) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "bowling-night",
+  "division": "Junior",
+  "contest": 1,
+  "title": "BOWLING NIGHT",
+  "blurb": "Score ten frames, where a strike is worth whatever you knock down next.",
+  "statement": "\n<p>The Tuesday league at Sunset Lanes still keeps score on paper, and nobody can agree on the\narithmetic. Settle it.</p>\n\n<p>A game is ten frames. In each frame you get two rolls to knock down ten pins, and the frame is\nworth the pins you knocked down, except in two cases.</p>\n\n<p>Knock all ten down with the first roll and it is a <b>strike</b>. The frame ends immediately\nand it is worth 10 plus whatever you knock down on your next two rolls. Knock all ten down using\nboth rolls and it is a <b>spare</b>, worth 10 plus whatever you knock down on your next one\nroll.</p>\n\n<p>The tenth frame is different because there are no later frames to borrow from. Roll a strike\nor a spare there and you get extra rolls, up to three rolls in the frame, and they count only\nonce each toward the tenth frame total.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>10 7 3 9 0 10 0 8 8 2 0 6 10 10 10 8 1</td></tr>\n<tr><th>Output</th><td>167</td></tr>\n<tr><th>Explanation</th><td>\nFrame 1 is a strike, worth 10 + 7 + 3 = 20.<br>\nFrame 2 is a spare, worth 10 + 9 = 19.<br>\nFrame 3 is 9 + 0 = 9.<br>\nFrame 4 is a strike, worth 10 + 0 + 8 = 18.<br>\nFrame 5 is 0 + 8 = 8.<br>\nFrame 6 is a spare, worth 10 + 0 = 10.<br>\nFrame 7 is 0 + 6 = 6.<br>\nFrame 8 is a strike, worth 10 + 10 + 10 = 30.<br>\nFrame 9 is a strike, worth 10 + 10 + 8 = 28.<br>\nFrame 10 is a strike plus the two extra rolls, worth 10 + 8 + 1 = 19.<br>\nThose add to 167.\n</td></tr></table>\n",
+  "input_spec": "Input a string of roll results, each separated by a single space. Each number is the pins knocked down by that roll.",
+  "output_spec": "Output an integer, the total score for the game.",
+  "constraints": "The string always describes a complete legal game of exactly ten frames, so it holds between 11 and 21 rolls.",
+  "approach": "\n<p>Do not walk the string frame by frame trying to decide how many rolls to consume. Walk it roll\nby roll with an index, and let the frame counter do the work.</p>\n\n<p>Keep an index into the list of rolls and loop exactly ten times, once per frame. On each\npass, look at the roll at the index. If it is 10 you have a strike, so add 10 plus the next two\nrolls and advance the index by one. Otherwise look at the roll after it too. If the pair sums to\n10 you have a spare, so add 10 plus the roll after the pair and advance by two. If it does not,\nadd the pair and advance by two.</p>\n\n<p>The trick is that this handles the tenth frame with no special case at all. The bonus rolls\nare already sitting in the list, so a tenth frame strike reads its two bonus rolls the same way\nframe one does, and the loop stops after ten frames without ever scoring them as frames of their\nown.</p>\n\n<p>People lose this problem by writing a special branch for the tenth frame and then double\ncounting the bonus rolls. If a perfect game gives you 330 instead of 300, that is the bug.</p>\n\n<p>The other classic error is adding the next two rolls after a strike by looking at the next two\n<i>frames</i>. Three strikes in a row means the first one borrows from two later strikes, which\nare single rolls in different frames. Index by rolls, never by frames.</p>\n",
+  "fname": "scoreGame",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>rolls</code>, holding the pins knocked down by\neach roll in order, separated by single spaces.</li>\n<li>The function returns an integer, the total score.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "10 7 3 9 0 10 0 8 8 2 0 6 10 10 10 8 1"
+    ],
+    "out": "167"
+   },
+   {
+    "in": [
+     "10 10 10 10 10 10 10 10 10 10 10 10"
+    ],
+    "out": "300"
+   },
+   {
+    "in": [
+     "9 0 9 0 9 0 9 0 9 0 9 0 9 0 9 0 9 0 9 0"
+    ],
+    "out": "90"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "10 7 3 9 0 10 0 8 8 2 0 6 10 10 10 8 1"
+    ],
+    "out": "167"
+   },
+   {
+    "in": [
+     "10 10 10 10 10 10 10 10 10 10 10 10"
+    ],
+    "out": "300"
+   },
+   {
+    "in": [
+     "9 0 9 0 9 0 9 0 9 0 9 0 9 0 9 0 9 0 9 0"
+    ],
+    "out": "90"
+   },
+   {
+    "in": [
+     "0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5"
+    ],
+    "out": "150"
+   },
+   {
+    "in": [
+     "10 10 10 10 10 10 10 10 10 9 1 10"
+    ],
+    "out": "279"
+   },
+   {
+    "in": [
+     "1 9 1 9 1 9 1 9 1 9 1 9 1 9 1 9 1 9 1 9 1"
+    ],
+    "out": "110"
+   },
+   {
+    "in": [
+     "10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10"
+    ],
+    "out": "110"
+   },
+   {
+    "in": [
+     "8 1 7 2 6 3 5 4 4 5 3 6 2 7 1 8 0 9 9 0"
+    ],
+    "out": "90"
+   },
+   {
+    "in": [
+     "10 10 0 0 10 10 0 0 10 10 0 0 10 10 0"
+    ],
+    "out": "110"
+   },
+   {
+    "in": [
+     "0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 10"
+    ],
+    "out": "110"
+   },
+   {
+    "in": [
+     "10 9 1 10 9 1 10 9 1 10 9 1 10 9 1 10"
+    ],
+    "out": "200"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef scoreGame(rolls: str) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        rolls = _lines[_i + 0].strip()\n        print(scoreGame(rolls))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int scoreGame(String rolls) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String rolls = _lines.get(_i + 0);\n            _sb.append(scoreGame(rolls)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint scoreGame(string rolls) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 1;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string rolls = _lines[_i + 0];\n        cout << scoreGame(rolls) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef scoreGame(rolls: str) -> int:\n\n    r = [int(x) for x in rolls.split()]\n    total = 0\n    i = 0\n    for frame in range(10):\n        if r[i] == 10:\n            total += 10 + r[i + 1] + r[i + 2]\n            i += 1\n        elif r[i] + r[i + 1] == 10:\n            total += 10 + r[i + 2]\n            i += 2\n        else:\n            total += r[i] + r[i + 1]\n            i += 2\n    return total\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        rolls = _lines[_i + 0].strip()\n        print(scoreGame(rolls))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int scoreGame(String rolls) {\n\n        String[] tok = rolls.trim().split(\"\\\\s+\");\n        int[] r = new int[tok.length];\n        for (int j = 0; j < tok.length; j++) r[j] = Integer.parseInt(tok[j]);\n        int total = 0, i = 0;\n        for (int frame = 0; frame < 10; frame++) {\n            if (r[i] == 10) {\n                total += 10 + r[i + 1] + r[i + 2];\n                i += 1;\n            } else if (r[i] + r[i + 1] == 10) {\n                total += 10 + r[i + 2];\n                i += 2;\n            } else {\n                total += r[i] + r[i + 1];\n                i += 2;\n            }\n        }\n        return total;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String rolls = _lines.get(_i + 0);\n            _sb.append(scoreGame(rolls)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint scoreGame(string rolls) {\n\n    vector<int> r;\n    int v;\n    istringstream is(rolls);\n    while (is >> v) r.push_back(v);\n    int total = 0, i = 0;\n    for (int frame = 0; frame < 10; frame++) {\n        if (r[i] == 10) {\n            total += 10 + r[i + 1] + r[i + 2];\n            i += 1;\n        } else if (r[i] + r[i + 1] == 10) {\n            total += 10 + r[i + 2];\n            i += 2;\n        } else {\n            total += r[i] + r[i + 1];\n            i += 2;\n        }\n    }\n    return total;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 1;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string rolls = _lines[_i + 0];\n        cout << scoreGame(rolls) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "hot-potato",
+  "division": "Junior",
+  "contest": 2,
+  "title": "HOT POTATO",
+  "blurb": "Kids in a circle, a rhyme of a fixed length, and one survivor.",
+  "statement": "\n<p>N kids sit in a circle, numbered 1 through N clockwise. Kid number 1 starts holding the\npotato.</p>\n\n<p>The counselor sings a rhyme that is K words long. The potato passes one kid clockwise on every\nword, so the kid holding it on the last word of the rhyme is out and leaves the circle. Note that\nthe kid holding the potato when the rhyme starts is counted as word one, so with a rhyme of 1 word\nthe holder is out immediately.</p>\n\n<p>The rhyme starts again with the kid clockwise from whoever just left, and it keeps going until\none kid is left. Report that kid's original number.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>7<br>3</td></tr>\n<tr><th>Output</th><td>4</td></tr>\n<tr><th>Explanation</th><td>\nCounting 1, 2, 3 from kid 1 puts the potato on kid 3, who is out.<br>\nStarting again at kid 4, the count lands on kid 6, who is out.<br>\nStarting at kid 7, the count lands on kid 2, who is out.<br>\nStarting at kid 4, the count lands on kid 7, who is out.<br>\nStarting at kid 1, the count lands on kid 5, who is out.<br>\nStarting at kid 1, the count lands on kid 1, who is out.<br>\nKid 4 is the only one left.\n</td></tr></table>\n",
+  "input_spec": "Input the number of kids on the first line and the number of words in the rhyme on the second line.",
+  "output_spec": "Output an integer, the original number of the last kid remaining.",
+  "constraints": "There are between 1 and 5000 kids and the rhyme is between 1 and 5000 words.",
+  "approach": "\n<p>Simulating with a list works and is the version to write first. Keep the kids in a list, keep\nan index for whoever holds the potato, and each round move the index forward by K minus 1\npositions, wrapping with a modulo, then remove that kid. After removal the index is already\npointing at the next kid, so no adjustment is needed unless you removed the last element, in\nwhich case the modulo brings you back to the front.</p>\n\n<p>The minus 1 is where this goes wrong. The holder counts as word one, so a rhyme of 3 words\nmoves the potato only 2 places. Get that backwards and every answer is off.</p>\n\n<p>Removing from the middle of a list is slow, so at 5000 kids the simulation does about 12\nmillion element shifts. That still finishes, but there is a much better way.</p>\n\n<p>Think about it backwards. With one kid, the survivor sits at position 0. If you know the\nsurviving position for a circle of size m minus 1, then adding one more kid shifts that answer by\nK places, so the position for size m is (previous + K) modulo m. Loop m from 2 up to N and you\nhave the answer in N steps with no list at all. Add 1 at the end, because the kids are numbered\nfrom 1 and the positions are numbered from 0.</p>\n\n<p>Check the edges. One kid means that kid survives without the rhyme ever finishing. A rhyme of\none word means kids go out in order 1, 2, 3, and so on, so the survivor is kid N.</p>\n",
+  "fname": "lastPlayer",
+  "task": "\n<ul>\n<li>The function has 2 parameters: an integer, <code>n</code>, the number of kids in the circle,\nand an integer, <code>k</code>, the number of words in the rhyme.</li>\n<li>The function returns an integer, the number of the surviving kid.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "7",
+     "3"
+    ],
+    "out": "4"
+   },
+   {
+    "in": [
+     "1",
+     "5"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "5",
+     "1"
+    ],
+    "out": "5"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "7",
+     "3"
+    ],
+    "out": "4"
+   },
+   {
+    "in": [
+     "1",
+     "5"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "5",
+     "1"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "10",
+     "2"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "6",
+     "6"
+    ],
+    "out": "4"
+   },
+   {
+    "in": [
+     "41",
+     "3"
+    ],
+    "out": "31"
+   },
+   {
+    "in": [
+     "100",
+     "7"
+    ],
+    "out": "50"
+   },
+   {
+    "in": [
+     "2",
+     "1000"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "13",
+     "13"
+    ],
+    "out": "8"
+   },
+   {
+    "in": [
+     "1000",
+     "2"
+    ],
+    "out": "977"
+   },
+   {
+    "in": [
+     "5000",
+     "1"
+    ],
+    "out": "5000"
+   },
+   {
+    "in": [
+     "3125",
+     "5"
+    ],
+    "out": "2689"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef lastPlayer(n: int, k: int) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        n = int(_lines[_i + 0].strip())\n        k = int(_lines[_i + 1].strip())\n        print(lastPlayer(n, k))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int lastPlayer(int n, int k) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int n = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int k = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(lastPlayer(n, k)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint lastPlayer(int n, int k) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int n = stoi(_lines[_i + 0]);\n        int k = stoi(_lines[_i + 1]);\n        cout << lastPlayer(n, k) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef lastPlayer(n: int, k: int) -> int:\n\n    pos = 0\n    for m in range(2, n + 1):\n        pos = (pos + k) % m\n    return pos + 1\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        n = int(_lines[_i + 0].strip())\n        k = int(_lines[_i + 1].strip())\n        print(lastPlayer(n, k))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int lastPlayer(int n, int k) {\n\n        int pos = 0;\n        for (int m = 2; m <= n; m++) pos = (pos + k) % m;\n        return pos + 1;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int n = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int k = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(lastPlayer(n, k)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint lastPlayer(int n, int k) {\n\n    int pos = 0;\n    for (int m = 2; m <= n; m++) pos = (pos + k) % m;\n    return pos + 1;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int n = stoi(_lines[_i + 0]);\n        int k = stoi(_lines[_i + 1]);\n        cout << lastPlayer(n, k) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "salvo",
+  "division": "Junior",
+  "contest": 3,
+  "title": "SALVO",
+  "blurb": "Call the shots on a hidden fleet and report hit, miss, or sunk.",
+  "statement": "\n<p>Two players set up fleets on an 8 by 8 grid. Columns are lettered A through H from the left\nand rows are numbered 1 through 8 from the top, so B3 is the square in column B, row 3.</p>\n\n<p>Every ship lies in a straight line, either along one row or down one column, and is written as\nits two end squares joined by a hyphen. The ship A1-A3 fills A1, A2, and A3. The ship C5-F5 fills\nC5, D5, E5, and F5. Ships never overlap.</p>\n\n<p>Your opponent calls a sequence of squares. Report what they hear back after each one:</p>\n<ul>\n<li><b>H</b> if the shot hits a part of a ship that was still undamaged.</li>\n<li><b>S</b> if that shot was the one that finished off a ship, meaning every square of that ship\nhas now been hit.</li>\n<li><b>M</b> for anything else, including a shot at open water and a shot at a square that was\nalready hit. A wasted shot is still a miss.</li>\n</ul>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>A1-A3,C5-F5<br>A1 B1 A2 A1 A3 C5 D5 E5 F5</td></tr>\n<tr><th>Output</th><td>HMHMSHHHS</td></tr>\n<tr><th>Explanation</th><td>\nA1 hits the first ship, so H.<br>\nB1 is open water, so M.<br>\nA2 hits the first ship again, so H.<br>\nA1 was already hit, so that shot is wasted and reads M.<br>\nA3 is the last undamaged square of the first ship, so S.<br>\nC5, D5, and E5 each hit the second ship, so H, H, H.<br>\nF5 finishes the second ship, so S.\n</td></tr></table>\n",
+  "input_spec": "Input the fleet on the first line as ships separated by commas, each written as two end squares joined by a hyphen. On the second line input the shots, each separated by a single space.",
+  "output_spec": "Output one letter per shot, in order, with no spaces between them.",
+  "constraints": "The grid is 8 by 8. There are at most 5 ships, no ship overlaps another, and there are at most 64 shots.",
+  "approach": "\n<p>Two halves. Turn the fleet into something you can look up by square, then walk the shots.</p>\n\n<p>Give every ship an index and build a table from square name to ship index. Expanding a ship\nis easier than it looks because one of the two coordinates is always fixed. Compare the two end\nsquares: if the letters match, the ship runs down a column and you loop over the digits between\nthem, and if the digits match, it runs along a row and you loop over the letters. Sort the two\nends so the loop counts upward either way, since D4-A4 describes the same ship as A4-D4.</p>\n\n<p>Also keep, for each ship, how many of its squares are still undamaged. That number is what\nturns an H into an S.</p>\n\n<p>Now the shots are one pass. Look the square up. If it belongs to no ship, write M. If it\nbelongs to a ship but was already hit, write M as well. Otherwise mark the square hit, subtract\none from that ship's remaining count, and write S if the count reached zero or H if it did\nnot.</p>\n\n<p>The already hit rule is the whole difficulty. Without a set of squares you have already\nshot at, a second shot at A1 reads as a fresh hit and can even sink a ship twice. Track the\nsquares, not just the ships.</p>\n\n<p>Converting a square name to a pair of numbers is subtraction: the column is the letter minus\nthe letter A, and the row is the digit minus the character zero. You do not strictly need the\nnumbers here, since the square name itself works as a lookup key, but you do need them to expand\nthe ships.</p>\n",
+  "fname": "shotReport",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>fleet</code>, holding the ships separated by\ncommas, and a string, <code>shots</code>, holding the called squares separated by single\nspaces.</li>\n<li>The function returns a string of letters, one per shot.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "A1-A3,C5-F5",
+     "A1 B1 A2 A1 A3 C5 D5 E5 F5"
+    ],
+    "out": "HMHMSHHHS"
+   },
+   {
+    "in": [
+     "D4-D4",
+     "A1 D4 D4"
+    ],
+    "out": "MSM"
+   },
+   {
+    "in": [
+     "A1-H1",
+     "A1 B1 C1 D1 E1 F1 G1 H1"
+    ],
+    "out": "HHHHHHHS"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "A1-A3,C5-F5",
+     "A1 B1 A2 A1 A3 C5 D5 E5 F5"
+    ],
+    "out": "HMHMSHHHS"
+   },
+   {
+    "in": [
+     "D4-D4",
+     "A1 D4 D4"
+    ],
+    "out": "MSM"
+   },
+   {
+    "in": [
+     "A1-H1",
+     "A1 B1 C1 D1 E1 F1 G1 H1"
+    ],
+    "out": "HHHHHHHS"
+   },
+   {
+    "in": [
+     "B2-B5,D1-G1,H8-H8",
+     "H8 B2 B3 B4 B5 D1 E1 F1 G1"
+    ],
+    "out": "SHHHSHHHS"
+   },
+   {
+    "in": [
+     "A1-A8",
+     "A8 A7 A6 A5 A4 A3 A2 A1"
+    ],
+    "out": "HHHHHHHS"
+   },
+   {
+    "in": [
+     "C3-E3,C6-E6",
+     "D3 D6 C3 C6 E6 E3"
+    ],
+    "out": "HHHHSS"
+   },
+   {
+    "in": [
+     "A1-B1,C1-D1,E1-F1,G1-H1",
+     "A1 B1 C1 D1 E1 F1 G1 H1"
+    ],
+    "out": "HSHSHSHS"
+   },
+   {
+    "in": [
+     "F2-F7",
+     "F2 F3 F4 F5 F6 A1 B2 C3 F7"
+    ],
+    "out": "HHHHHMMMS"
+   },
+   {
+    "in": [
+     "A4-D4",
+     "E4 D4 C4 B4 A4 A4 A4"
+    ],
+    "out": "MHHHSMM"
+   },
+   {
+    "in": [
+     "H1-H4,A5-A8",
+     "H1 A5 H2 A6 H3 A7 H4 A8"
+    ],
+    "out": "HHHHHHSS"
+   },
+   {
+    "in": [
+     "B7-E7",
+     "B7 B7 C7 C7 D7 D7 E7 E7"
+    ],
+    "out": "HMHMHMSM"
+   },
+   {
+    "in": [
+     "A1-A2,C3-C4,E5-E6,G7-G8",
+     "A1 C3 E5 G7 A2 C4 E6 G8"
+    ],
+    "out": "HHHHSSSS"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef shotReport(fleet: str, shots: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        fleet = _lines[_i + 0].strip()\n        shots = _lines[_i + 1].strip()\n        print(shotReport(fleet, shots))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String shotReport(String fleet, String shots) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String fleet = _lines.get(_i + 0);\n            String shots = _lines.get(_i + 1);\n            _sb.append(shotReport(fleet, shots)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring shotReport(string fleet, string shots) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string fleet = _lines[_i + 0];\n        string shots = _lines[_i + 1];\n        cout << shotReport(fleet, shots) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef shotReport(fleet: str, shots: str) -> str:\n\n    owner = {}\n    left = []\n    for part in fleet.split(\",\"):\n        a, b = part.split(\"-\")\n        idx = len(left)\n        squares = []\n        if a[0] == b[0]:\n            lo, hi = sorted([int(a[1]), int(b[1])])\n            for r in range(lo, hi + 1):\n                squares.append(a[0] + str(r))\n        else:\n            lo, hi = sorted([ord(a[0]), ord(b[0])])\n            for c in range(lo, hi + 1):\n                squares.append(chr(c) + a[1])\n        for sq in squares:\n            owner[sq] = idx\n        left.append(len(squares))\n    hit = set()\n    out = \"\"\n    for sq in shots.split():\n        if sq not in owner or sq in hit:\n            out += \"M\"\n        else:\n            hit.add(sq)\n            left[owner[sq]] -= 1\n            out += \"S\" if left[owner[sq]] == 0 else \"H\"\n    return out\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        fleet = _lines[_i + 0].strip()\n        shots = _lines[_i + 1].strip()\n        print(shotReport(fleet, shots))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String shotReport(String fleet, String shots) {\n\n        Map<String, Integer> owner = new HashMap<>();\n        List<Integer> left = new ArrayList<>();\n        for (String part : fleet.split(\",\")) {\n            String[] ends = part.split(\"-\");\n            String a = ends[0], b = ends[1];\n            List<String> squares = new ArrayList<>();\n            if (a.charAt(0) == b.charAt(0)) {\n                int lo = Math.min(a.charAt(1), b.charAt(1)), hi = Math.max(a.charAt(1), b.charAt(1));\n                for (int r = lo; r <= hi; r++) squares.add(\"\" + a.charAt(0) + (char) r);\n            } else {\n                int lo = Math.min(a.charAt(0), b.charAt(0)), hi = Math.max(a.charAt(0), b.charAt(0));\n                for (int c = lo; c <= hi; c++) squares.add(\"\" + (char) c + a.charAt(1));\n            }\n            for (String sq : squares) owner.put(sq, left.size());\n            left.add(squares.size());\n        }\n        Set<String> hit = new HashSet<>();\n        StringBuilder out = new StringBuilder();\n        for (String sq : shots.trim().split(\"\\s+\")) {\n            if (!owner.containsKey(sq) || hit.contains(sq)) {\n                out.append('M');\n            } else {\n                hit.add(sq);\n                int i = owner.get(sq);\n                left.set(i, left.get(i) - 1);\n                out.append(left.get(i) == 0 ? 'S' : 'H');\n            }\n        }\n        return out.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String fleet = _lines.get(_i + 0);\n            String shots = _lines.get(_i + 1);\n            _sb.append(shotReport(fleet, shots)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring shotReport(string fleet, string shots) {\n\n    map<string, int> owner;\n    vector<int> left_;\n    string part;\n    istringstream fs(fleet);\n    while (getline(fs, part, ',')) {\n        size_t dash = part.find('-');\n        string a = part.substr(0, dash), b = part.substr(dash + 1);\n        vector<string> squares;\n        if (a[0] == b[0]) {\n            int lo = min(a[1], b[1]), hi = max(a[1], b[1]);\n            for (int r = lo; r <= hi; r++) squares.push_back(string(1, a[0]) + char(r));\n        } else {\n            int lo = min(a[0], b[0]), hi = max(a[0], b[0]);\n            for (int c = lo; c <= hi; c++) squares.push_back(string(1, char(c)) + a[1]);\n        }\n        for (const string &sq : squares) owner[sq] = (int) left_.size();\n        left_.push_back((int) squares.size());\n    }\n    set<string> hit;\n    string out, sq;\n    istringstream ss(shots);\n    while (ss >> sq) {\n        if (!owner.count(sq) || hit.count(sq)) {\n            out += 'M';\n        } else {\n            hit.insert(sq);\n            int i = owner[sq];\n            left_[i]--;\n            out += (left_[i] == 0 ? 'S' : 'H');\n        }\n    }\n    return out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string fleet = _lines[_i + 0];\n        string shots = _lines[_i + 1];\n        cout << shotReport(fleet, shots) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "chutes-race",
+  "division": "Junior",
+  "contest": 4,
+  "title": "THE RACE",
+  "blurb": "Two tokens, one shared list of rolls, and a board full of ladders and slides.",
+  "statement": "\n<p>The board is 100 squares in a line, numbered 1 through 100. Two players, A and B, each start\noff the board on square 0. A goes first, then B, then A again, and so on, taking rolls from a\nsingle shared list in order.</p>\n\n<p>A roll moves that player's token forward by that many squares, with three rules on top.</p>\n\n<p>If a roll would carry a token past square 100, the token does not move at all and the turn is\nwasted. A player has to land on 100 exactly.</p>\n\n<p>Some squares are the foot of a ladder or the top of a slide. Landing on one moves that token\nimmediately to the square at the other end. This happens only once per landing, so if the square\nyou are sent to is itself the start of another ladder or slide, you stay there and ignore it. The\ntwo tokens do not interact at all and may sit on the same square.</p>\n\n<p>The first player to reach square 100 wins immediately, and every remaining roll is ignored. If\nthe rolls run out with nobody on 100, the race is unfinished.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>4>14,9>31,28>84,16>6,48>26<br>4 4 6 6 5 5 2 2</td></tr>\n<tr><th>Output</th><td>NOBODY 27 27</td></tr>\n<tr><th>Explanation</th><td>\nRoll 1 goes to A, who lands on 4 and climbs the ladder to 14.<br>\nRoll 2 goes to B, who lands on 4 and climbs to 14 as well.<br>\nRoll 3 is A again, moving to 20. Roll 4 is B, moving to 20.<br>\nRolls 5 and 6 take each of them to 25, and rolls 7 and 8 take each to 27.<br>\nNeither reaches 100 and the rolls run out, so the race is unfinished and both squares are\nreported. Both tokens finish on 27.\n</td></tr></table>\n",
+  "input_spec": "Input the ladders and slides on the first line, each written as the square you land on, a greater-than sign, and the square you are sent to, separated by commas. On the second line input the shared list of rolls, each separated by a single space. The first roll belongs to A.",
+  "output_spec": "If a player reaches square 100, output that player's letter, a single space, and the number of the roll that did it, counting the first roll in the list as roll 1. Otherwise output NOBODY, then A's final square, then B's final square, separated by single spaces.",
+  "constraints": "Squares run from 1 to 100. There are at most 20 ladders and slides, no two start on the same square, and none starts on square 100. There are at most 300 rolls, each from 1 to 6.",
+  "approach": "\n<p>Everything the single player version needed is still here, plus one new thing: two positions\ninstead of one, and a rule for whose turn it is.</p>\n\n<p>Keep the two squares in a two element array rather than in two separate variables. Then the\nplayer taking roll number i, counting from 0, is simply <code>i % 2</code>, and you index the\narray with it. Writing it with two variables and an if statement works too, but it doubles every\nline inside the loop and doubles the chances of updating the wrong one.</p>\n\n<p>Build the jump lookup exactly as before, a split on the comma and then on the greater-than\nsign.</p>\n\n<p>The three board rules are unchanged and are still where the marks are. The overshoot rule\nwastes the turn rather than clamping, so a token on 97 rolling a 6 stays on 97. The jump happens\nonce and is not chained, so a ladder landing you on the foot of another ladder leaves you where\nit put you. And reaching 100 ends the race at once.</p>\n\n<p>The new trap is the roll number. The output wants the position of the winning roll in the\nshared list, counting from 1, not the number of turns that player took. If A wins on their fifth\nturn, that is roll 9, not roll 5. Break out of the loop the moment a token reaches 100 and report\nthe index you were on, converted to one based.</p>\n\n<p>When the rolls run out with nobody home, report both squares in player order, A first, whatever\ntheir sizes. Note that a slide can leave a player behind where they started, so do not assume A's\nsquare is the larger one or that either token only moves forward.</p>\n",
+  "fname": "raceResult",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>jumps</code>, holding the ladders and slides\nseparated by commas, and a string, <code>rolls</code>, holding the shared rolls separated by\nsingle spaces.</li>\n<li>The function returns a string, either the winner and the roll number, or NOBODY and the two\nfinal squares.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "4>14,9>31,28>84,16>6,48>26",
+     "4 4 6 6 5 5 2 2"
+    ],
+    "out": "NOBODY 27 27"
+   },
+   {
+    "in": [
+     "1>99",
+     "1 1 1"
+    ],
+    "out": "A 3"
+   },
+   {
+    "in": [
+     "50>93,60>20",
+     "6 1 6 1 6 1 6 1 6 1 6 1 6 1 6 1 6 1"
+    ],
+    "out": "NOBODY 54 9"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "4>14,9>31,28>84,16>6,48>26",
+     "4 4 6 6 5 5 2 2"
+    ],
+    "out": "NOBODY 27 27"
+   },
+   {
+    "in": [
+     "1>99",
+     "1 1 1"
+    ],
+    "out": "A 3"
+   },
+   {
+    "in": [
+     "50>93,60>20",
+     "6 1 6 1 6 1 6 1 6 1 6 1 6 1 6 1 6 1"
+    ],
+    "out": "NOBODY 54 9"
+   },
+   {
+    "in": [
+     "3>21,21>42",
+     "3 3 1 1 1 1"
+    ],
+    "out": "NOBODY 23 23"
+   },
+   {
+    "in": [
+     "98>2",
+     "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 4 4"
+    ],
+    "out": "A 33"
+   },
+   {
+    "in": [
+     "2>99,3>98",
+     "2 3"
+    ],
+    "out": "NOBODY 99 98"
+   },
+   {
+    "in": [
+     "99>1,97>5",
+     "6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 3 3 1 1"
+    ],
+    "out": "NOBODY 2 2"
+   },
+   {
+    "in": [
+     "10>90,90>10",
+     "4 5 6 6 6 6"
+    ],
+    "out": "NOBODY 96 17"
+   },
+   {
+    "in": [
+     "16>6,47>26,49>11,56>53,62>19,64>60,87>24,93>73,95>75",
+     "4 5 6 3 2 5 6 1 4 6 2 3 5 6 4 2 6 1 3 5 6 4 2 6 5 3 6 2 4 1"
+    ],
+    "out": "NOBODY 65 32"
+   },
+   {
+    "in": [
+     "5>25,25>45,45>65,65>85",
+     "5 5 6 6 6 6 6 6"
+    ],
+    "out": "NOBODY 43 43"
+   },
+   {
+    "in": [
+     "1>2",
+     "1"
+    ],
+    "out": "NOBODY 2 0"
+   },
+   {
+    "in": [
+     "70>100",
+     "6 6 6 6 6 6 6 6 6 6 6 6 4 4 6 6"
+    ],
+    "out": "NOBODY 46 46"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef raceResult(jumps: str, rolls: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        jumps = _lines[_i + 0].strip()\n        rolls = _lines[_i + 1].strip()\n        print(raceResult(jumps, rolls))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String raceResult(String jumps, String rolls) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String jumps = _lines.get(_i + 0);\n            String rolls = _lines.get(_i + 1);\n            _sb.append(raceResult(jumps, rolls)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring raceResult(string jumps, string rolls) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string jumps = _lines[_i + 0];\n        string rolls = _lines[_i + 1];\n        cout << raceResult(jumps, rolls) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef raceResult(jumps: str, rolls: str) -> str:\n\n    dest = {}\n    for part in jumps.split(\",\"):\n        a, b = part.split(\">\")\n        dest[int(a)] = int(b)\n    pos = [0, 0]\n    tokens = rolls.split()\n    for i, tok in enumerate(tokens):\n        who = i % 2\n        step = int(tok)\n        if pos[who] + step <= 100:\n            pos[who] += step\n            if pos[who] in dest:\n                pos[who] = dest[pos[who]]\n        if pos[who] == 100:\n            return (\"A\" if who == 0 else \"B\") + \" \" + str(i + 1)\n    return \"NOBODY \" + str(pos[0]) + \" \" + str(pos[1])\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        jumps = _lines[_i + 0].strip()\n        rolls = _lines[_i + 1].strip()\n        print(raceResult(jumps, rolls))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String raceResult(String jumps, String rolls) {\n\n        Map<Integer, Integer> dest = new HashMap<>();\n        for (String part : jumps.split(\",\")) {\n            String[] ab = part.split(\">\");\n            dest.put(Integer.parseInt(ab[0]), Integer.parseInt(ab[1]));\n        }\n        int[] pos = new int[2];\n        String[] tokens = rolls.trim().split(\"\\s+\");\n        for (int i = 0; i < tokens.length; i++) {\n            int who = i % 2;\n            int step = Integer.parseInt(tokens[i]);\n            if (pos[who] + step <= 100) {\n                pos[who] += step;\n                if (dest.containsKey(pos[who])) pos[who] = dest.get(pos[who]);\n            }\n            if (pos[who] == 100) return (who == 0 ? \"A\" : \"B\") + \" \" + (i + 1);\n        }\n        return \"NOBODY \" + pos[0] + \" \" + pos[1];\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String jumps = _lines.get(_i + 0);\n            String rolls = _lines.get(_i + 1);\n            _sb.append(raceResult(jumps, rolls)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring raceResult(string jumps, string rolls) {\n\n    map<int, int> dest;\n    string part;\n    istringstream js(jumps);\n    while (getline(js, part, ',')) {\n        size_t gt = part.find('>');\n        dest[stoi(part.substr(0, gt))] = stoi(part.substr(gt + 1));\n    }\n    vector<int> pos(2, 0);\n    vector<int> tokens;\n    int step;\n    istringstream rs(rolls);\n    while (rs >> step) tokens.push_back(step);\n    for (size_t i = 0; i < tokens.size(); i++) {\n        int who = (int) (i % 2);\n        if (pos[who] + tokens[i] <= 100) {\n            pos[who] += tokens[i];\n            if (dest.count(pos[who])) pos[who] = dest[pos[who]];\n        }\n        if (pos[who] == 100) return string(who == 0 ? \"A\" : \"B\") + \" \" + to_string(i + 1);\n    }\n    return \"NOBODY \" + to_string(pos[0]) + \" \" + to_string(pos[1]);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string jumps = _lines[_i + 0];\n        string rolls = _lines[_i + 1];\n        cout << raceResult(jumps, rolls) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "yahtzee-roll",
+  "division": "Junior",
+  "contest": 3,
+  "title": "YAHTZEE ROLL",
+  "blurb": "Five dice, seven categories, and the highest score wins the argument.",
+  "statement": "\n<p>You have rolled five dice and now you have to decide which category to claim. These are the\nseven categories and what each one pays.</p>\n\n<ol>\n<li><b>YAHTZEE</b>, all five dice showing the same number, scores 50.</li>\n<li><b>LARGESTRAIGHT</b>, five dice in a row such as 2 3 4 5 6, scores 40.</li>\n<li><b>SMALLSTRAIGHT</b>, four of the dice in a row, scores 30.</li>\n<li><b>FULLHOUSE</b>, three of one number and two of another, scores 25.</li>\n<li><b>FOUROFAKIND</b>, at least four dice showing the same number, scores the sum of all five\ndice.</li>\n<li><b>THREEOFAKIND</b>, at least three dice showing the same number, scores the sum of all five\ndice.</li>\n<li><b>CHANCE</b>, which any roll qualifies for, scores the sum of all five dice.</li>\n</ol>\n\n<p>Claim the category that pays the most. If two categories pay the same, claim whichever comes\nfirst in the list above.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>5 5 5 6 6</td></tr>\n<tr><th>Output</th><td>THREEOFAKIND 27</td></tr>\n<tr><th>Explanation</th><td>\nThe roll qualifies for FULLHOUSE, worth 25, because there are three 5s and two 6s.<br>\nIt also qualifies for THREEOFAKIND and for CHANCE, both worth the sum of the dice, which is\n27.<br>\n27 beats 25, so the full house is not the best claim. THREEOFAKIND and CHANCE tie at 27, and\nTHREEOFAKIND is listed first, so that is the answer.\n</td></tr></table>\n",
+  "input_spec": "Input five dice values from 1 to 6, each separated by a single space.",
+  "output_spec": "Output the name of the best category, a single space, and the score it pays.",
+  "constraints": "There are always exactly five dice, each showing 1 through 6.",
+  "approach": "\n<p>Count first, decide second. Build a tally of how many times each face from 1 through 6 turned\nup, and add the five dice for the sum. Every test below reads off that tally.</p>\n\n<p>Five of a kind means some face has a count of 5. Four of a kind means some count is 4 or more,\nwhich the five of a kind case also satisfies. Three of a kind means some count is 3 or more. A\nfull house means one face has a count of exactly 3 and another has exactly 2.</p>\n\n<p>The straights are the only ones that need the faces in order. Take the set of distinct faces\nand look for a run. A large straight is 1 2 3 4 5 or 2 3 4 5 6. A small straight is any four in a\nrow, so 1 2 3 4, or 2 3 4 5, or 3 4 5 6, appearing among the distinct faces. Checking the three\nsmall straight patterns directly is shorter and less error prone than writing a general run\nfinder.</p>\n\n<p>Now build the list of categories you qualify for along with what each pays, walk it in the\norder given in the statement, and keep the best. Keep the first one you meet when the scores tie,\nwhich happens automatically if you only replace the current best on a strictly greater score.</p>\n\n<p>The point of the problem is that the list order is a tiebreaker and not a priority. A full\nhouse pays 25, and a roll of three 5s and two 6s sums to 27, so the correct claim is the category\nlower down the list. Reading the list as a priority order and stopping at the first match gets\nthe sample wrong, which is exactly why the sample is that roll.</p>\n\n<p>Watch the overlaps. Five of a kind qualifies for YAHTZEE, FOUROFAKIND, THREEOFAKIND, and\nCHANCE all at once, and YAHTZEE pays 50 while the sum of five dice can never exceed 30, so\nYAHTZEE always wins there.</p>\n",
+  "fname": "bestCategory",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>dice</code>, holding the five dice values\nseparated by single spaces.</li>\n<li>The function returns a string holding the category name and the score, separated by a single\nspace.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "5 5 5 6 6"
+    ],
+    "out": "THREEOFAKIND 27"
+   },
+   {
+    "in": [
+     "3 3 3 3 3"
+    ],
+    "out": "YAHTZEE 50"
+   },
+   {
+    "in": [
+     "1 2 3 4 6"
+    ],
+    "out": "SMALLSTRAIGHT 30"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "5 5 5 6 6"
+    ],
+    "out": "THREEOFAKIND 27"
+   },
+   {
+    "in": [
+     "3 3 3 3 3"
+    ],
+    "out": "YAHTZEE 50"
+   },
+   {
+    "in": [
+     "1 2 3 4 6"
+    ],
+    "out": "SMALLSTRAIGHT 30"
+   },
+   {
+    "in": [
+     "2 3 4 5 6"
+    ],
+    "out": "LARGESTRAIGHT 40"
+   },
+   {
+    "in": [
+     "6 6 6 6 2"
+    ],
+    "out": "FOUROFAKIND 26"
+   },
+   {
+    "in": [
+     "1 1 2 2 3"
+    ],
+    "out": "CHANCE 9"
+   },
+   {
+    "in": [
+     "1 1 1 2 2"
+    ],
+    "out": "FULLHOUSE 25"
+   },
+   {
+    "in": [
+     "6 6 6 1 1"
+    ],
+    "out": "FULLHOUSE 25"
+   },
+   {
+    "in": [
+     "2 3 4 5 5"
+    ],
+    "out": "SMALLSTRAIGHT 30"
+   },
+   {
+    "in": [
+     "1 3 5 2 4"
+    ],
+    "out": "LARGESTRAIGHT 40"
+   },
+   {
+    "in": [
+     "4 4 4 4 6"
+    ],
+    "out": "FOUROFAKIND 22"
+   },
+   {
+    "in": [
+     "1 1 1 1 2"
+    ],
+    "out": "FOUROFAKIND 6"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef bestCategory(dice: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        dice = _lines[_i + 0].strip()\n        print(bestCategory(dice))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String bestCategory(String dice) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String dice = _lines.get(_i + 0);\n            _sb.append(bestCategory(dice)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring bestCategory(string dice) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 1;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string dice = _lines[_i + 0];\n        cout << bestCategory(dice) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef bestCategory(dice: str) -> str:\n\n    d = [int(x) for x in dice.split()]\n    count = [0] * 7\n    for v in d:\n        count[v] += 1\n    total = sum(d)\n    faces = set(d)\n\n    cats = []\n    if 5 in count:\n        cats.append((\"YAHTZEE\", 50))\n    if faces >= {1, 2, 3, 4, 5} or faces >= {2, 3, 4, 5, 6}:\n        cats.append((\"LARGESTRAIGHT\", 40))\n    if (faces >= {1, 2, 3, 4} or faces >= {2, 3, 4, 5} or faces >= {3, 4, 5, 6}):\n        cats.append((\"SMALLSTRAIGHT\", 30))\n    if 3 in count and 2 in count:\n        cats.append((\"FULLHOUSE\", 25))\n    if max(count) >= 4:\n        cats.append((\"FOUROFAKIND\", total))\n    if max(count) >= 3:\n        cats.append((\"THREEOFAKIND\", total))\n    cats.append((\"CHANCE\", total))\n\n    best = cats[0]\n    for c in cats[1:]:\n        if c[1] > best[1]:\n            best = c\n    return best[0] + \" \" + str(best[1])\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        dice = _lines[_i + 0].strip()\n        print(bestCategory(dice))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n\n    static boolean has(Set<Integer> f, int[] want) {\n        for (int w : want) if (!f.contains(w)) return false;\n        return true;\n    }\n\n    static String bestCategory(String dice) {\n\n        String[] tok = dice.trim().split(\"\\\\s+\");\n        int[] count = new int[7];\n        int total = 0;\n        Set<Integer> faces = new HashSet<>();\n        for (String t : tok) {\n            int v = Integer.parseInt(t);\n            count[v]++;\n            total += v;\n            faces.add(v);\n        }\n        int maxCount = 0;\n        boolean hasThree = false, hasTwo = false;\n        for (int f = 1; f <= 6; f++) {\n            maxCount = Math.max(maxCount, count[f]);\n            if (count[f] == 3) hasThree = true;\n            if (count[f] == 2) hasTwo = true;\n        }\n\n        List<String> names = new ArrayList<>();\n        List<Integer> scores = new ArrayList<>();\n        if (maxCount == 5) { names.add(\"YAHTZEE\"); scores.add(50); }\n        if (has(faces, new int[]{1,2,3,4,5}) || has(faces, new int[]{2,3,4,5,6})) {\n            names.add(\"LARGESTRAIGHT\"); scores.add(40);\n        }\n        if (has(faces, new int[]{1,2,3,4}) || has(faces, new int[]{2,3,4,5})\n                || has(faces, new int[]{3,4,5,6})) {\n            names.add(\"SMALLSTRAIGHT\"); scores.add(30);\n        }\n        if (hasThree && hasTwo) { names.add(\"FULLHOUSE\"); scores.add(25); }\n        if (maxCount >= 4) { names.add(\"FOUROFAKIND\"); scores.add(total); }\n        if (maxCount >= 3) { names.add(\"THREEOFAKIND\"); scores.add(total); }\n        names.add(\"CHANCE\"); scores.add(total);\n\n        int bi = 0;\n        for (int i = 1; i < scores.size(); i++) if (scores.get(i) > scores.get(bi)) bi = i;\n        return names.get(bi) + \" \" + scores.get(bi);\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String dice = _lines.get(_i + 0);\n            _sb.append(bestCategory(dice)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\n\nstatic bool has(const set<int> &f, const vector<int> &want) {\n    for (int w : want) if (!f.count(w)) return false;\n    return true;\n}\n\nstring bestCategory(string dice) {\n\n    vector<int> count_(7, 0);\n    int total = 0, v;\n    set<int> faces;\n    istringstream is(dice);\n    while (is >> v) { count_[v]++; total += v; faces.insert(v); }\n    int maxCount = 0;\n    bool hasThree = false, hasTwo = false;\n    for (int f = 1; f <= 6; f++) {\n        maxCount = max(maxCount, count_[f]);\n        if (count_[f] == 3) hasThree = true;\n        if (count_[f] == 2) hasTwo = true;\n    }\n\n    vector<string> names;\n    vector<int> scores;\n    if (maxCount == 5) { names.push_back(\"YAHTZEE\"); scores.push_back(50); }\n    if (has(faces, {1,2,3,4,5}) || has(faces, {2,3,4,5,6})) {\n        names.push_back(\"LARGESTRAIGHT\"); scores.push_back(40);\n    }\n    if (has(faces, {1,2,3,4}) || has(faces, {2,3,4,5}) || has(faces, {3,4,5,6})) {\n        names.push_back(\"SMALLSTRAIGHT\"); scores.push_back(30);\n    }\n    if (hasThree && hasTwo) { names.push_back(\"FULLHOUSE\"); scores.push_back(25); }\n    if (maxCount >= 4) { names.push_back(\"FOUROFAKIND\"); scores.push_back(total); }\n    if (maxCount >= 3) { names.push_back(\"THREEOFAKIND\"); scores.push_back(total); }\n    names.push_back(\"CHANCE\"); scores.push_back(total);\n\n    size_t bi = 0;\n    for (size_t i = 1; i < scores.size(); i++) if (scores[i] > scores[bi]) bi = i;\n    return names[bi] + \" \" + to_string(scores[bi]);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 1;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string dice = _lines[_i + 0];\n        cout << bestCategory(dice) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "traffic-lights",
+  "division": "Junior",
+  "contest": 4,
+  "title": "TRAFFIC LIGHTS",
+  "blurb": "Drive a straight road and count the red lights, remembering that waiting moves you later.",
+  "statement": "\n<p>A car pulls onto a straight road at position 0 at time 0 and drives at a steady speed. Every\ntraffic light on the road turns green at time 0, stays green for a set number of seconds, then\nred for a set number of seconds, and repeats that cycle all day.</p>\n\n<p>When the car reaches a light while it is green, it drives straight through without slowing\ndown. When it reaches a light while it is red, it waits at the light until the moment the light\nturns green again, then carries on at the same speed.</p>\n\n<p>Waiting matters for more than the one light. Every second spent stopped pushes the car later\nto every light after it, which changes whether those lights are green when it gets there.</p>\n\n<p>Count how many lights the car has to wait at.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>250/20/10,600/12/18,950/8/22<br>10</td></tr>\n<tr><th>Output</th><td>2</td></tr>\n<tr><th>Explanation</th><td>\nAt 10 units per second the car covers 250 units in 25 seconds. The first light runs a 30 second\ncycle, green for the first 20. At second 25 it is red, so the car waits 5 seconds and drives on\nat second 30. That is one stop.<br>\nThe second light is 600 units out, which is 60 seconds of driving, plus the 5 seconds already\nlost, so the car arrives at second 65. Its cycle is also 30 seconds, and 65 is 5 seconds into a\ncycle, which is inside the 12 second green. It drives through.<br>\nThe third light is 950 units out, so 95 seconds of driving plus 5 lost, arriving at second 100.\nThat is 10 seconds into a 30 second cycle, and this light is only green for 8, so the car waits.\nThat is the second stop.\n</td></tr></table>\n",
+  "input_spec": "Input the lights on the first line, each written as its position, a slash, its green seconds, a slash, and its red seconds, with the lights separated by commas and given in increasing order of position. On the second line input the speed of the car in units per second.",
+  "output_spec": "Output an integer, the number of lights the car has to wait at.",
+  "constraints": "There are at most 40 lights. Every position is a whole multiple of the speed, so the car always reaches a light on a whole second. Green and red times are between 1 and 200 seconds. The speed is between 1 and 50.",
+  "approach": "\n<p>One pass over the lights, carrying a single running total of the seconds lost so far. That\nrunning total is the whole problem.</p>\n\n<p>For each light, the arrival time is its position divided by the speed, plus every second the\ncar has already spent waiting. The constraints promise the position divides evenly, so this stays\nin whole numbers and you never need to worry about a car arriving half a second into a cycle.</p>\n\n<p>To read the light, take the arrival time modulo the cycle length, where the cycle is the green\nseconds plus the red seconds. Since every light turns green at time 0, that remainder is how far\ninto the current cycle the car is. If it is less than the green time, drive through. If it is not,\nthe light is red, so count a stop and add the seconds remaining in the cycle, which is the cycle\nlength minus the remainder, to the running total.</p>\n\n<p>The mistake this problem is built around is computing all the arrival times up front from the\npositions alone and then checking each light independently. That gives the right answer only when\nthe car never stops. Once it waits at the first light, every later arrival time moves by that\namount, and the sample is arranged so the third light is green if you forget and red if you do\nnot.</p>\n\n<p>Two details on the boundary. Arriving at the exact second the light turns red means it is red,\nso use a strict less than against the green time. Arriving at the exact second it turns green, a\nremainder of 0, means it is green and the car does not stop.</p>\n\n<p>Parsing is a split on the comma and then a split on the slash. In C++ that is two nested uses\nof <code>getline</code> on an <code>istringstream</code>, and in Java it is two calls to\n<code>split</code>.</p>\n",
+  "fname": "countStops",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>lights</code>, describing the lights, and an\ninteger, <code>speed</code>, in units per second.</li>\n<li>The function returns an integer, the number of stops.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "250/20/10,600/12/18,950/8/22",
+     "10"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "100/10/10",
+     "10"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "100/5/5,200/5/5,300/5/5",
+     "10"
+    ],
+    "out": "0"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "250/20/10,600/12/18,950/8/22",
+     "10"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "100/10/10",
+     "10"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "100/5/5,200/5/5,300/5/5",
+     "10"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "60/1/1,120/1/1,180/1/1,240/1/1",
+     "60"
+    ],
+    "out": "4"
+   },
+   {
+    "in": [
+     "1000/200/1",
+     "50"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "30/2/8,60/2/8,90/2/8,120/2/8,150/2/8",
+     "10"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "25/3/7,50/3/7,75/3/7,100/3/7",
+     "5"
+    ],
+    "out": "4"
+   },
+   {
+    "in": [
+     "500/10/20,1000/10/20,1500/10/20",
+     "25"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "10/1/199,20/1/199",
+     "10"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "120/30/30,240/30/30,360/30/30,480/30/30",
+     "12"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "45/9/6,90/9/6,135/9/6,180/9/6,225/9/6,270/9/6",
+     "9"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "200/4/16,400/4/16,600/4/16,800/4/16,1000/4/16",
+     "20"
+    ],
+    "out": "5"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef countStops(lights: str, speed: int) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        lights = _lines[_i + 0].strip()\n        speed = int(_lines[_i + 1].strip())\n        print(countStops(lights, speed))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countStops(String lights, int speed) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String lights = _lines.get(_i + 0);\n            int speed = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(countStops(lights, speed)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countStops(string lights, int speed) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string lights = _lines[_i + 0];\n        int speed = stoi(_lines[_i + 1]);\n        cout << countStops(lights, speed) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef countStops(lights: str, speed: int) -> int:\n\n    waited = 0\n    stops = 0\n    for part in lights.split(\",\"):\n        pos, green, red = [int(x) for x in part.split(\"/\")]\n        cycle = green + red\n        arrive = pos // speed + waited\n        phase = arrive % cycle\n        if phase >= green:\n            stops += 1\n            waited += cycle - phase\n    return stops\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        lights = _lines[_i + 0].strip()\n        speed = int(_lines[_i + 1].strip())\n        print(countStops(lights, speed))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countStops(String lights, int speed) {\n\n        int waited = 0, stops = 0;\n        for (String part : lights.split(\",\")) {\n            String[] f = part.split(\"/\");\n            int pos = Integer.parseInt(f[0]), green = Integer.parseInt(f[1]), red = Integer.parseInt(f[2]);\n            int cycle = green + red;\n            int arrive = pos / speed + waited;\n            int phase = arrive % cycle;\n            if (phase >= green) {\n                stops++;\n                waited += cycle - phase;\n            }\n        }\n        return stops;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String lights = _lines.get(_i + 0);\n            int speed = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(countStops(lights, speed)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countStops(string lights, int speed) {\n\n    int waited = 0, stops = 0;\n    string part;\n    istringstream ls(lights);\n    while (getline(ls, part, ',')) {\n        for (char &ch : part) if (ch == '/') ch = ' ';\n        istringstream ps(part);\n        int pos, green, red;\n        ps >> pos >> green >> red;\n        int cycle = green + red;\n        int arrive = pos / speed + waited;\n        int phase = arrive % cycle;\n        if (phase >= green) {\n            stops++;\n            waited += cycle - phase;\n        }\n    }\n    return stops;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string lights = _lines[_i + 0];\n        int speed = stoi(_lines[_i + 1]);\n        cout << countStops(lights, speed) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "card-war",
+  "division": "Senior",
+  "contest": 3,
+  "title": "CARD WAR",
+  "blurb": "Two decks, one card each per round, and ties burn both cards.",
+  "statement": "\n<p>Two players each hold a deck of cards face down. A card is a number from 2 to 14, where 11 is a\njack, 12 a queen, 13 a king, and 14 an ace.</p>\n\n<p>Every round both players turn over the card on top of their deck.</p>\n\n<p>If one card is higher, that player takes both cards and puts them on the bottom of their own\ndeck, their own card first and the loser's card second. If the two cards are equal, both cards are\nburned and leave the game entirely.</p>\n\n<p>Play continues until one player has no cards left, which loses them the game, or until 500\nrounds have been played. Both decks can empty on the same round, which is a draw.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>5 9 2<br>5 3 14</td></tr>\n<tr><th>Output</th><td>B 7</td></tr>\n<tr><th>Explanation</th><td>\nRound 1: both play a 5, so both cards burn. A holds 9 2, B holds 3 14.<br>\nRound 2: 9 beats 3, so A puts 9 then 3 on the bottom. A holds 2 9 3, B holds 14.<br>\nRound 3: 14 beats 2, so B puts 14 then 2 on the bottom. A holds 9 3, B holds 14 2.<br>\nRound 4: 14 beats 9. A holds 3, B holds 2 14 9.<br>\nRound 5: 3 beats 2. A holds 3 2, B holds 14 9.<br>\nRound 6: 14 beats 3. A holds 2, B holds 9 14 3.<br>\nRound 7: 9 beats 2, and A is out of cards. B wins on round 7.\n</td></tr></table>\n",
+  "input_spec": "Input player A's deck on the first line and player B's deck on the second line, each as card values from top to bottom separated by single spaces.",
+  "output_spec": "Output the winner's letter and the number of the round that ended the game, separated by a single space. Output DRAW and the round number if both decks empty on the same round. Output TIMEOUT if 500 rounds pass with both players still holding cards.",
+  "constraints": "Each deck starts with between 1 and 26 cards, each from 2 to 14.",
+  "approach": "\n<p>Two queues and a loop. Take from the front, add to the back, and everything else follows.</p>\n\n<p>Use a structure that is cheap at both ends. In Java that is an <code>ArrayDeque</code>, in C++\na <code>deque</code>, and in Python a <code>collections.deque</code> or a plain list if you are\nhappy with the cost of popping the front, which at 26 cards and 500 rounds is nothing.</p>\n\n<p>Each round, check the stopping conditions before playing, not after. If either deck is empty\nyou are done, and the round number to report is the one just finished, so count carefully: the\nround that empties a deck is the round that ends the game.</p>\n\n<p>The order the winner puts the two cards back matters, and it is what makes the game finite or\nnot. Winner's card first, then the loser's. Reverse it and you get a different, equally\ndeterministic game with different answers.</p>\n\n<p>The burn on a tie is the rule that makes draws possible. Both cards leave the game, so the total\nnumber of cards in play shrinks. Two decks of identical cards burn themselves down in step and\nempty on the same round, which is what the DRAW case is for, and the tenth test is exactly\nthat.</p>\n\n<p>The cap exists because this game genuinely can loop forever. Two decks that trade the same\ncards back and forth in a cycle never terminate, so count the rounds and stop at 500. Reporting\nTIMEOUT is a correct answer, not a failure.</p>\n",
+  "fname": "playWar",
+  "task": "\n<ul>\n<li>The function has 2 parameters: two strings, <code>deckA</code> and <code>deckB</code>, holding\neach player's cards from top to bottom separated by single spaces.</li>\n<li>The function returns a string holding the result and the round number, or TIMEOUT.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "5 9 2",
+     "5 3 14"
+    ],
+    "out": "B 7"
+   },
+   {
+    "in": [
+     "14",
+     "2"
+    ],
+    "out": "A 1"
+   },
+   {
+    "in": [
+     "7",
+     "7"
+    ],
+    "out": "DRAW 1"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "5 9 2",
+     "5 3 14"
+    ],
+    "out": "B 7"
+   },
+   {
+    "in": [
+     "14",
+     "2"
+    ],
+    "out": "A 1"
+   },
+   {
+    "in": [
+     "7",
+     "7"
+    ],
+    "out": "DRAW 1"
+   },
+   {
+    "in": [
+     "2 3 4",
+     "5 6 7"
+    ],
+    "out": "B 3"
+   },
+   {
+    "in": [
+     "14 14 14 14",
+     "2 2 2 2"
+    ],
+    "out": "A 4"
+   },
+   {
+    "in": [
+     "10 10",
+     "10 10"
+    ],
+    "out": "DRAW 2"
+   },
+   {
+    "in": [
+     "2 4 6 8 10 12 14",
+     "3 5 7 9 11 13 2"
+    ],
+    "out": "A 45"
+   },
+   {
+    "in": [
+     "9 8 7 6 5",
+     "5 6 7 8 9"
+    ],
+    "out": "DRAW 17"
+   },
+   {
+    "in": [
+     "14 13 12 11",
+     "11 12 13 14"
+    ],
+    "out": "DRAW 16"
+   },
+   {
+    "in": [
+     "2 2 2 2 2 2 2 2 2 2 2 2 2",
+     "2 2 2 2 2 2 2 2 2 2 2 2 2"
+    ],
+    "out": "DRAW 13"
+   },
+   {
+    "in": [
+     "6 6 6 7",
+     "6 6 6 5"
+    ],
+    "out": "A 4"
+   },
+   {
+    "in": [
+     "3 4 5 6 7 8 9 10 11 12 13 14 2",
+     "14 13 12 11 10 9 8 7 6 5 4 3 2"
+    ],
+    "out": "DRAW 65"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef playWar(deckA: str, deckB: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        deckA = _lines[_i + 0].strip()\n        deckB = _lines[_i + 1].strip()\n        print(playWar(deckA, deckB))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String playWar(String deckA, String deckB) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String deckA = _lines.get(_i + 0);\n            String deckB = _lines.get(_i + 1);\n            _sb.append(playWar(deckA, deckB)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring playWar(string deckA, string deckB) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string deckA = _lines[_i + 0];\n        string deckB = _lines[_i + 1];\n        cout << playWar(deckA, deckB) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef playWar(deckA: str, deckB: str) -> str:\n\n    a = [int(x) for x in deckA.split()]\n    b = [int(x) for x in deckB.split()]\n    for rnd in range(1, 501):\n        ca = a.pop(0)\n        cb = b.pop(0)\n        if ca > cb:\n            a.append(ca)\n            a.append(cb)\n        elif cb > ca:\n            b.append(cb)\n            b.append(ca)\n        if not a and not b:\n            return \"DRAW \" + str(rnd)\n        if not a:\n            return \"B \" + str(rnd)\n        if not b:\n            return \"A \" + str(rnd)\n    return \"TIMEOUT\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        deckA = _lines[_i + 0].strip()\n        deckB = _lines[_i + 1].strip()\n        print(playWar(deckA, deckB))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String playWar(String deckA, String deckB) {\n\n        Deque<Integer> a = new ArrayDeque<>(), b = new ArrayDeque<>();\n        for (String t : deckA.trim().split(\"\\s+\")) a.addLast(Integer.parseInt(t));\n        for (String t : deckB.trim().split(\"\\s+\")) b.addLast(Integer.parseInt(t));\n        for (int rnd = 1; rnd <= 500; rnd++) {\n            int ca = a.pollFirst(), cb = b.pollFirst();\n            if (ca > cb) { a.addLast(ca); a.addLast(cb); }\n            else if (cb > ca) { b.addLast(cb); b.addLast(ca); }\n            if (a.isEmpty() && b.isEmpty()) return \"DRAW \" + rnd;\n            if (a.isEmpty()) return \"B \" + rnd;\n            if (b.isEmpty()) return \"A \" + rnd;\n        }\n        return \"TIMEOUT\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String deckA = _lines.get(_i + 0);\n            String deckB = _lines.get(_i + 1);\n            _sb.append(playWar(deckA, deckB)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring playWar(string deckA, string deckB) {\n\n    deque<int> a, b;\n    int v;\n    istringstream as(deckA), bs(deckB);\n    while (as >> v) a.push_back(v);\n    while (bs >> v) b.push_back(v);\n    for (int rnd = 1; rnd <= 500; rnd++) {\n        int ca = a.front(); a.pop_front();\n        int cb = b.front(); b.pop_front();\n        if (ca > cb) { a.push_back(ca); a.push_back(cb); }\n        else if (cb > ca) { b.push_back(cb); b.push_back(ca); }\n        if (a.empty() && b.empty()) return \"DRAW \" + to_string(rnd);\n        if (a.empty()) return \"B \" + to_string(rnd);\n        if (b.empty()) return \"A \" + to_string(rnd);\n    }\n    return \"TIMEOUT\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string deckA = _lines[_i + 0];\n        string deckB = _lines[_i + 1];\n        cout << playWar(deckA, deckB) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "robot-vacuum",
+  "division": "Senior",
+  "contest": 4,
+  "title": "ROBOT VACUUM",
+  "blurb": "A dumb robot that only knows how to go forward or turn right.",
+  "statement": "\n<p>A robot vacuum sits on a rectangular floor plan. A period is open floor, a number sign is a\nwall it cannot enter, and the letter R marks the square it starts on. It begins facing north,\nmeaning toward the top of the plan.</p>\n\n<p>The robot has exactly one behaviour, and it repeats it once per step. It looks at the square\ndirectly ahead of it. If that square is inside the plan and is not a wall, it drives into that\nsquare. Otherwise it stays put and turns 90 degrees to its right, from north to east, east to\nsouth, south to west, and west back to north. Either way, that used up one step.</p>\n\n<p>Every square the robot occupies gets cleaned, including the one it starts on. Driving over a\nsquare it has already cleaned is fine and does not clean it twice.</p>\n\n<p>Run the robot for the given number of steps and report how many different squares it cleaned\nand which way it ends up facing.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>...;.R.;...<br>6</td></tr>\n<tr><th>Output</th><td>5 S</td></tr>\n<tr><th>Explanation</th><td>\nThe robot starts in the centre of the 3 by 3 plan facing north. That square counts as cleaned, so\nthe tally starts at 1.<br>\nStep 1 drives north to the top middle square. Tally 2.<br>\nStep 2 finds the edge of the plan ahead, so the robot turns to face east.<br>\nStep 3 drives east to the top right corner. Tally 3.<br>\nStep 4 finds the edge ahead again, so it turns to face south.<br>\nStep 5 drives south to the middle right square. Tally 4.<br>\nStep 6 drives south again to the bottom right corner. Tally 5.<br>\nSix steps are up. Five squares were cleaned and the robot is still facing south.\n</td></tr></table>\n",
+  "input_spec": "Input the floor plan on the first line, with rows separated by semicolons, where a period is floor, a number sign is a wall, and R is the robot's starting square. On the second line input the number of steps to run.",
+  "output_spec": "Output the number of different squares the robot cleaned, a single space, and the direction it faces at the end, written as N, E, S, or W.",
+  "constraints": "The plan has between 1 and 25 rows and between 1 and 25 columns, every row is the same length, and there is exactly one R. The robot runs for between 1 and 100000 steps.",
+  "approach": "\n<p>Model the robot as a position and a facing index, then let one table do all the direction\nwork.</p>\n\n<p>Store the four directions in the order north, east, south, west, so that turning right is\nadding one and taking the remainder on 4. Put the row and column offsets in two parallel arrays\nin the same order: north is row minus one, east is column plus one, south is row plus one, and\nwest is column minus one. With that in place the entire step is four lines and there is no\nswitch statement anywhere.</p>\n\n<p>Keep the cleaned squares in a set, or in a grid of booleans with a separate counter, and mark\nthe starting square before the loop begins. Forgetting that start square is the most common way to\ncome out exactly one low.</p>\n\n<p>Each step, work out the square ahead. If its row and column are both inside the plan and it is\nnot a wall, move there and mark it. Otherwise advance the facing. Both branches consume a step, so\nthe loop body always runs to completion once per step.</p>\n\n<p>The step count can reach 100000, which is far more than the robot needs on a plan of at most\n625 squares, so most tests run long after the robot has settled into a repeating circuit. That is\nfine and the loop is cheap, but it does mean you cannot stop early just because no new square was\ncleaned, since the facing at the end still depends on the exact number of steps.</p>\n\n<p>Two edge cases worth checking by hand. A plan that is a single square leaves the robot turning\non the spot forever, cleaning exactly one square, and its final facing cycles with a period of\nfour. A robot boxed in by walls behaves the same way.</p>\n",
+  "fname": "cleanReport",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>plan</code>, holding the rows separated by\nsemicolons, and an integer, <code>steps</code>, the number of steps to run.</li>\n<li>The function returns a string holding the number of squares cleaned and the final facing,\nseparated by a single space.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "...;.R.;...",
+     "6"
+    ],
+    "out": "5 S"
+   },
+   {
+    "in": [
+     "R",
+     "10"
+    ],
+    "out": "1 S"
+   },
+   {
+    "in": [
+     "R#;..",
+     "4"
+    ],
+    "out": "2 W"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "...;.R.;...",
+     "6"
+    ],
+    "out": "5 S"
+   },
+   {
+    "in": [
+     "R",
+     "10"
+    ],
+    "out": "1 S"
+   },
+   {
+    "in": [
+     "R#;..",
+     "4"
+    ],
+    "out": "2 W"
+   },
+   {
+    "in": [
+     "R....;.....;.....;.....;.....",
+     "20"
+    ],
+    "out": "16 N"
+   },
+   {
+    "in": [
+     "#####;#R.#;#..#;#####",
+     "12"
+    ],
+    "out": "4 S"
+   },
+   {
+    "in": [
+     "R",
+     "100000"
+    ],
+    "out": "1 N"
+   },
+   {
+    "in": [
+     "..........;..........;....R.....;..........;..........",
+     "100"
+    ],
+    "out": "28 S"
+   },
+   {
+    "in": [
+     "R#########;##########",
+     "3"
+    ],
+    "out": "1 W"
+   },
+   {
+    "in": [
+     ".....;.###.;.#R#.;.###.;.....",
+     "8"
+    ],
+    "out": "1 N"
+   },
+   {
+    "in": [
+     "R.........",
+     "100000"
+    ],
+    "out": "10 E"
+   },
+   {
+    "in": [
+     "R........;.#######.;.#.....#.;.#.###.#.;.#.#R#.#.;.#.###.#.;.#.....#.;.#######.;.........",
+     "500"
+    ],
+    "out": "1 N"
+   },
+   {
+    "in": [
+     "####;#R.#;#.##;####",
+     "100000"
+    ],
+    "out": "2 W"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef cleanReport(plan: str, steps: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        plan = _lines[_i + 0].strip()\n        steps = int(_lines[_i + 1].strip())\n        print(cleanReport(plan, steps))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String cleanReport(String plan, int steps) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String plan = _lines.get(_i + 0);\n            int steps = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(cleanReport(plan, steps)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring cleanReport(string plan, int steps) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string plan = _lines[_i + 0];\n        int steps = stoi(_lines[_i + 1]);\n        cout << cleanReport(plan, steps) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef cleanReport(plan: str, steps: int) -> str:\n\n    grid = plan.split(\";\")\n    h, w = len(grid), len(grid[0])\n    r = c = 0\n    for i in range(h):\n        j = grid[i].find(\"R\")\n        if j >= 0:\n            r, c = i, j\n    dr = [-1, 0, 1, 0]\n    dc = [0, 1, 0, -1]\n    face = 0\n    seen = {(r, c)}\n    for _ in range(steps):\n        nr, nc = r + dr[face], c + dc[face]\n        if 0 <= nr < h and 0 <= nc < w and grid[nr][nc] != \"#\":\n            r, c = nr, nc\n            seen.add((r, c))\n        else:\n            face = (face + 1) % 4\n    return str(len(seen)) + \" \" + \"NESW\"[face]\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        plan = _lines[_i + 0].strip()\n        steps = int(_lines[_i + 1].strip())\n        print(cleanReport(plan, steps))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String cleanReport(String plan, int steps) {\n\n        String[] grid = plan.split(\";\");\n        int h = grid.length, w = grid[0].length();\n        int r = 0, c = 0;\n        for (int i = 0; i < h; i++) {\n            int j = grid[i].indexOf('R');\n            if (j >= 0) { r = i; c = j; }\n        }\n        int[] dr = {-1, 0, 1, 0};\n        int[] dc = {0, 1, 0, -1};\n        int face = 0;\n        Set<Integer> seen = new HashSet<>();\n        seen.add(r * 100 + c);\n        for (int s = 0; s < steps; s++) {\n            int nr = r + dr[face], nc = c + dc[face];\n            if (nr >= 0 && nr < h && nc >= 0 && nc < w && grid[nr].charAt(nc) != '#') {\n                r = nr; c = nc;\n                seen.add(r * 100 + c);\n            } else {\n                face = (face + 1) % 4;\n            }\n        }\n        return seen.size() + \" \" + \"NESW\".charAt(face);\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String plan = _lines.get(_i + 0);\n            int steps = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(cleanReport(plan, steps)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring cleanReport(string plan, int steps) {\n\n    vector<string> grid;\n    string row;\n    istringstream is(plan);\n    while (getline(is, row, ';')) grid.push_back(row);\n    int h = (int) grid.size(), w = (int) grid[0].size();\n    int r = 0, c = 0;\n    for (int i = 0; i < h; i++) {\n        size_t j = grid[i].find('R');\n        if (j != string::npos) { r = i; c = (int) j; }\n    }\n    int dr[] = {-1, 0, 1, 0};\n    int dc[] = {0, 1, 0, -1};\n    int face = 0;\n    set<pair<int,int>> seen;\n    seen.insert({r, c});\n    for (int s = 0; s < steps; s++) {\n        int nr = r + dr[face], nc = c + dc[face];\n        if (nr >= 0 && nr < h && nc >= 0 && nc < w && grid[nr][nc] != '#') {\n            r = nr; c = nc;\n            seen.insert({r, c});\n        } else {\n            face = (face + 1) % 4;\n        }\n    }\n    return to_string(seen.size()) + \" \" + string(1, string(\"NESW\")[face]);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string plan = _lines[_i + 0];\n        int steps = stoi(_lines[_i + 1]);\n        cout << cleanReport(plan, steps) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "mancala-move",
+  "division": "Senior",
+  "contest": 1,
+  "title": "MANCALA MOVE",
+  "blurb": "Sow one handful of stones around the board and work out what it captures.",
+  "statement": "\n<p>A mancala board is fourteen hollows in a ring. Numbering them 0 through 13 counterclockwise,\nhollows 0 through 5 are your six pits, hollow 6 is your store, hollows 7 through 12 are your\nopponent's six pits, and hollow 13 is your opponent's store. The pit opposite your pit\n<code>i</code> is hollow <code>12 - i</code>, so pit 0 faces hollow 12 and pit 5 faces hollow\n7.</p>\n\n<p>You take every stone out of one of your pits and sow them, dropping one stone into each hollow\nin turn as you travel counterclockwise, wrapping from hollow 13 back to hollow 0. You never drop a\nstone into your opponent's store, so hollow 13 is skipped and does not use up a stone.</p>\n\n<p>Where the last stone falls decides what happens next.</p>\n\n<ul>\n<li>If it falls in your store, hollow 6, you have earned another turn.</li>\n<li>If it falls in one of your own pits that was empty before that stone landed, and the pit\nopposite it is not empty, you capture. Take that single stone together with every stone in the\nopposite pit and put them all in your store.</li>\n<li>Anything else and the move simply ends.</li>\n</ul>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>4 4 4 4 4 4 0 4 4 4 4 4 4 0<br>2</td></tr>\n<tr><th>Output</th><td>4 4 0 5 5 5 1 4 4 4 4 4 4 0 AGAIN</td></tr>\n<tr><th>Explanation</th><td>\nPit 2 holds 4 stones. Lift them out, leaving pit 2 empty, and drop one stone each into hollows 3,\n4, 5, and 6.<br>\nHollows 3, 4, and 5 go from 4 to 5, and the store goes from 0 to 1.<br>\nThe last stone landed in your store, so you get another turn and the board is followed by\nAGAIN.\n</td></tr></table>\n",
+  "input_spec": "Input the board on the first line as fourteen whole numbers separated by single spaces, giving the stones in hollows 0 through 13 in order. On the second line input the number of the pit you are sowing from, which is between 0 and 5.",
+  "output_spec": "Output the fourteen hollows of the resulting board, separated by single spaces. If the move earned another turn, follow the board with a single space and the word AGAIN.",
+  "constraints": "The chosen pit always holds at least one stone. There are at most 200 stones on the board.",
+  "approach": "\n<p>The sowing loop is short, but three details in it decide the answer, and all three are easy to\nget slightly wrong.</p>\n\n<p>Empty the chosen pit before you start dropping. If you sow enough stones to travel all the way\nround the board, the pit you started from should receive one of them, and it can only do that if\nit was set to zero first. The eighth test sows fourteen stones from pit 0 for exactly this\nreason.</p>\n\n<p>Skip hollow 13 without spending a stone. The natural way to write the loop is to advance the\nindex, then check whether it landed on 13 and advance again if so, and only then drop. Writing it\nthe other way, spending a stone and throwing it away, loses one stone per lap.</p>\n\n<p>Remember where the last stone actually landed, after any skipping. That hollow is what every\nrule below keys off, so track it as you go rather than trying to compute it from the arithmetic\nafterwards.</p>\n\n<p>Now the two special cases. The free turn is a plain check that the last hollow is 6.</p>\n\n<p>The capture needs the pit to have been empty <i>before</i> the last stone arrived, which means\nits count is exactly 1 now. Check the count after sowing rather than keeping a snapshot of the\nboard, since a hollow you passed through on an earlier lap would confuse a snapshot. It also\nneeds the opposite hollow, 12 minus the index, to hold at least one stone. When both hold, move\nthat single stone plus everything opposite into your store and zero both hollows.</p>\n\n<p>A capture and a free turn can never both happen, since one requires the last stone in a pit and\nthe other requires it in the store, so there is no ordering question between them.</p>\n",
+  "fname": "playMove",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>board</code>, holding the fourteen hollow\ncounts separated by single spaces, and an integer, <code>pit</code>, the pit being sown from.</li>\n<li>The function returns a string holding the fourteen hollow counts of the new board, with the\nword AGAIN appended when the move earns another turn.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "4 4 4 4 4 4 0 4 4 4 4 4 4 0",
+     "2"
+    ],
+    "out": "4 4 0 5 5 5 1 4 4 4 4 4 4 0 AGAIN"
+   },
+   {
+    "in": [
+     "1 0 0 0 0 0 0 0 0 0 0 6 0 0",
+     "0"
+    ],
+    "out": "0 0 0 0 0 0 7 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "0 0 0 0 0 1 0 4 4 4 4 4 4 0",
+     "5"
+    ],
+    "out": "0 0 0 0 0 0 1 4 4 4 4 4 4 0 AGAIN"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "4 4 4 4 4 4 0 4 4 4 4 4 4 0",
+     "2"
+    ],
+    "out": "4 4 0 5 5 5 1 4 4 4 4 4 4 0 AGAIN"
+   },
+   {
+    "in": [
+     "1 0 0 0 0 0 0 0 0 0 0 6 0 0",
+     "0"
+    ],
+    "out": "0 0 0 0 0 0 7 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "0 0 0 0 0 1 0 4 4 4 4 4 4 0",
+     "5"
+    ],
+    "out": "0 0 0 0 0 0 1 4 4 4 4 4 4 0 AGAIN"
+   },
+   {
+    "in": [
+     "4 4 4 4 4 4 0 4 4 4 4 4 4 0",
+     "5"
+    ],
+    "out": "4 4 4 4 4 0 1 5 5 5 4 4 4 0"
+   },
+   {
+    "in": [
+     "0 0 0 0 0 9 2 1 1 1 1 1 1 3",
+     "5"
+    ],
+    "out": "1 0 0 0 0 0 6 2 2 2 2 0 2 3"
+   },
+   {
+    "in": [
+     "1 0 0 0 0 0 0 0 0 0 0 0 0 0",
+     "0"
+    ],
+    "out": "0 1 0 0 0 0 0 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "0 0 3 0 0 0 5 2 2 2 2 2 2 5",
+     "2"
+    ],
+    "out": "0 0 0 1 1 0 8 0 2 2 2 2 2 5"
+   },
+   {
+    "in": [
+     "14 0 0 0 0 0 0 0 0 0 0 0 0 0",
+     "0"
+    ],
+    "out": "1 2 1 1 1 1 1 1 1 1 1 1 1 0"
+   },
+   {
+    "in": [
+     "0 1 0 0 0 0 0 0 0 0 0 7 0 0",
+     "1"
+    ],
+    "out": "0 0 1 0 0 0 0 0 0 0 0 7 0 0"
+   },
+   {
+    "in": [
+     "2 2 2 2 2 2 3 3 3 3 3 3 3 4",
+     "0"
+    ],
+    "out": "0 3 3 2 2 2 3 3 3 3 3 3 3 4"
+   },
+   {
+    "in": [
+     "0 0 0 0 0 20 1 1 1 1 1 1 1 1",
+     "5"
+    ],
+    "out": "1 1 1 1 1 1 3 3 3 3 3 3 3 1"
+   },
+   {
+    "in": [
+     "6 0 0 0 0 0 0 0 0 0 0 0 5 0",
+     "0"
+    ],
+    "out": "0 1 1 1 1 1 1 0 0 0 0 0 5 0 AGAIN"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef playMove(board: str, pit: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        board = _lines[_i + 0].strip()\n        pit = int(_lines[_i + 1].strip())\n        print(playMove(board, pit))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String playMove(String board, int pit) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String board = _lines.get(_i + 0);\n            int pit = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(playMove(board, pit)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring playMove(string board, int pit) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string board = _lines[_i + 0];\n        int pit = stoi(_lines[_i + 1]);\n        cout << playMove(board, pit) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef playMove(board: str, pit: int) -> str:\n\n    b = [int(x) for x in board.split()]\n    stones = b[pit]\n    b[pit] = 0\n    i = pit\n    while stones > 0:\n        i = (i + 1) % 14\n        if i == 13:\n            continue\n        b[i] += 1\n        stones -= 1\n    again = (i == 6)\n    if 0 <= i <= 5 and b[i] == 1 and b[12 - i] > 0:\n        b[6] += b[i] + b[12 - i]\n        b[i] = 0\n        b[12 - i] = 0\n    out = \" \".join(str(x) for x in b)\n    return out + \" AGAIN\" if again else out\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        board = _lines[_i + 0].strip()\n        pit = int(_lines[_i + 1].strip())\n        print(playMove(board, pit))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String playMove(String board, int pit) {\n\n        String[] tok = board.trim().split(\"\\\\s+\");\n        int[] b = new int[14];\n        for (int j = 0; j < 14; j++) b[j] = Integer.parseInt(tok[j]);\n        int stones = b[pit];\n        b[pit] = 0;\n        int i = pit;\n        while (stones > 0) {\n            i = (i + 1) % 14;\n            if (i == 13) continue;\n            b[i]++;\n            stones--;\n        }\n        boolean again = (i == 6);\n        if (i >= 0 && i <= 5 && b[i] == 1 && b[12 - i] > 0) {\n            b[6] += b[i] + b[12 - i];\n            b[i] = 0;\n            b[12 - i] = 0;\n        }\n        StringBuilder out = new StringBuilder();\n        for (int j = 0; j < 14; j++) { if (j > 0) out.append(' '); out.append(b[j]); }\n        if (again) out.append(\" AGAIN\");\n        return out.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String board = _lines.get(_i + 0);\n            int pit = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(playMove(board, pit)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring playMove(string board, int pit) {\n\n    vector<int> b;\n    int v;\n    istringstream is(board);\n    while (is >> v) b.push_back(v);\n    int stones = b[pit];\n    b[pit] = 0;\n    int i = pit;\n    while (stones > 0) {\n        i = (i + 1) % 14;\n        if (i == 13) continue;\n        b[i]++;\n        stones--;\n    }\n    bool again = (i == 6);\n    if (i >= 0 && i <= 5 && b[i] == 1 && b[12 - i] > 0) {\n        b[6] += b[i] + b[12 - i];\n        b[i] = 0;\n        b[12 - i] = 0;\n    }\n    string out;\n    for (int j = 0; j < 14; j++) { if (j) out += ' '; out += to_string(b[j]); }\n    if (again) out += \" AGAIN\";\n    return out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string board = _lines[_i + 0];\n        int pit = stoi(_lines[_i + 1]);\n        cout << playMove(board, pit) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "minesweeper-click",
+  "division": "Senior",
+  "contest": 2,
+  "title": "MINESWEEPER CLICK",
+  "blurb": "One click on a minefield, and the empty ground opens up around it.",
+  "statement": "\n<p>A minefield is a rectangle of squares. Some squares hide a mine and the rest are safe. Every\nsquare starts covered.</p>\n\n<p>Clicking a square that hides a mine ends the game.</p>\n\n<p>Clicking a safe square uncovers it and writes on it the number of mines among its neighbours,\ncounting all eight squares that touch it, including the four diagonals. Squares off the edge of\nthe board are not neighbours.</p>\n\n<p>If that number turns out to be zero, there is nothing nearby worth being careful about, so the\ngame uncovers all eight of its neighbours as well, and applies the same rule to each of them in\nturn. The opening spreads until it is walled in by squares that do have a mine next to them,\nwhich get uncovered and show their number but do not spread any further.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>....;.*..;....<br>0<br>3</td></tr>\n<tr><th>Output</th><td>..10;..10;..10</td></tr>\n<tr><th>Explanation</th><td>\nThe field is 3 rows of 4, with one mine at row 1, column 1:\n<pre><code>. . . .\n. * . .\n. . . .</code></pre>\nThe click is row 0, column 3. Nothing in the eight squares around it hides a mine, so it opens\nshowing 0 and spreads to its neighbours.<br>\nRow 1 column 3 and row 2 column 3 also have no mine beside them, so they open showing 0 and\nspread in turn. That is the whole rightmost column.<br>\nEvery square in column 2 touches the mine, so each opens showing 1 and stops there. They are the\nwall the opening runs into.<br>\nColumns 0 and 1 are never reached, so they stay covered and print as periods, and so does the\nmine itself.\n</td></tr></table>\n",
+  "input_spec": "Input the field on the first line, with rows separated by semicolons, where a period is a safe square and an asterisk is a mine. Input the clicked row on the second line and the clicked column on the third line, both counting from 0.",
+  "output_spec": "Output BOOM if the click landed on a mine. Otherwise output the visible board with rows separated by semicolons, writing a digit on every uncovered square, a 0 on an uncovered square with no mine beside it, and a period on every square still covered.",
+  "constraints": "The field has between 1 and 20 rows and between 1 and 20 columns. Every row is the same length. The clicked square is always on the board.",
+  "approach": "\n<p>Three parts, and only the middle one is interesting: count the neighbours of a square, spread\nthe opening, then print.</p>\n\n<p>Write the neighbour count as its own function. Loop the row offset and the column offset each\nfrom minus one to one, skip the pair where both are zero, throw away anything off the board, and\nadd one for every asterisk. Getting this right once means you never think about the eight\ndirections again.</p>\n\n<p>For the spread, use a queue rather than recursion. Push the clicked square, then repeatedly\npop a square, and if it is already uncovered skip it, otherwise uncover it and record its count.\nOnly when that count is zero do you push its eight neighbours. That single condition is the whole\nrule: a square with a mine beside it is uncovered but is a dead end.</p>\n\n<p>Recursion works too, but a 20 by 20 field of open ground goes 400 frames deep, which is fine in\nC++ and Java and close enough to Python's default limit to be worth avoiding.</p>\n\n<p>Check whether the square is already uncovered when you pop it, not when you push it. Squares\nget pushed several times over from different directions, and filtering only at push time still\nlets duplicates through and can send the search round in circles.</p>\n\n<p>Two things about printing. A mine is never uncovered by a legal click, so it keeps whatever it\nlooked like before, which in this problem is a covered square and prints as a period. And an\nuncovered square with a count of zero prints as the digit 0, not as a period, which is what\nseparates it from a square nobody ever reached. Getting those two confused makes the output look\nalmost right and score nothing.</p>\n",
+  "fname": "reveal",
+  "task": "\n<ul>\n<li>The function has 3 parameters: a string, <code>field</code>, holding the rows separated by\nsemicolons, and two integers, <code>row</code> and <code>col</code>, giving the clicked\nsquare.</li>\n<li>The function returns a string, either BOOM or the visible board.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "....;.*..;....",
+     "0",
+     "3"
+    ],
+    "out": "..10;..10;..10"
+   },
+   {
+    "in": [
+     ".....;..*..;.....",
+     "0",
+     "0"
+    ],
+    "out": "01...;01...;01..."
+   },
+   {
+    "in": [
+     "*",
+     "0",
+     "0"
+    ],
+    "out": "BOOM"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "....;.*..;....",
+     "0",
+     "3"
+    ],
+    "out": "..10;..10;..10"
+   },
+   {
+    "in": [
+     "....;.*..;....",
+     "1",
+     "1"
+    ],
+    "out": "BOOM"
+   },
+   {
+    "in": [
+     "*",
+     "0",
+     "0"
+    ],
+    "out": "BOOM"
+   },
+   {
+    "in": [
+     ".....;.....;.....;.....;.....",
+     "2",
+     "2"
+    ],
+    "out": "00000;00000;00000;00000;00000"
+   },
+   {
+    "in": [
+     "*....;.....;.....;.....;....*",
+     "2",
+     "2"
+    ],
+    "out": ".1000;11000;00000;00011;0001."
+   },
+   {
+    "in": [
+     "..*..;.....;*...*;.....;..*..",
+     "2",
+     "2"
+    ],
+    "out": ".....;.212.;.101.;.212.;....."
+   },
+   {
+    "in": [
+     "....;....;....;....",
+     "0",
+     "0"
+    ],
+    "out": "0000;0000;0000;0000"
+   },
+   {
+    "in": [
+     "*.*.*;.....;*.*.*;.....;*.*.*",
+     "1",
+     "1"
+    ],
+    "out": ".....;.4...;.....;.....;....."
+   },
+   {
+    "in": [
+     "..........;..........;....*.....;..........;..........",
+     "0",
+     "0"
+    ],
+    "out": "0000000000;0001110000;0001.10000;0001110000;0000000000"
+   },
+   {
+    "in": [
+     ".*.;***;.*.",
+     "0",
+     "0"
+    ],
+    "out": "3..;...;..."
+   },
+   {
+    "in": [
+     "....*;.....;.....;.....;.....",
+     "4",
+     "0"
+    ],
+    "out": "0001.;00011;00000;00000;00000"
+   },
+   {
+    "in": [
+     "*........*;..........;..........;..........;*........*",
+     "2",
+     "5"
+    ],
+    "out": ".10000001.;1100000011;0000000000;1100000011;.10000001."
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef reveal(field: str, row: int, col: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 3\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        field = _lines[_i + 0].strip()\n        row = int(_lines[_i + 1].strip())\n        col = int(_lines[_i + 2].strip())\n        print(reveal(field, row, col))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String reveal(String field, int row, int col) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 3;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String field = _lines.get(_i + 0);\n            int row = Integer.parseInt((_lines.get(_i + 1)).trim());\n            int col = Integer.parseInt((_lines.get(_i + 2)).trim());\n            _sb.append(reveal(field, row, col)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring reveal(string field, int row, int col) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 3;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string field = _lines[_i + 0];\n        int row = stoi(_lines[_i + 1]);\n        int col = stoi(_lines[_i + 2]);\n        cout << reveal(field, row, col) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\n\ndef neighbours(grid, r, c):\n    total = 0\n    for dr in (-1, 0, 1):\n        for dc in (-1, 0, 1):\n            if dr == 0 and dc == 0:\n                continue\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < len(grid) and 0 <= nc < len(grid[0]) and grid[nr][nc] == \"*\":\n                total += 1\n    return total\n\ndef reveal(field: str, row: int, col: int) -> str:\n\n    grid = field.split(\";\")\n    h, w = len(grid), len(grid[0])\n    if grid[row][col] == \"*\":\n        return \"BOOM\"\n    shown = [[\".\"] * w for _ in range(h)]\n    queue = [(row, col)]\n    head = 0\n    while head < len(queue):\n        r, c = queue[head]\n        head += 1\n        if shown[r][c] != \".\":\n            continue\n        n = neighbours(grid, r, c)\n        shown[r][c] = str(n)\n        if n == 0:\n            for dr in (-1, 0, 1):\n                for dc in (-1, 0, 1):\n                    nr, nc = r + dr, c + dc\n                    if 0 <= nr < h and 0 <= nc < w and shown[nr][nc] == \".\":\n                        queue.append((nr, nc))\n    return \";\".join(\"\".join(rowchars) for rowchars in shown)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 3\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        field = _lines[_i + 0].strip()\n        row = int(_lines[_i + 1].strip())\n        col = int(_lines[_i + 2].strip())\n        print(reveal(field, row, col))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n\n    static int neighbours(String[] grid, int r, int c) {\n        int total = 0;\n        for (int dr = -1; dr <= 1; dr++) {\n            for (int dc = -1; dc <= 1; dc++) {\n                if (dr == 0 && dc == 0) continue;\n                int nr = r + dr, nc = c + dc;\n                if (nr >= 0 && nr < grid.length && nc >= 0 && nc < grid[0].length()\n                        && grid[nr].charAt(nc) == '*') total++;\n            }\n        }\n        return total;\n    }\n\n    static String reveal(String field, int row, int col) {\n\n        String[] grid = field.split(\";\");\n        int h = grid.length, w = grid[0].length();\n        if (grid[row].charAt(col) == '*') return \"BOOM\";\n        char[][] shown = new char[h][w];\n        for (char[] r : shown) Arrays.fill(r, '.');\n        Deque<int[]> queue = new ArrayDeque<>();\n        queue.add(new int[]{row, col});\n        while (!queue.isEmpty()) {\n            int[] cur = queue.poll();\n            int r = cur[0], c = cur[1];\n            if (shown[r][c] != '.') continue;\n            int n = neighbours(grid, r, c);\n            shown[r][c] = (char) ('0' + n);\n            if (n == 0) {\n                for (int dr = -1; dr <= 1; dr++) {\n                    for (int dc = -1; dc <= 1; dc++) {\n                        int nr = r + dr, nc = c + dc;\n                        if (nr >= 0 && nr < h && nc >= 0 && nc < w && shown[nr][nc] == '.') {\n                            queue.add(new int[]{nr, nc});\n                        }\n                    }\n                }\n            }\n        }\n        StringBuilder out = new StringBuilder();\n        for (int r = 0; r < h; r++) {\n            if (r > 0) out.append(';');\n            out.append(shown[r]);\n        }\n        return out.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 3;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String field = _lines.get(_i + 0);\n            int row = Integer.parseInt((_lines.get(_i + 1)).trim());\n            int col = Integer.parseInt((_lines.get(_i + 2)).trim());\n            _sb.append(reveal(field, row, col)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\n\nstatic int neighbours(const vector<string> &grid, int r, int c) {\n    int total = 0;\n    for (int dr = -1; dr <= 1; dr++) {\n        for (int dc = -1; dc <= 1; dc++) {\n            if (dr == 0 && dc == 0) continue;\n            int nr = r + dr, nc = c + dc;\n            if (nr >= 0 && nr < (int) grid.size() && nc >= 0 && nc < (int) grid[0].size()\n                    && grid[nr][nc] == '*') total++;\n        }\n    }\n    return total;\n}\n\nstring reveal(string field, int row, int col) {\n\n    vector<string> grid;\n    string rowstr;\n    istringstream is(field);\n    while (getline(is, rowstr, ';')) grid.push_back(rowstr);\n    int h = (int) grid.size(), w = (int) grid[0].size();\n    if (grid[row][col] == '*') return \"BOOM\";\n    vector<string> shown(h, string(w, '.'));\n    deque<pair<int,int>> q;\n    q.push_back({row, col});\n    while (!q.empty()) {\n        auto cur = q.front();\n        q.pop_front();\n        int r = cur.first, c = cur.second;\n        if (shown[r][c] != '.') continue;\n        int n = neighbours(grid, r, c);\n        shown[r][c] = char('0' + n);\n        if (n == 0) {\n            for (int dr = -1; dr <= 1; dr++) {\n                for (int dc = -1; dc <= 1; dc++) {\n                    int nr = r + dr, nc = c + dc;\n                    if (nr >= 0 && nr < h && nc >= 0 && nc < w && shown[nr][nc] == '.') {\n                        q.push_back({nr, nc});\n                    }\n                }\n            }\n        }\n    }\n    string out;\n    for (int r = 0; r < h; r++) { if (r) out += ';'; out += shown[r]; }\n    return out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 3;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string field = _lines[_i + 0];\n        int row = stoi(_lines[_i + 1]);\n        int col = stoi(_lines[_i + 2]);\n        cout << reveal(field, row, col) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "rotor-cipher",
+  "division": "Senior",
+  "contest": 3,
+  "title": "ROTOR CIPHER",
+  "blurb": "Three geared wheels shift each letter, and the wheels turn as you type.",
+  "statement": "\n<p>The machine has three wheels in a row. Each wheel is set to one of the 26 letters, where A\nstands for 0, B for 1, and so on up to Z for 25. The machine is given a starting setting as three\nletters, one per wheel.</p>\n\n<p>Every letter of the message goes through the same two steps, in this order.</p>\n\n<p><b>First the wheels turn.</b> Wheel one advances by one. If that carries it past Z and back\nround to A, wheel two also advances by one. If wheel two in turn carries past Z back to A, wheel\nthree advances by one. Wheel three never carries anywhere.</p>\n\n<p><b>Then the letter is shifted.</b> Add the three wheel settings together, take the remainder on\ndivision by 26, and move the letter forward round the alphabet by that amount, wrapping from Z\nback to A.</p>\n\n<p>The wheels turn before the first letter is encoded, not after it. Anything in the message that\nis not a capital letter, such as a space or a digit, is copied through unchanged and does not turn\nthe wheels at all.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>HI ACSL<br>AYZ</td></tr>\n<tr><th>Output</th><td>FH ADUO</td></tr>\n<tr><th>Explanation</th><td>\nThe wheels start at A, Y, Z, which is 0, 24, 25. Only wheel one moves anywhere in this message,\nsince it never gets past Z.<br>\nH: wheel one turns to 1, so the shift is 1 + 24 + 25 = 50, and 50 mod 26 is 24. H is letter 7, and\n7 + 24 = 31 wraps round to 5, which is F.<br>\nI: wheel one turns to 2, shift 51 mod 26 = 25. I is 8, and 8 + 25 = 33 wraps to 7, which is H.<br>\nThe space is copied straight through and the wheels do not move for it.<br>\nA: wheel one turns to 3, shift 52 mod 26 = 0, so A stays A.<br>\nC: wheel one turns to 4, shift 1, giving D.<br>\nS: wheel one turns to 5, shift 2, giving U.<br>\nL: wheel one turns to 6, shift 3, giving O.\n</td></tr></table>\n",
+  "input_spec": "Input the message on the first line and the three letter starting setting on the second line.",
+  "output_spec": "Output the encoded message, with every character that is not a capital letter copied through unchanged.",
+  "constraints": "The message is between 1 and 200 characters and contains only capital letters, spaces, and digits. The setting is always three capital letters.",
+  "approach": "\n<p>Keep the three wheels as three integers from 0 to 25 and write the turning as its own step so\nyou can test it on its own.</p>\n\n<p>Turning is a chain of carries. Add one to wheel one and take the remainder on 26. If the result\nis 0 then it wrapped, so do the same to wheel two, and if that lands on 0 as well, add one to\nwheel three. Checking for 0 after the modulo is the cleanest way to detect the wrap, because the\nonly way to reach 0 by adding one is to have come from 25.</p>\n\n<p>Encoding is then one line. The shift is the three wheels added and reduced modulo 26, and the\nletter moves forward by that much, wrapping with another modulo. In every language that is\n<code>(c - 'A' + shift) % 26 + 'A'</code>.</p>\n\n<p>Three things decide whether this works.</p>\n\n<p>The wheels turn <i>before</i> the letter is encoded. Turning afterwards shifts every character\nof the output by one wheel position, so the whole message comes out wrong while still looking like\na plausible cipher. If your first letter is off by exactly one, this is why.</p>\n\n<p>Characters that are not capital letters are copied through and do not turn the wheels. That\nmeans a message with spaces in it encodes its letters exactly as if the spaces were not there. Turn\nthe wheels on a space and every letter after the first space is wrong.</p>\n\n<p>The carry only happens on a wrap, not every 26 letters counted from the start. Those are the\nsame thing when wheel one begins at A, which is why the second sample hides the bug and the first\none, starting at A with wheel two already at Y, does not.</p>\n",
+  "fname": "encode",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>message</code>, and a string,\n<code>start</code>, holding the three starting wheel letters.</li>\n<li>The function returns a string, the encoded message.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "HI ACSL",
+     "AYZ"
+    ],
+    "out": "FH ADUO"
+   },
+   {
+    "in": [
+     "AAAAA",
+     "AAA"
+    ],
+    "out": "BCDEF"
+   },
+   {
+    "in": [
+     "A B 1 C",
+     "ZZZ"
+    ],
+    "out": "A C 1 E"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "HI ACSL",
+     "AYZ"
+    ],
+    "out": "FH ADUO"
+   },
+   {
+    "in": [
+     "AAAAA",
+     "AAA"
+    ],
+    "out": "BCDEF"
+   },
+   {
+    "in": [
+     "A B 1 C",
+     "ZZZ"
+    ],
+    "out": "A C 1 E"
+   },
+   {
+    "in": [
+     "ATTACK AT DAWN",
+     "AAA"
+    ],
+    "out": "BVWEHQ HB MKHZ"
+   },
+   {
+    "in": [
+     "ZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+     "AAA"
+    ],
+    "out": "ABCDEFGHIJKLMNOPQRSTUVWXYA"
+   },
+   {
+    "in": [
+     "THE QUICK BROWN FOX",
+     "MQP"
+    ],
+    "out": "LAY LQFAJ BSQZR LVF"
+   },
+   {
+    "in": [
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+     "ZZA"
+    ],
+    "out": "BCDEFGHIJKLMNOPQRSTUVWXYZACDEFGHIJKLMNOPQRSTUVWXYZAB"
+   },
+   {
+    "in": [
+     "ACSL 2026 FINALS",
+     "BCD"
+    ],
+    "out": "HKBV 2026 QUAOAI"
+   },
+   {
+    "in": [
+     "X",
+     "ZZZ"
+    ],
+    "out": "X"
+   },
+   {
+    "in": [
+     "12345 67890",
+     "ABC"
+    ],
+    "out": "12345 67890"
+   },
+   {
+    "in": [
+     "MEET ME AT THE OLD MILL AT MIDNIGHT ON TUESDAY",
+     "QRS"
+    ],
+    "out": "MFGW QJ GA BRP AYR BYCD TN HEALHGIV RR YALAMLK"
+   },
+   {
+    "in": [
+     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+     "AAA"
+    ],
+    "out": "BCDEFGHIJKLMNOPQRSTUVWXYZBCDEFGHIJKLMNOPQRSTUVWXYZACDEFGHIJKLMNOPQRSTUVWXYZABDEFGHIJKLMNOPQRSTUVWXYZABCEFGHIJKLMNOPQRSTUVWXYZABCDFGHIJKLMNOPQRSTUVWXYZABCDEGHIJKLMNOPQRSTUVWXYZABCDEFHIJKLMNOPQRST"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef encode(message: str, start: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        message = _lines[_i + 0].strip()\n        start = _lines[_i + 1].strip()\n        print(encode(message, start))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String encode(String message, String start) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String message = _lines.get(_i + 0);\n            String start = _lines.get(_i + 1);\n            _sb.append(encode(message, start)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring encode(string message, string start) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string message = _lines[_i + 0];\n        string start = _lines[_i + 1];\n        cout << encode(message, start) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef encode(message: str, start: str) -> str:\n\n    w1 = ord(start[0]) - 65\n    w2 = ord(start[1]) - 65\n    w3 = ord(start[2]) - 65\n    out = \"\"\n    for ch in message:\n        if not (\"A\" <= ch <= \"Z\"):\n            out += ch\n            continue\n        w1 = (w1 + 1) % 26\n        if w1 == 0:\n            w2 = (w2 + 1) % 26\n            if w2 == 0:\n                w3 = (w3 + 1) % 26\n        shift = (w1 + w2 + w3) % 26\n        out += chr((ord(ch) - 65 + shift) % 26 + 65)\n    return out\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        message = _lines[_i + 0].strip()\n        start = _lines[_i + 1].strip()\n        print(encode(message, start))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String encode(String message, String start) {\n\n        int w1 = start.charAt(0) - 'A', w2 = start.charAt(1) - 'A', w3 = start.charAt(2) - 'A';\n        StringBuilder out = new StringBuilder();\n        for (int i = 0; i < message.length(); i++) {\n            char ch = message.charAt(i);\n            if (ch < 'A' || ch > 'Z') { out.append(ch); continue; }\n            w1 = (w1 + 1) % 26;\n            if (w1 == 0) {\n                w2 = (w2 + 1) % 26;\n                if (w2 == 0) w3 = (w3 + 1) % 26;\n            }\n            int shift = (w1 + w2 + w3) % 26;\n            out.append((char) ((ch - 'A' + shift) % 26 + 'A'));\n        }\n        return out.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String message = _lines.get(_i + 0);\n            String start = _lines.get(_i + 1);\n            _sb.append(encode(message, start)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring encode(string message, string start) {\n\n    int w1 = start[0] - 'A', w2 = start[1] - 'A', w3 = start[2] - 'A';\n    string out;\n    for (char ch : message) {\n        if (ch < 'A' || ch > 'Z') { out += ch; continue; }\n        w1 = (w1 + 1) % 26;\n        if (w1 == 0) {\n            w2 = (w2 + 1) % 26;\n            if (w2 == 0) w3 = (w3 + 1) % 26;\n        }\n        int shift = (w1 + w2 + w3) % 26;\n        out += char((ch - 'A' + shift) % 26 + 'A');\n    }\n    return out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 2;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string message = _lines[_i + 0];\n        string start = _lines[_i + 1];\n        cout << encode(message, start) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "tetris-drop",
+  "division": "Senior",
+  "contest": 4,
+  "title": "TETRIS DROP",
+  "blurb": "Drop bars into an eight column well and clear every row that fills up.",
+  "statement": "\n<p>The well is 8 columns wide, numbered 0 through 7 from the left, and as tall as it needs to be.\nIt starts empty.</p>\n\n<p>Two kinds of piece fall into it. A piece written H followed by a number is a horizontal bar\nthat is one square tall and that many squares wide. A piece written V followed by a number is a\nvertical bar one square wide and that many squares tall. Each piece comes with the column its\nleftmost square occupies.</p>\n\n<p>A piece falls straight down without turning or sliding, and stops as soon as any part of it\nwould overlap something already in the well or would go below the floor. A horizontal bar\ntherefore comes to rest on top of the tallest column it spans, and it does not tip or fill the gaps\nunderneath it.</p>\n\n<p>After a piece lands, any row that now has all 8 of its squares filled disappears, and\neverything above that row drops down one row. Several rows can go at once.</p>\n\n<p>Report how tall each column is once every piece has fallen.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>H4:0 H4:4 V3:0 H2:6</td></tr>\n<tr><th>Output</th><td>3 0 0 0 0 0 1 1</td></tr>\n<tr><th>Explanation</th><td>\nH4:0 lands on the floor and fills columns 0 through 3 of the bottom row.<br>\nH4:4 lands on the floor and fills columns 4 through 7 of the bottom row. All 8 squares of that row\nare now filled, so it disappears and the well is empty again.<br>\nV3:0 falls to the floor and makes column 0 three squares tall.<br>\nH2:6 lands on the floor across columns 6 and 7, one square tall.<br>\nNo row is full, so nothing clears. Column 0 stands at 3, columns 6 and 7 at 1, and the rest are\nempty.\n</td></tr></table>\n",
+  "input_spec": "Input the pieces on one line, separated by single spaces. Each piece is the letter H or V, then the length of the bar, then a colon, then the column its leftmost square occupies.",
+  "output_spec": "Output the height of each of the 8 columns, from column 0 to column 7, separated by single spaces.",
+  "constraints": "There are at most 60 pieces. A bar is between 1 and 8 long, and a piece always fits inside the 8 columns.",
+  "approach": "\n<p>You cannot get away with tracking only the eight heights, because clearing a row can leave a\ncolumn with a hole under it. Keep the actual well: a list of rows, each row holding 8 squares,\nwith row 0 as the floor. Grow the list whenever a piece needs a row that does not exist yet.</p>\n\n<p>Write a helper that returns the height of a column, meaning one more than the index of its\nhighest filled square, or 0 when the column is empty. Everything else is built on it.</p>\n\n<p>Landing a piece is then one line of thought each. A horizontal bar of width w at column c lands\non the row equal to the largest height among columns c through c + w - 1, and fills those squares\nin that one row. A vertical bar of height n at column c starts at that column's height and fills\nn rows upward in that single column.</p>\n\n<p>The clearing step is where the problem is won or lost. Walk the rows and keep only the ones\nthat are not completely full, then rebuild the well from what survived. Doing it that way handles\nseveral rows going at once for free, and it avoids the classic bug of deleting row by row while\niterating upward, which skips a row every time one is removed.</p>\n\n<p>Also note that clearing can drop material into a column that was empty below it, which is\nexactly why the well has to be modelled square by square. A solution that adjusts heights\narithmetically after a clear gets the first sample right and then drifts.</p>\n\n<p>Parsing is a split on the space, then read the first character for the shape, everything\nbetween it and the colon as the length, and everything after the colon as the column. Beware that\na bar can be up to 8 long, so the length is not always a single digit in your own test data even\nthough it is here.</p>\n",
+  "fname": "finalHeights",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>pieces</code>, holding the pieces in the order\nthey fall, separated by single spaces.</li>\n<li>The function returns a string holding the 8 column heights separated by single spaces.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "H4:0 H4:4 V3:0 H2:6"
+    ],
+    "out": "3 0 0 0 0 0 1 1"
+   },
+   {
+    "in": [
+     "H8:0"
+    ],
+    "out": "0 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "H4:0 V2:5 H3:5"
+    ],
+    "out": "1 1 1 1 0 3 3 3"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "H4:0 H4:4 V3:0 H2:6"
+    ],
+    "out": "3 0 0 0 0 0 1 1"
+   },
+   {
+    "in": [
+     "H8:0"
+    ],
+    "out": "0 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "V1:0 V1:1 V1:2 V1:3 V1:4 V1:5 V1:6 V1:7"
+    ],
+    "out": "0 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "V4:3"
+    ],
+    "out": "0 0 0 4 0 0 0 0"
+   },
+   {
+    "in": [
+     "H8:0 H8:0 H8:0"
+    ],
+    "out": "0 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "V2:0 V2:1 V2:2 V2:3 V2:4 V2:5 V2:6 V2:7"
+    ],
+    "out": "0 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "H3:0 H3:0 H3:0 V3:7"
+    ],
+    "out": "3 3 3 0 0 0 0 3"
+   },
+   {
+    "in": [
+     "V5:0 H7:1 H7:1 H7:1 H7:1 H7:1"
+    ],
+    "out": "0 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "H1:0 H1:1 H1:2 H1:3 H1:4 H1:5 H1:6 H1:7 H1:0"
+    ],
+    "out": "1 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "V8:0 V8:7 H6:1 H6:1"
+    ],
+    "out": "6 0 0 0 0 0 0 6"
+   },
+   {
+    "in": [
+     "H2:0 H2:2 H2:4 H2:6 H2:0 H2:2 H2:4 H2:6"
+    ],
+    "out": "0 0 0 0 0 0 0 0"
+   },
+   {
+    "in": [
+     "V3:0 V1:1 V1:2 V1:3 V1:4 V1:5 V1:6 V1:7 H8:0"
+    ],
+    "out": "2 0 0 0 0 0 0 0"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef finalHeights(pieces: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        pieces = _lines[_i + 0].strip()\n        print(finalHeights(pieces))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String finalHeights(String pieces) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String pieces = _lines.get(_i + 0);\n            _sb.append(finalHeights(pieces)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring finalHeights(string pieces) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 1;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string pieces = _lines[_i + 0];\n        cout << finalHeights(pieces) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\n\ndef col_height(well, c):\n    for r in range(len(well) - 1, -1, -1):\n        if well[r][c]:\n            return r + 1\n    return 0\n\n\ndef ensure(well, rows):\n    while len(well) < rows:\n        well.append([0] * 8)\n\ndef finalHeights(pieces: str) -> str:\n\n    well = []\n    for token in pieces.split():\n        shape = token[0]\n        colon = token.index(\":\")\n        size = int(token[1:colon])\n        c = int(token[colon + 1:])\n        if shape == \"H\":\n            base = max(col_height(well, x) for x in range(c, c + size))\n            ensure(well, base + 1)\n            for x in range(c, c + size):\n                well[base][x] = 1\n        else:\n            base = col_height(well, c)\n            ensure(well, base + size)\n            for r in range(base, base + size):\n                well[r][c] = 1\n        well = [row for row in well if sum(row) < 8]\n    return \" \".join(str(col_height(well, c)) for c in range(8))\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        pieces = _lines[_i + 0].strip()\n        print(finalHeights(pieces))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n\n    static int colHeight(List<int[]> well, int c) {\n        for (int r = well.size() - 1; r >= 0; r--) if (well.get(r)[c] == 1) return r + 1;\n        return 0;\n    }\n\n    static void ensure(List<int[]> well, int rows) {\n        while (well.size() < rows) well.add(new int[8]);\n    }\n\n    static String finalHeights(String pieces) {\n\n        List<int[]> well = new ArrayList<>();\n        for (String token : pieces.trim().split(\"\\s+\")) {\n            char shape = token.charAt(0);\n            int colon = token.indexOf(':');\n            int size = Integer.parseInt(token.substring(1, colon));\n            int c = Integer.parseInt(token.substring(colon + 1));\n            if (shape == 'H') {\n                int base = 0;\n                for (int x = c; x < c + size; x++) base = Math.max(base, colHeight(well, x));\n                ensure(well, base + 1);\n                for (int x = c; x < c + size; x++) well.get(base)[x] = 1;\n            } else {\n                int base = colHeight(well, c);\n                ensure(well, base + size);\n                for (int r = base; r < base + size; r++) well.get(r)[c] = 1;\n            }\n            List<int[]> kept = new ArrayList<>();\n            for (int[] row : well) {\n                int filled = 0;\n                for (int v : row) filled += v;\n                if (filled < 8) kept.add(row);\n            }\n            well = kept;\n        }\n        StringBuilder out = new StringBuilder();\n        for (int c = 0; c < 8; c++) { if (c > 0) out.append(' '); out.append(colHeight(well, c)); }\n        return out.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String pieces = _lines.get(_i + 0);\n            _sb.append(finalHeights(pieces)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\n\nstatic int colHeight(const vector<array<int, 8>> &well, int c) {\n    for (int r = (int) well.size() - 1; r >= 0; r--) if (well[r][c]) return r + 1;\n    return 0;\n}\n\nstatic void ensure(vector<array<int, 8>> &well, int rows) {\n    while ((int) well.size() < rows) well.push_back(array<int, 8>{0, 0, 0, 0, 0, 0, 0, 0});\n}\n\nstring finalHeights(string pieces) {\n\n    vector<array<int, 8>> well;\n    string token;\n    istringstream is(pieces);\n    while (is >> token) {\n        char shape = token[0];\n        size_t colon = token.find(':');\n        int size_ = stoi(token.substr(1, colon - 1));\n        int c = stoi(token.substr(colon + 1));\n        if (shape == 'H') {\n            int base = 0;\n            for (int x = c; x < c + size_; x++) base = max(base, colHeight(well, x));\n            ensure(well, base + 1);\n            for (int x = c; x < c + size_; x++) well[base][x] = 1;\n        } else {\n            int base = colHeight(well, c);\n            ensure(well, base + size_);\n            for (int r = base; r < base + size_; r++) well[r][c] = 1;\n        }\n        vector<array<int, 8>> kept;\n        for (auto &row : well) {\n            int filled = 0;\n            for (int v : row) filled += v;\n            if (filled < 8) kept.push_back(row);\n        }\n        well = kept;\n    }\n    string out;\n    for (int c = 0; c < 8; c++) { if (c) out += ' '; out += to_string(colHeight(well, c)); }\n    return out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        while (!_ln.empty() && (_ln.back() == '\\r' || _ln.back() == ' ')) _ln.pop_back();\n        if (!_ln.empty()) _lines.push_back(_ln);\n    }\n    size_t _k = 1;\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string pieces = _lines[_i + 0];\n        cout << finalHeights(pieces) << \"\\n\";\n    }\n    return 0;\n}\n"
   }
  }
 ];

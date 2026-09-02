@@ -372,7 +372,7 @@ dict(
     id="knight-moves",
     fname="minMoves",
     division="Senior",
-    contest=3,
+    contest=1,
     title="KNIGHT MOVES",
     blurb="Fewest knight hops between two squares of a chessboard.",
     statement="""
@@ -520,7 +520,7 @@ dict(
     id="shuffle-cycles",
     fname="shuffleCount",
     division="Senior",
-    contest=4,
+    contest=2,
     title="SHUFFLE CYCLES",
     blurb="Riffle a deck perfectly, over and over, until it comes back to where it started.",
     statement="""
