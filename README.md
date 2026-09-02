@@ -14,7 +14,19 @@ that actually cost points.
 
 **Practice.** 219 short answer questions in the format ACSL uses on the contest: five choices
 with "None of the above" as E, which is the correct answer about 11 percent of the time. Every
-question shows its reasoning once you answer.
+question shows its reasoning once you answer. Anything you get wrong lands in a missed questions
+list, and getting it right later takes it off again.
+
+**Mock exam.** Six questions in thirty minutes, which is the real contest format per the ACSL
+student guide, drawn from one contest's own categories with What Does This Program Do at the end.
+Nothing is marked while the clock runs. At the end you get a score and every question back with
+the reasoning, and the ones you missed go to the missed list. An unfinished exam survives a
+refresh, deadline included.
+
+Junior lists a What Does This Program Do flavor among the three topics of every contest, so those
+two slots come from the contest itself. Senior lists it only in Contest 1, so for Senior contests
+2 through 4 one slot is borrowed for the general version to keep the tail consistent with the
+finals papers.
 
 **Programming.** Twenty four problems, twelve Junior and twelve Senior, three per contest each,
 written the way the finals problems are written: a narrative statement, a worked example, an input and output spec, three sets of
@@ -23,7 +35,9 @@ constraints. You write inside the function, a visible driver reads the test data
 you return, and the editor really compiles and runs your code in Python, Java, or C++.
 
 The sealed cases show nothing at all until you give up. Submitting tells you which of them pass
-without revealing the inputs or the answers.
+without revealing the inputs or the answers. There is also a custom input box, since every ACSL
+problem tells you to make up test data of your own, and it runs your code against whatever you
+type without checking it against anything.
 
 ## Storage
 
