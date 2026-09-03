@@ -1,144 +1,150 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "lisp": `
-<p class="lead">Contest 2 for Senior. ACSL uses a small, made up LISP. You never write a
-program in it. You evaluate one expression and report the value, which is either a number or a
-list.</p>
+<p class="lead">LISP is one of the oldest programming languages still in use, and its defining
+idea is that a program and the data it works on have exactly the same shape: a parenthesised list.
+ACSL uses a small dialect of it, and you are never asked to write a program. You are given one
+expression and asked what it evaluates to.</p>
 
 <h3>Everything is a list</h3>
-<p>An expression is a parenthesized list whose first element is the function and whose
-remaining elements are the arguments. Evaluation is innermost first: reduce every nested call
-to a value, then apply the outer function.</p>
-<p>A list of data, as opposed to a call, is written with a leading apostrophe, as in
-'(1 2 3). Without the apostrophe the parentheses would mean a function call. Elements can be
-numbers, symbols, or other lists, so '(2 (3 4) 5) is a three element list whose middle element
-is itself a list.</p>
+<p>An expression is a list whose first element names a function and whose remaining elements are
+the arguments to it. Evaluation works from the inside out, so you reduce every nested call to a
+value before applying the function that contains it.</p>
+
+<p>A list of data, as opposed to a function call, is written with a leading apostrophe, as in
+'(1 2 3). The apostrophe means take this literally rather than run it, and without it the
+parentheses would be read as a call to a function named 1. Elements may be numbers, symbols, or
+other lists, so '(2 (3 4) 5) is a list of three things whose middle element happens to be a list of
+two.</p>
 
 <h3>Arithmetic</h3>
-<p>ADD, SUB, MULT, and DIV take two or more arguments and fold left to right. So (SUB 20 5 3)
-is (20 - 5) - 3, which is 12, and (DIV 100 5 2) is (100 / 5) / 2, which is 10. Division keeps
-the integer part.</p>
-<p>SQUARE and EXP show up as well. SQUARE takes one argument. EXP takes a base and an
-exponent, so (EXP 2 5) is 32.</p>
-<p>Evaluate (MULT (ADD 6 5 0) (MULT 5 1 2 2) (DIV 6 (SUB 2 5))). Work from the inside: ADD
-gives 11, the inner MULT gives 20, SUB gives -3, and DIV of 6 by -3 gives -2. The outer MULT is
-11 times 20 times -2, which is -440.</p>
+<p>ADD, SUB, MULT, and DIV take two or more arguments and fold across them from left to right, so
+(SUB 20 5 3) means 20 minus 5, then minus 3, which is 12, and (DIV 100 5 2) is 100 over 5 and then
+over 2, which is 10. Division keeps the integer part. SQUARE takes one argument, and EXP takes a
+base and an exponent, so (EXP 2 5) is 32.</p>
 
-<h3>List surgery</h3>
-<ul>
-<li>CAR returns the first element of a list. (CAR '(2 3 4)) is 2.</li>
-<li>CDR returns the list with the first element removed. (CDR '(2 3 4)) is (3 4).</li>
-<li>CONS puts a value on the front of a list. (CONS 1 '(2 3)) is (1 2 3).</li>
-<li>REVERSE reverses the top level elements and leaves nested lists alone. (REVERSE
-'(1 (2 3) 4)) is (4 (2 3) 1), not (4 (3 2) 1).</li>
-</ul>
-<p>The distinction between CAR and CDR is worth being pedantic about. CAR returns an element,
-which might be a number or might be a list. CDR always returns a list, even when that list has
-one element or none. (CDR '(7)) is (), the empty list, and not the number 7.</p>
-<p>Take (CDR '((2 (3)) (4 (5 6) 7))). The outer list has exactly two elements, and CDR removes
-the first, leaving a one element list. The answer is ((4 (5 6) 7)) with two layers of
-parentheses, because the surviving element was itself a list.</p>
+<p>Working inside out is not optional advice, it is how the language is defined, and the fastest
+way to do it on paper is to find the innermost complete pair of parentheses, replace the whole
+thing with its value, and repeat. Take (MULT (ADD 6 5 0) (MULT 5 1 2 2) (DIV 6 (SUB 2 5))). The
+ADD gives 11, the inner MULT gives 20, the SUB gives -3, and dividing 6 by -3 gives -2. The outer
+MULT is then 11 times 20 times -2, or -440.</p>
 
-<h3>The shorthand combinations</h3>
-<p>CAR and CDR chain into single names. The letters between the C and the R are read right to
-left, so CADR is CAR of CDR, which is the second element. CADDR is CAR of CDR of CDR, which is
-the third. CAADDAR looks intimidating and just means apply the operations from the rightmost
-letter inward.</p>
-<p>Write the chain out before you evaluate it. For CADR of '(1 2 3), first do CDR to get
-(2 3), then CAR to get 2.</p>
+<h3>Taking lists apart and putting them together</h3>
+<p>CAR returns the first element of a list and CDR returns the list with its first element removed.
+The names are historical, from the machine registers on the IBM 704 where LISP was first
+implemented, and there is no point trying to derive them.</p>
+
+<p>The difference between them is worth being pedantic about, because it is where most of the marks
+in this category are won or lost. CAR hands back an element, which might be a number or might
+itself be a list. CDR always hands back a list, even when that list has one element or none at all,
+so (CDR '(7)) is the empty list written (), not the number 7.</p>
+
+<p>CONS puts a value on the front of a list, so (CONS 1 '(2 3)) gives (1 2 3), flat rather than
+nested. REVERSE reverses the top level elements and leaves anything nested inside them alone, which
+means (REVERSE '(1 (2 3) 4)) gives (4 (2 3) 1) and not (4 (3 2) 1).</p>
+
+<p>Here is the kind of question that separates people. Evaluate (CDR '((2 (3)) (4 (5 6) 7))). The
+outer list has exactly two elements, and both of them are themselves lists. CDR removes the first,
+which leaves a list of one element, and that element is (4 (5 6) 7). So the answer is
+((4 (5 6) 7)), with two layers of brackets. Count the brackets in your answer against the structure
+you actually computed, because losing a layer is far easier than it sounds.</p>
+
+<h3>The shorthand chains</h3>
+<p>CAR and CDR combine into single names, and the letters between the C and the R are read from
+right to left. CADR is therefore CAR of CDR, which picks out the second element, and CADDR is CAR
+of CDR of CDR, which picks the third. A chain like CAADDAR looks alarming and means nothing more
+than applying the operations from the rightmost letter inward.</p>
+
+<p>Write the chain out before you evaluate it. For CADR of '(A B C), the CDR gives (B C) and the
+CAR of that gives B. Trying to do it in one leap is how people end up one element off.</p>
 
 <h3>Variables and definitions</h3>
-<p>SETQ binds a name to a value, as in (SETQ X '(A B C)), and after that X stands for that
-list wherever it appears. SET is the same idea with its first argument evaluated. ATOM asks
-whether something is a single item rather than a list, and EQ tests equality.</p>
-<p>DEF, sometimes written DEFUN, defines a function. A definition looks like
-(DEF F (X) (MULT X X)), and after that (F 5) is 25. Contest problems that use DEF usually
-define a small recursive function and ask for one value, so unwind it the same way you would
-in the Recursive Functions category.</p>
+<p>SETQ binds a name to a value, as in (SETQ x '(a b c)), after which x stands for that list
+wherever it appears. SET does the same with its first argument evaluated first. ATOM asks whether
+something is a single item rather than a list, and EQ tests equality.</p>
 
-<h3>Where points get lost</h3>
-<ul>
-<li>Losing a layer of parentheses. Count them in your answer against the structure you
-computed, since ((4 5)) and (4 5) are different answers.</li>
-<li>Returning an element where a list was asked for, or the reverse. That is the CAR versus
-CDR trap.</li>
-<li>Reversing the inside of a nested list. REVERSE only touches the top level.</li>
-<li>Folding SUB or DIV right to left.</li>
-<li>Reading a CADDR chain left to right.</li>
-</ul>
+<p>DEF, sometimes written DEFUN, defines a function, so after (DEF f (x) (MULT x x)) the expression
+(f 5) is 25. Problems that use DEF nearly always define a small recursive function and ask for one
+value, at which point you are back in the Recursive Functions category and should unwind it the
+same way.</p>
+
+<h3>Counting your brackets</h3>
+<p>Losing or gaining a layer of parentheses is the most common error, and it is worth a deliberate
+check, since ((4 5)) and (4 5) are different answers. Next comes returning an element where a list
+was wanted or the reverse, which is the CAR and CDR trap in a different costume. After those:
+reversing the contents of a nested list when REVERSE only ever touches the top level, folding SUB
+or DIV from the right instead of the left, and reading a CADDR chain left to right.</p>
 `,
 
 "wdtpd-looping": `
-<p class="lead">Contest 2 for Junior. Same tracing skill as branching, with the difficulty
-moved into how many times the loop body runs and what the variables look like when it
-stops.</p>
+<p class="lead">Contest 2 for Junior. This is the same tracing skill as branching, with the
+difficulty moved into how many times a loop body runs and what the variables look like at the
+moment it stops. Almost every wrong answer in this category is off by exactly one pass.</p>
 
-<h3>FOR loops</h3>
-<pre><code>for I = 1 to 5
+<h3>Counted loops</h3>
+<pre><code>for i = 1 to 5
     statements
-next I</code></pre>
-<p>I takes the values 1, 2, 3, 4, and 5. Both bounds are inclusive, so this runs five times,
-not four.</p>
-<p>With a step, the counter changes by that amount each pass and the loop stops when the next
-value would go past the limit:</p>
-<ul>
-<li>for i = 1 to 10 step 3 gives 1, 4, 7, and 10. Four passes.</li>
-<li>for i = 1 to 10 step 4 gives 1, 5, and 9. Three passes, because 13 is past 10.</li>
-<li>for i = 10 to 1 step -3 gives 10, 7, 4, and 1. Four passes.</li>
-<li>for i = 5 to 1 gives nothing at all. The step defaults to 1, and 5 is already past 1.</li>
-</ul>
-<p>A quick count for a loop from a to b with step s, when s is positive and b is at least a, is
-the integer part of (b - a) / s, plus one.</p>
-<p>After the loop finishes, the counter holds the first value that failed the test, not the
-last one that passed. After for i = 1 to 5, the counter i holds 6. Problems that print the counter after
-the loop ends are testing exactly this.</p>
+next i</code></pre>
+<p>The counter takes the values 1, 2, 3, 4, and 5, because both bounds are inclusive. That is five
+passes, not four, and it is worth saying out loud once so that it stops being a thing you have to
+work out.</p>
 
-<h3>WHILE loops</h3>
+<p>Adding a step changes the counter by that amount each time, and the loop stops as soon as the
+next value would go past the limit. So for i = 1 to 10 step 3 gives 1, 4, 7, and 10, which is four
+passes. Change the step to 4 and you get 1, 5, and 9, three passes, because 13 is past 10. A
+negative step counts downward, so for i = 10 to 1 step -3 gives 10, 7, 4, and 1. And a loop written
+for i = 5 to 1 never runs at all, since the step defaults to 1 and 5 is already past the limit
+before the first pass.</p>
+
+<p>When you want the count without listing the values, take the difference between the bounds,
+divide by the step, throw away the fraction, and add one. For a loop from a to b with a positive
+step s, that is int((b - a) / s) + 1.</p>
+
+<p>After the loop ends, the counter holds the first value that failed the test rather than the last
+one that passed, so after for i = 1 to 5 the counter holds 6. Problems that print the counter after
+the loop exist specifically to catch this, and there is no way to reason around it.</p>
+
+<h3>Conditional loops</h3>
 <pre><code>while condition
     statements
 end while</code></pre>
-<p>The condition is checked before every pass, including the first. A condition that starts out
-false means the body never runs and the variables keep their starting values.</p>
-<p>The other thing to watch is that the condition uses the current values, which the body just
-changed. Trace the test separately from the body, and put the test in its own column.</p>
+<p>The condition is checked before every pass, including the very first, so a condition that starts
+out false means the body never runs and every variable keeps its initial value. Whenever the answer
+looks like the starting value, that is the first thing to check.</p>
+
+<p>The other thing to watch is that the condition reads the current values, which the body has just
+changed. Give the condition its own column in your trace table rather than evaluating it in your
+head between rows.</p>
 
 <h3>Nested loops</h3>
-<p>The inner loop runs completely for each single pass of the outer loop. Two nested loops of 4
-and 3 passes run the inner body 12 times.</p>
-<p>When the inner bound depends on the outer counter, count carefully:</p>
-<pre><code>C = 0
-for I = 1 to 4
-    for J = I to 4
-        C = C + 1
-    next J
-next I</code></pre>
-<p>The inner loop runs 4 times when I is 1, then 3, then 2, then 1. C ends at 10. Whenever the
-inner bound is tied to the outer counter, expect a triangular count like this rather than a
-product.</p>
+<p>The inner loop runs to completion for every single pass of the outer one, so two loops of four
+and three passes execute the inner body twelve times. That much is a plain product.</p>
 
-<h3>Accumulator patterns</h3>
-<p>Most of these programs are doing one of a few things, and naming the pattern tells you what
-answer to expect:</p>
-<ul>
-<li>A running sum or product, where a variable starts at 0 or 1 and gets combined with
-something each pass.</li>
-<li>A counter that only advances when a condition inside the loop holds.</li>
-<li>A running maximum or minimum, usually started at the first element or at an extreme
-value.</li>
-<li>A value that gets halved or doubled each pass, which usually means the loop count is
-logarithmic and the trace is shorter than it looks.</li>
-</ul>
+<p>It stops being a product the moment the inner bound depends on the outer counter:</p>
+<pre><code>c = 0
+for i = 1 to 4
+    for j = i to 4
+        c = c + 1
+    next j
+next i</code></pre>
+<p>The inner loop runs 4 times when i is 1, then 3, then 2, then 1, so c ends at 10. Whenever you
+see the outer counter appear in the inner bound, expect a triangular count like this rather than a
+rectangle, and add the row lengths rather than multiplying.</p>
 
-<h3>Where points get lost</h3>
-<ul>
-<li>Being off by one on an inclusive FOR bound.</li>
-<li>Forgetting that the counter is one step past the limit after the loop ends.</li>
-<li>Running a WHILE body once when the condition was false from the start.</li>
-<li>Missing the final pass that pushes a variable negative, which is what the table in the
-Senior guide is built to prevent.</li>
-<li>Resetting an accumulator inside the outer loop when it was declared outside it, or the
-reverse. Check the indentation.</li>
-</ul>
+<h3>Recognising what a loop is for</h3>
+<p>Most of these programs are doing one of a handful of things, and naming the pattern tells you
+roughly what answer to expect before you have finished tracing, which is a useful check on your own
+arithmetic. A running sum or product starts at 0 or 1 and combines something in on each pass. A
+counter advances only when a condition inside the loop holds. A running maximum or minimum starts
+either at the first element or at an extreme value. And a variable that halves or doubles each pass
+means the loop count is logarithmic, so the trace is far shorter than the numbers suggest.</p>
+
+<h3>Off by one, every time</h3>
+<p>Being off by one on an inclusive bound is the classic, followed by forgetting that the counter
+ends one step past the limit. After those come running a while body once when the condition was
+false from the start, missing the final pass that pushes a variable negative, and resetting an
+accumulator inside the outer loop when it was declared outside it. That last one is purely a matter
+of reading the indentation, which is why redrawing a badly printed program is time well spent.</p>
 `
 
 });
