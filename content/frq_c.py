@@ -62,29 +62,28 @@ separated by semicolons.</li>
            "..#..;.....;#...#;.....;..#..",
            "...........;.#.#.#.#.#.;...........;.#.#.#.#.#.;...........;.#.#.#.#.#.;..........."],
     approach="""
-<p>The plain recursion, where each square asks its right neighbour and its lower neighbour, is
-correct and hopeless. On a 17 by 17 grid it explores about 300 million branches because it keeps
-resolving the same square from different directions.</p>
+<p>The obvious recursion, where each square asks its right neighbour and its lower
+neighbour how many routes they see, is correct and hopeless. On a 17 by 17 grid it explores something
+like 300 million branches, because it keeps resolving the same square over and over from different
+directions.</p>
 
-<p>The fix is a table. Let <code>ways[r][c]</code> be the number of routes from the top left to
-that square. A blocked square gets 0. Otherwise the value is <code>ways[r - 1][c]</code> plus
-<code>ways[r][c - 1]</code>, treating anything off the grid as 0, because the only way to arrive
-is from directly above or directly to the left.</p>
+<p>A table fixes that. Let <code>ways[r][c]</code> hold the number of routes from the top left corner
+to that square. A blocked square gets 0, and any other square gets <code>ways[r - 1][c]</code> plus
+<code>ways[r][c - 1]</code>, treating anything off the grid as 0, since arriving from directly above
+or directly to the left are the only two possibilities. Seed <code>ways[0][0]</code> with 1 when the
+start is open and 0 when it is blocked, fill the table row by row from the top, and the answer is the
+bottom right entry. That is 289 additions rather than 300 million branches.</p>
 
-<p>Seed <code>ways[0][0]</code> with 1 when the start is open and 0 when it is blocked. Fill the
-table row by row from the top and the answer is the bottom right entry. That is 289 additions
-instead of 300 million branches.</p>
+<p>The first row and first column are worth a moment's thought. A blocked square anywhere along the
+top row makes every square to its right in that row unreachable, and the table produces that
+automatically provided you set the blocked square to 0 before anything reads it. There is no need to
+special case the borders at all, only to guard the index.</p>
 
-<p>The whole first row and the whole first column deserve a moment. A blocked square anywhere
-along the top row means every square to its right in that row is unreachable, and the table
-produces that automatically as long as you set the blocked square to 0 before reading it. Do not
-special case the borders, just guard the index.</p>
+<p>Splitting the input is the one piece of plumbing. Python splits on the semicolon, Java uses
+<code>split(";")</code>, and C++ wants <code>getline</code> on an <code>istringstream</code> with a
+semicolon delimiter.</p>
 
-<p>Splitting the input is the one piece of plumbing. In Python that is a split on the semicolon.
-In Java it is <code>split(";")</code>, and in C++ it is <code>getline</code> on an
-<code>istringstream</code> with a semicolon delimiter.</p>
-
-<p>Counts on an open 17 by 17 grid reach about 10 billion, which overflows a 32 bit integer, so
+<p>Counts on a fully open 17 by 17 grid reach roughly 10 billion, which overflows a 32 bit integer, so
 keep the table in 64 bit values.</p>
 """,
     sol=dict(
@@ -214,31 +213,29 @@ plate.</li>
            "35895683", "31428573", "91827364",
            "09568947", "10000001", "24681012"],
     approach="""
-<p>Two halves that do not interact: build the list of candidate numbers, then run five
-independent tests over it.</p>
+<p>This splits into two halves that never interact: build the list of candidate
+numbers, then run five independent tests across it.</p>
 
-<p>Building the list is a double loop over the length, 2 through 4, and the starting index. Cut
-the substring, convert it, and keep it only if it is at or above the smallest number of that
-length. That single comparison is what discards runs with a leading zero, so you never have to
-inspect the first character. On the plate 07070707 the numbers 70 and 707 survive while 07 and
-070 do not.</p>
+<p>Building the list is a double loop over the length, 2 through 4, and the starting index. Cut the
+substring, convert it, and keep it only if it is at or above the smallest number of that length. That
+single comparison is what discards any run beginning with a zero, so you never have to inspect the
+first character yourself. On the plate 07070707, for instance, 70 and 707 survive while 07 and 070 do
+not.</p>
 
-<p>Now the five tests. Harshad is one modulo against the digit sum. Palindrome is a string
-compared with its reverse. For square, take the integer square root and nudge it until r times r
-is at or above the value, then check equality, rather than trusting a floating point square root
-at values near 9999.</p>
+<p>The tests themselves are mostly one line each. Harshad is a single modulo against the digit sum,
+and palindrome is a string compared with its own reverse. For square, take the integer square root and
+nudge it upward until r times r reaches the value, then check for equality, rather than trusting a
+floating point square root at values near 9999. Triangular has exactly the same shape, and walking k
+upward while accumulating k times k plus 1 over 2 is easier to get right than inverting the formula,
+at this size.</p>
 
-<p>Triangular has the same shape. Either walk k upward accumulating k times k plus 1 over 2 until
-you reach or pass the value, or invert the formula the same careful way. Both are fine at this
-size and the loop is harder to get wrong.</p>
+<p>The emirp test is the only one carrying a trap, because it needs three conditions at once: the
+number is prime, its reversal is prime, and the reversal differs from the original. Drop that third
+condition and every palindromic prime such as 101 or 727 qualifies, which quietly adds a Z to several
+plates. Trial division up to the square root is more than fast enough below 10000.</p>
 
-<p>The emirp test is the only one with a trap. It needs three things at once: the number is
-prime, the reversal is prime, and the reversal is different from the original. Drop the third
-condition and every palindromic prime such as 101 or 727 counts, which quietly adds a Z to
-several plates. Trial division up to the square root is plenty fast for numbers under 10000.</p>
-
-<p>Collect the letters in a set so a kind that turns up four times is still reported once, then
-sort and join. If the set is empty, the answer is NONE and not an empty string.</p>
+<p>Collect the letters in a set so that a kind appearing four times is still reported once, then sort
+and join. An empty set means the answer is NONE rather than an empty string.</p>
 """,
     sol=dict(
         python_helpers="""
@@ -417,27 +414,27 @@ naming a square.</li>
            ["e4", "e5"], ["a1", "c2"], ["d5", "d5"],
            ["b1", "g8"], ["a8", "h1"], ["c3", "f7"]],
     approach="""
-<p>This is a shortest path on an unweighted graph, so it is a breadth first search and nothing
-cleverer. Trying to compute the answer from the coordinate difference with a formula is possible
-but the corner cases near the edges of the board are brutal, and a1 to b2 is the one that breaks
-every naive formula: the squares are touching and the answer is 4.</p>
+<p>This is a shortest path on an unweighted graph, which means a breadth first
+search and nothing more sophisticated. You can attempt a formula based on the coordinate difference,
+but the cases near the edges of the board are genuinely nasty, and a1 to b2 defeats every naive
+version: the two squares are touching and the answer is 4.</p>
 
-<p>Set up a 64 square board, mark the start with a distance of 0, and push it onto a queue. Pop a
-square, generate its eight knight destinations, and for each one that is on the board and not yet
-visited, record a distance one greater and push it. Stop when you pop the target. The board is
-tiny, so the whole search visits at most 64 squares.</p>
+<p>Set up a 64 square board, mark the starting square with a distance of 0, and push it onto a queue.
+Repeatedly pop a square, generate its eight knight destinations, and for each one that lies on the
+board and has not been visited, record a distance one greater and push it. Stop when you pop the
+target. The board is tiny, so the whole search visits at most 64 squares.</p>
 
-<p>Store the eight moves as two parallel arrays of offsets, plus and minus 1 paired with plus and
-minus 2 in both orders. Writing them out longhand is where a typo hides, so generate or
-double check them.</p>
+<p>Store the eight moves as two parallel arrays of offsets, pairing plus and minus 1 with plus and
+minus 2 in both orders. Writing those out longhand is exactly where a typo hides, so generate them or
+check them twice.</p>
 
-<p>Converting a square name to coordinates is subtraction. The file is the letter minus the
-letter a, giving 0 through 7, and the rank is the digit minus the character zero, minus one more
-so that rank 1 becomes row 0.</p>
+<p>Converting a square name into coordinates is plain subtraction. The file is the letter minus the
+letter a, giving 0 through 7, and the rank is the digit minus the character zero, minus one more so
+that rank 1 becomes row 0.</p>
 
-<p>Two answers are worth checking by hand because they surprise people. The same square is 0
-moves, not 1. And a1 to b2, a single diagonal step, takes 4 moves, because the knight has to
-leave the corner region and come back.</p>
+<p>Two answers are worth confirming by hand because they surprise people. The same square takes 0
+moves rather than 1, and a1 to b2, which is a single diagonal step, takes 4, because the knight has to
+leave the corner and come back to it.</p>
 """,
     sol=dict(
         python="""
@@ -566,24 +563,24 @@ Three shuffles, so output 3.
            "24", "50", "64",
            "100", "1000", "2000"],
     approach="""
-<p>Simulating is the honest first answer and it is fast enough here. Build an array holding 0
-through n minus 1, shuffle it, and compare with the original. Repeat, counting, until they match.
-Each shuffle is one pass over n cards, and the number of shuffles never gets large, so even a
-2000 card deck finishes instantly.</p>
+<p>Simulating is the honest first answer and it is fast enough here. Build an
+array holding 0 through n minus 1, shuffle it, and compare against the original, repeating and
+counting until the two match. Each shuffle is one pass over n cards and the number of shuffles never
+grows large, so even a 2000 card deck finishes instantly.</p>
 
-<p>Building the shuffled deck is easier with a second array than in place. Walk i from 0 to
-half minus 1 and write the card at position i into slot 2i, then the card at position half plus i
-into slot 2i plus 1. Then copy back, or swap the two arrays.</p>
+<p>Building the shuffled deck into a second array is easier than doing it in place. Walk i from 0 to
+half minus 1, writing the card at position i into slot 2i and the card at position half plus i into
+slot 2i plus 1, then either copy back or swap the two arrays.</p>
 
-<p>If you would rather not simulate, there is a tidy fact behind the problem. Under this shuffle
-the card at position p, counting from 0, moves to position 2p modulo n minus 1, with the last card
-staying put. So the deck returns to its original order after the smallest k for which 2 to the k
-is congruent to 1 modulo n minus 1. For 52 cards that is the order of 2 modulo 51, which is 8.
-Computing it is a short loop that doubles a running value modulo n minus 1 until it hits 1.</p>
+<p>There is a tidier fact underneath if you would rather not simulate. Under this shuffle the card at
+position p, counting from 0, moves to position 2p modulo n minus 1, with the last card staying where
+it is. The deck therefore returns to its original order after the smallest k for which 2 to the k is
+congruent to 1 modulo n minus 1, which for 52 cards is the multiplicative order of 2 modulo 51, or 8.
+Computing that is a short loop doubling a running value modulo n minus 1 until it reaches 1.</p>
 
-<p>Either way, check the two smallest decks by hand. A deck of 2 cards is unchanged by the
-shuffle, so the answer is 1 and not 0, since the definition asks how many shuffles it takes to be
-back in order and doing one shuffle achieves that.</p>
+<p>Either way, check the smallest deck by hand. Two cards are unchanged by the shuffle, and since the
+question asks how many shuffles it takes to be back in order, doing one shuffle achieves that, so the
+answer is 1 rather than 0.</p>
 """,
     sol=dict(
         python="""

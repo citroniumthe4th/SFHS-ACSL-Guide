@@ -51,22 +51,23 @@ numeral in standard form.</li>
            ["MCMLXXXIV", "XVI"], ["III", "IV"], ["MMXXV", "MDCCCLXXV"],
            ["IX", "I"], ["DCCCLXXXVIII", "MMCXI"], ["XXXIX", "MCMLXI"]],
     approach="""
-<p>Two conversions with an addition in the middle. Neither conversion needs a special case if you
-set the tables up correctly.</p>
+<p>This is two conversions with an addition in the middle, and neither conversion
+needs a special case provided you set the tables up properly.</p>
 
-<p>Going from Roman to a number, scan left to right and compare each letter with the one after
-it. If the current value is smaller than the next, subtract it. Otherwise add it. That single
-rule handles all six subtractive pairs without listing any of them, because IV is the only way a
-smaller I can sit in front of a larger V.</p>
+<p>Going from Roman to a number, scan left to right and compare each letter with the one after it,
+subtracting when the current value is smaller than the next and adding otherwise. That single rule
+handles all six subtractive pairs without your ever listing them, because a smaller value can only
+legally sit in front of a larger one when it is one of those pairs.</p>
 
-<p>Going from a number back to Roman is greedy, and the trick is what goes in the table. List all
-thirteen values in descending order and include the subtractive pairs as entries of their own:
-1000 M, 900 CM, 500 D, 400 CD, 100 C, 90 XC, 50 L, 40 XL, 10 X, 9 IX, 5 V, 4 IV, 1 I. Then repeat
-taking the largest entry that fits and subtracting it. With those six extra rows the greedy pass
-produces standard form automatically.</p>
+<p>Coming back the other way is greedy, and everything depends on what goes into the table. List all
+thirteen values in descending order and give the subtractive pairs entries of their own: 1000 M, 900
+CM, 500 D, 400 CD, 100 C, 90 XC, 50 L, 40 XL, 10 X, 9 IX, 5 V, 4 IV, and 1 I. Then repeatedly take the
+largest entry that fits and subtract it. With those six extra rows present, a plain greedy pass
+produces standard form automatically and you never have to think about it again.</p>
 
-<p>Leave the four out and you will emit IIII for 4 and DCCCC for 900, which look reasonable and
-fail every test that touches them. That is the whole difficulty of the problem.</p>
+<p>Leave them out and the same greedy pass emits IIII for 4 and DCCCC for 900, both of which look
+reasonable enough on the page to survive a glance and fail every test case that touches them. That is
+essentially the whole difficulty of the problem.</p>
 """,
     sol=dict(
         python_helpers="""
@@ -220,23 +221,22 @@ IMPOSSIBLE.</li>
            ["63", "50 20 10 5 2"], ["6", "4 3 1"], ["100000", "10000 5000 1000 500 100 25 10 5 1"],
            ["11", "9 6 1"], ["7", "5 4"], ["4321", "2000 500 200 50 20 5 2"]],
     approach="""
-<p>The loop is short: for each coin value in the order given, divide what is still owed by that
-value to get the count, then take the remainder as the new amount owed. At the end, if anything
-is still owed, the answer is IMPOSSIBLE.</p>
+<p>The loop itself is short. For each coin value in the order given, divide what
+is still owed by that value to get a count, then keep the remainder as the new amount owed. If
+anything is still owed once the values run out, the answer is IMPOSSIBLE.</p>
 
-<p>What makes this a real problem is that greedy is not always right, and the problem statement
-deliberately tells you to be greedy anyway. With coins of 25, 10, 5, and 1 the greedy answer
-happens to be optimal for every amount, which is why American coins feel natural. With coins of
-25 and 10 and an amount of 30, greedy grabs the 25, is left owing 5, and has nothing that fits,
-so it reports IMPOSSIBLE even though three 10s would have worked.</p>
+<p>What makes this a real problem is that the greedy rule is not always optimal, and the statement
+deliberately tells you to follow it anyway. With coins of 25, 10, 5, and 1 the greedy answer happens to
+be optimal for every amount, which is why American change feels natural and why the flaw stays hidden.
+Give the machine only 25s and 10s and ask it for 30, and it takes the 25, is left owing 5, finds
+nothing that fits, and reports IMPOSSIBLE even though three 10s would have worked perfectly.</p>
 
-<p>Do not fix that. The machine described in the statement has no lookahead, and a solver that
-finds the clever combination fails the fifth test case. Read the rule you were given and
-implement that rule.</p>
+<p>Do not fix that. The machine described in the statement has no lookahead, and a solver clever enough
+to find the working combination fails the fifth test case. Implement the rule you were given rather
+than the rule you would have written.</p>
 
-<p>The output has one number per coin value, including the zeros. Skipping a coin that was never
-used collapses the columns and misaligns everything after it, which is the other way to lose this
-problem.</p>
+<p>One formatting trap remains. The output carries one number per coin value, including the zeros, so
+skipping a coin that was never used collapses the columns and misaligns everything after it.</p>
 """,
     sol=dict(
         python="""
@@ -323,25 +323,27 @@ string, <code>stamps</code>, holding the available stamp values separated by sin
            ["50", "3 7 11"], ["1", "2"], ["200", "1 2 5 10 20 50 100"],
            ["17", "17"], ["120", "6 9 20"], ["250", "1 3 5 7 11 13 17 19"]],
     approach="""
-<p>Recursion that tries every count of every stamp works and is far too slow at 300. The fix is a
-single one dimensional table, and the order of the two loops is the whole problem.</p>
+<p>Recursion that tries every possible count of every stamp is correct and
+hopeless at an amount of 300. The fix is a single one dimensional table, and the order of the two loops
+is the entire problem.</p>
 
-<p>Let <code>ways[k]</code> be the number of ways to make exactly k. Start with
-<code>ways[0]</code> equal to 1 and everything else 0. Now loop over the stamp values on the
-outside, and for each one loop k upward from that stamp value to the amount, adding
+<p>Let <code>ways[k]</code> be the number of ways to make exactly k, starting with
+<code>ways[0]</code> equal to 1 and everything else at 0. Then loop over the stamp values on the
+outside, and for each one loop k upward from that value to the amount, adding
 <code>ways[k - value]</code> into <code>ways[k]</code>.</p>
 
-<p>Putting the stamps on the outside is what makes order irrelevant. Each stamp value is fully
-absorbed into the table before the next one is considered, so a combination is only ever built in
-one canonical order and never counted twice. Swap the loops so that k is on the outside and you
-count ordered sequences instead, which for the sample would give 128 rather than 10.</p>
+<p>Putting the stamp values on the outside is what makes order irrelevant. Each value is fully absorbed
+into the table before the next one is considered, so any given combination is built in exactly one
+canonical order and can never be counted twice. Swap the loops so that k sits outside and you count
+ordered sequences instead, which for the first sample would give 128 rather than 10.</p>
 
-<p>Running k upward rather than downward is what allows a stamp to be reused. Counting downward
-would let each value be used at most once, which is the answer to a different question.</p>
+<p>Running k upward rather than downward is what allows a stamp to be used more than once. Counting
+downward would permit each value at most once, which is the answer to a genuinely different
+question.</p>
 
-<p>An amount of 0 has exactly one way, the empty selection, and the initial
-<code>ways[0]</code> equal to 1 delivers that for free. Counts grow quickly, so use a 64 bit
-integer.</p>
+<p>An amount of 0 has exactly one way to be made, namely the empty selection, and the initial
+<code>ways[0]</code> equal to 1 delivers that without a special case. The counts grow quickly, so keep
+the table in 64 bit integers.</p>
 """,
     sol=dict(
         python="""
@@ -424,27 +426,28 @@ string, <code>digits</code>, holding the digits in the order they must stay.</li
            ["-5", "12345"], ["720", "123456"], ["1", "10"],
            ["0", "00000"], ["45", "987654321"], ["24", "11223344"]],
     approach="""
-<p>With d digits there are d minus 1 gaps and three choices per gap, so at most 3 to the tenth
-expressions, which is 59049. That is small enough to try every one of them, and the clean way to
-do it is recursion.</p>
+<p>With d digits there are d minus 1 gaps and three choices at each, giving at
+most 3 to the tenth expressions, or 59049. That is small enough to try every one of them, and recursion
+is the cleanest way to do it.</p>
 
-<p>Write a helper that takes the index of the next digit and the value accumulated so far. At the
-end of the string, return 1 if the accumulated value equals the target and 0 otherwise. Otherwise
-return the sum of three recursive calls, one for each operator applied to the running value and
-the next digit.</p>
+<p>Write a helper taking the index of the next digit and the value accumulated so far. When the index
+reaches the end of the string, return 1 if the accumulated value equals the target and 0 otherwise.
+Otherwise return the sum of three recursive calls, one for each operator applied to the running value
+and the next digit.</p>
 
-<p>Because the evaluation is strictly left to right, the running value is all the state you need.
-There is no need to build the expression, tokenize it, or worry about precedence, and that is
-exactly why the problem specifies left to right evaluation. A solver that quietly applies normal
-precedence gets the first sample right by luck and then diverges.</p>
+<p>Because the evaluation is strictly left to right, that running value is the only state you need.
+There is nothing to tokenize, no expression to build, and no precedence to worry about, which is
+exactly why the problem specifies left to right evaluation in the first place. A solver that quietly
+applies ordinary precedence gets the first sample right by luck and diverges immediately
+afterwards.</p>
 
-<p>Start the recursion at the second digit with the first digit as the running value. Starting at
-the first digit with 0 would silently add a leading plus and change the answer, which matters as
-soon as the first operator would have been a minus.</p>
+<p>Start the recursion at the second digit with the first digit as the running value. Starting at the
+first digit with a running value of 0 silently inserts a leading plus, which changes the answer the
+moment the first operator should have been a minus.</p>
 
-<p>Values can swing far outside the target range along the way, since a string of nines
-multiplied together is large, so keep the running value in a 64 bit integer. The comparison at
-the end still only accepts an exact match.</p>
+<p>Intermediate values can swing far outside the target range, since a run of nines multiplied together
+gets large quickly, so keep the running value in a 64 bit integer even though the comparison at the end
+still demands an exact match.</p>
 """,
     sol=dict(
         python_helpers="""

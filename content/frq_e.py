@@ -59,31 +59,31 @@ space.</li>
            "1 1 1 2 2", "6 6 6 1 1", "2 3 4 5 5",
            "1 3 5 2 4", "4 4 4 4 6", "1 1 1 1 2"],
     approach="""
-<p>Count first, decide second. Build a tally of how many times each face from 1 through 6 turned
-up, and add the five dice for the sum. Every test below reads off that tally.</p>
+<p>Count first and decide second. Build a tally of how many times each face from 1
+through 6 turned up, and add the five dice for the sum, because every test below reads off one or the
+other.</p>
 
 <p>Five of a kind means some face has a count of 5. Four of a kind means some count is 4 or more,
-which the five of a kind case also satisfies. Three of a kind means some count is 3 or more. A
-full house means one face has a count of exactly 3 and another has exactly 2.</p>
+which five of a kind also satisfies, and three of a kind means some count is 3 or more. A full house
+means one face has a count of exactly 3 while another has exactly 2.</p>
 
-<p>The straights are the only ones that need the faces in order. Take the set of distinct faces
-and look for a run. A large straight is 1 2 3 4 5 or 2 3 4 5 6. A small straight is any four in a
-row, so 1 2 3 4, or 2 3 4 5, or 3 4 5 6, appearing among the distinct faces. Checking the three
-small straight patterns directly is shorter and less error prone than writing a general run
-finder.</p>
+<p>The straights are the only categories needing the faces in order, so take the set of distinct faces
+and look for a run. A large straight is 1 2 3 4 5 or 2 3 4 5 6, and a small straight is any four in a
+row, meaning 1 2 3 4, or 2 3 4 5, or 3 4 5 6, appearing among the distinct faces. Checking those three
+patterns directly is both shorter and less error prone than writing a general run finder.</p>
 
-<p>Now build the list of categories you qualify for along with what each pays, walk it in the
-order given in the statement, and keep the best. Keep the first one you meet when the scores tie,
-which happens automatically if you only replace the current best on a strictly greater score.</p>
+<p>Now build the list of categories you qualify for along with what each pays, walk it in the order
+the statement gives, and keep the best. Ties resolve to the first one encountered automatically,
+provided you only replace the current best on a strictly greater score.</p>
 
-<p>The point of the problem is that the list order is a tiebreaker and not a priority. A full
-house pays 25, and a roll of three 5s and two 6s sums to 27, so the correct claim is the category
-lower down the list. Reading the list as a priority order and stopping at the first match gets
-the sample wrong, which is exactly why the sample is that roll.</p>
+<p>The point of the problem is that the list order is a tiebreaker rather than a priority. A full house
+pays 25, but a roll of three 5s and two 6s sums to 27, so the correct claim is a category further down
+the list. Reading the order as a priority and stopping at the first match gets the sample wrong, which
+is precisely why the sample is that roll.</p>
 
-<p>Watch the overlaps. Five of a kind qualifies for YAHTZEE, FOUROFAKIND, THREEOFAKIND, and
-CHANCE all at once, and YAHTZEE pays 50 while the sum of five dice can never exceed 30, so
-YAHTZEE always wins there.</p>
+<p>Watch the overlaps as well. Five of a kind qualifies for YAHTZEE, FOUROFAKIND, THREEOFAKIND, and
+CHANCE simultaneously, and since YAHTZEE pays 50 while five dice can never sum beyond 30, YAHTZEE
+always wins there.</p>
 """,
     sol=dict(
         python="""
@@ -269,32 +269,30 @@ integer, <code>speed</code>, in units per second.</li>
            ["45/9/6,90/9/6,135/9/6,180/9/6,225/9/6,270/9/6", "9"],
            ["200/4/16,400/4/16,600/4/16,800/4/16,1000/4/16", "20"]],
     approach="""
-<p>One pass over the lights, carrying a single running total of the seconds lost so far. That
-running total is the whole problem.</p>
+<p>One pass over the lights, carrying a single running total of the seconds lost
+so far. That running total is the entire problem.</p>
 
-<p>For each light, the arrival time is its position divided by the speed, plus every second the
-car has already spent waiting. The constraints promise the position divides evenly, so this stays
-in whole numbers and you never need to worry about a car arriving half a second into a cycle.</p>
+<p>For each light, the arrival time is its position divided by the speed, plus every second the car has
+already spent waiting. The constraints promise the position divides evenly, so the arithmetic stays in
+whole numbers and you never have to think about a car arriving half a second into a cycle.</p>
 
 <p>To read the light, take the arrival time modulo the cycle length, where the cycle is the green
-seconds plus the red seconds. Since every light turns green at time 0, that remainder is how far
-into the current cycle the car is. If it is less than the green time, drive through. If it is not,
-the light is red, so count a stop and add the seconds remaining in the cycle, which is the cycle
-length minus the remainder, to the running total.</p>
+seconds plus the red seconds. Since every light turns green at time 0, that remainder tells you how far
+into the current cycle the car has arrived. If it is less than the green time the car drives through,
+and if it is not the light is red, so count a stop and add the seconds remaining in the cycle, which is
+the cycle length minus the remainder, to the running total.</p>
 
-<p>The mistake this problem is built around is computing all the arrival times up front from the
-positions alone and then checking each light independently. That gives the right answer only when
-the car never stops. Once it waits at the first light, every later arrival time moves by that
-amount, and the sample is arranged so the third light is green if you forget and red if you do
-not.</p>
+<p>The mistake this problem is built around is computing every arrival time up front from the positions
+alone and then checking each light independently. That gives the right answer only for a car that never
+stops. The moment it waits at the first light, every later arrival shifts by that amount, and the sample
+is arranged so that the third light reads green if you forget and red if you do not.</p>
 
-<p>Two details on the boundary. Arriving at the exact second the light turns red means it is red,
-so use a strict less than against the green time. Arriving at the exact second it turns green, a
+<p>Two boundary details. Arriving at the exact second the light turns red means it is red, so compare
+with a strict less than against the green time. Arriving at the exact second it turns green, meaning a
 remainder of 0, means it is green and the car does not stop.</p>
 
-<p>Parsing is a split on the comma and then a split on the slash. In C++ that is two nested uses
-of <code>getline</code> on an <code>istringstream</code>, and in Java it is two calls to
-<code>split</code>.</p>
+<p>Parsing is a split on the comma and then a split on the slash, which in C++ means two nested uses of
+<code>getline</code> on an <code>istringstream</code> and in Java two calls to <code>split</code>.</p>
 """,
     sol=dict(
         python="""
@@ -408,28 +406,28 @@ each player's cards from top to bottom separated by single spaces.</li>
            ["6 6 6 7", "6 6 6 5"],
            ["3 4 5 6 7 8 9 10 11 12 13 14 2", "14 13 12 11 10 9 8 7 6 5 4 3 2"]],
     approach="""
-<p>Two queues and a loop. Take from the front, add to the back, and everything else follows.</p>
+<p>Two queues and a loop. Take from the front, add to the back, and everything else
+follows from the rules as written.</p>
 
-<p>Use a structure that is cheap at both ends. In Java that is an <code>ArrayDeque</code>, in C++
-a <code>deque</code>, and in Python a <code>collections.deque</code> or a plain list if you are
-happy with the cost of popping the front, which at 26 cards and 500 rounds is nothing.</p>
+<p>Use a structure that is cheap at both ends: an <code>ArrayDeque</code> in Java, a
+<code>deque</code> in C++, and either <code>collections.deque</code> or a plain list in Python, since
+at 26 cards and 500 rounds the cost of popping the front of a list is negligible.</p>
 
-<p>Each round, check the stopping conditions before playing, not after. If either deck is empty
-you are done, and the round number to report is the one just finished, so count carefully: the
-round that empties a deck is the round that ends the game.</p>
+<p>Check the stopping conditions each round after the cards have been played rather than before, and
+count carefully, because the round that empties a deck is the round that ends the game and is therefore
+the number to report.</p>
 
-<p>The order the winner puts the two cards back matters, and it is what makes the game finite or
-not. Winner's card first, then the loser's. Reverse it and you get a different, equally
-deterministic game with different answers.</p>
+<p>The order in which the winner returns the two cards matters, and it is what makes the game finite or
+not: winner's card first, then the loser's. Reverse it and you have a different but equally
+deterministic game with different answers throughout.</p>
 
-<p>The burn on a tie is the rule that makes draws possible. Both cards leave the game, so the total
-number of cards in play shrinks. Two decks of identical cards burn themselves down in step and
-empty on the same round, which is what the DRAW case is for, and the tenth test is exactly
-that.</p>
+<p>The burn on a tie is what makes draws possible, since both cards leave the game entirely and the
+total number of cards in play shrinks. Two decks of identical cards burn down in step and empty on the
+same round, which is exactly what the DRAW case exists for, and the tenth test is that situation.</p>
 
-<p>The cap exists because this game genuinely can loop forever. Two decks that trade the same
-cards back and forth in a cycle never terminate, so count the rounds and stop at 500. Reporting
-TIMEOUT is a correct answer, not a failure.</p>
+<p>The cap exists because this game genuinely can run forever. Two decks that trade the same cards back
+and forth in a cycle never terminate, so count the rounds and stop at 500. Reporting TIMEOUT is a
+correct answer rather than an admission of failure.</p>
 """,
     sol=dict(
         python="""
@@ -554,31 +552,31 @@ separated by a single space.</li>
            ["R........;.#######.;.#.....#.;.#.###.#.;.#.#R#.#.;.#.###.#.;.#.....#.;.#######.;.........", "500"],
            ["####;#R.#;#.##;####", "100000"]],
     approach="""
-<p>Model the robot as a position and a facing index, then let one table do all the direction
-work.</p>
+<p>Model the robot as a position and a facing index, then let one small table do
+all the direction work.</p>
 
-<p>Store the four directions in the order north, east, south, west, so that turning right is
-adding one and taking the remainder on 4. Put the row and column offsets in two parallel arrays
-in the same order: north is row minus one, east is column plus one, south is row plus one, and
-west is column minus one. With that in place the entire step is four lines and there is no
-switch statement anywhere.</p>
+<p>Store the four directions in the order north, east, south, west, so that turning right is adding one
+and taking the remainder on 4. Put the row and column offsets in two parallel arrays in that same
+order, with north as row minus one, east as column plus one, south as row plus one, and west as column
+minus one. Once that is set up, the entire step is four lines and there is no switch statement
+anywhere in the program.</p>
 
-<p>Keep the cleaned squares in a set, or in a grid of booleans with a separate counter, and mark
-the starting square before the loop begins. Forgetting that start square is the most common way to
-come out exactly one low.</p>
+<p>Keep the cleaned squares in a set, or in a grid of booleans alongside a counter, and mark the
+starting square before the loop begins. Forgetting that starting square is the most common way to
+finish exactly one low.</p>
 
-<p>Each step, work out the square ahead. If its row and column are both inside the plan and it is
-not a wall, move there and mark it. Otherwise advance the facing. Both branches consume a step, so
-the loop body always runs to completion once per step.</p>
+<p>Each step, work out the square directly ahead. If its row and column both lie inside the plan and it
+is not a wall, move there and mark it, and otherwise advance the facing. Both branches consume a step,
+so the body always runs exactly once per step.</p>
 
-<p>The step count can reach 100000, which is far more than the robot needs on a plan of at most
-625 squares, so most tests run long after the robot has settled into a repeating circuit. That is
-fine and the loop is cheap, but it does mean you cannot stop early just because no new square was
-cleaned, since the facing at the end still depends on the exact number of steps.</p>
+<p>The step count can reach 100000, which is far more than the robot needs on a plan of at most 625
+squares, so most tests run long after it has settled into a repeating circuit. The loop is cheap enough
+that this does not matter, but it does mean you cannot stop early merely because no new square was
+cleaned, since the final facing still depends on the exact number of steps.</p>
 
-<p>Two edge cases worth checking by hand. A plan that is a single square leaves the robot turning
-on the spot forever, cleaning exactly one square, and its final facing cycles with a period of
-four. A robot boxed in by walls behaves the same way.</p>
+<p>Two edge cases are worth checking by hand. A plan consisting of a single square leaves the robot
+turning on the spot forever, cleaning exactly one square, with its final facing cycling with a period
+of four, and a robot boxed in by walls behaves identically.</p>
 """,
     sol=dict(
         python="""

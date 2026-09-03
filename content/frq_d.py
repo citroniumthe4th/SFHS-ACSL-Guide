@@ -74,26 +74,27 @@ each roll in order, separated by single spaces.</li>
            "0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 0 10 10",
            "10 9 1 10 9 1 10 9 1 10 9 1 10 9 1 10"],
     approach="""
-<p>Do not walk the string frame by frame trying to decide how many rolls to consume. Walk it roll
-by roll with an index, and let the frame counter do the work.</p>
+<p>Do not try to walk the string frame by frame, deciding as you go how many rolls
+each frame should consume. Walk it roll by roll with an index and let a frame counter do the
+work.</p>
 
-<p>Keep an index into the list of rolls and loop exactly ten times, once per frame. On each
-pass, look at the roll at the index. If it is 10 you have a strike, so add 10 plus the next two
-rolls and advance the index by one. Otherwise look at the roll after it too. If the pair sums to
-10 you have a spare, so add 10 plus the roll after the pair and advance by two. If it does not,
-add the pair and advance by two.</p>
+<p>Keep an index into the list of rolls and loop exactly ten times, once per frame. On each pass, look
+at the roll sitting at the index. If it is 10 you have a strike, so add 10 plus the next two rolls and
+advance the index by one. Otherwise look at the roll after it as well, and if the pair sums to 10 you
+have a spare, so add 10 plus the roll after the pair and advance by two. Failing both, add the pair
+and advance by two.</p>
 
-<p>The trick is that this handles the tenth frame with no special case at all. The bonus rolls
-are already sitting in the list, so a tenth frame strike reads its two bonus rolls the same way
-frame one does, and the loop stops after ten frames without ever scoring them as frames of their
-own.</p>
+<p>What makes this worth doing is that it handles the tenth frame with no special case whatsoever. The
+bonus rolls are already sitting in the list, so a tenth frame strike reads its two bonus rolls exactly
+as the first frame would, and the loop simply stops after ten frames without ever scoring those bonus
+rolls as frames in their own right.</p>
 
-<p>People lose this problem by writing a special branch for the tenth frame and then double
-counting the bonus rolls. If a perfect game gives you 330 instead of 300, that is the bug.</p>
+<p>People lose this problem by writing a dedicated branch for the tenth frame and then double counting
+the bonus rolls. If a perfect game comes out as 330 rather than 300, that is the bug you have.</p>
 
-<p>The other classic error is adding the next two rolls after a strike by looking at the next two
-<i>frames</i>. Three strikes in a row means the first one borrows from two later strikes, which
-are single rolls in different frames. Index by rolls, never by frames.</p>
+<p>The other classic error is looking at the next two <i>frames</i> after a strike rather than the next
+two <i>rolls</i>. Three strikes in a row means the first borrows from two later strikes, which are
+single rolls sitting in different frames. Index by rolls throughout and the problem never arises.</p>
 """,
     sol=dict(
         python="""
@@ -205,26 +206,26 @@ and an integer, <code>k</code>, the number of words in the rhyme.</li>
            ["100", "7"], ["2", "1000"], ["13", "13"],
            ["1000", "2"], ["5000", "1"], ["3125", "5"]],
     approach="""
-<p>Simulating with a list works and is the version to write first. Keep the kids in a list, keep
-an index for whoever holds the potato, and each round move the index forward by K minus 1
-positions, wrapping with a modulo, then remove that kid. After removal the index is already
-pointing at the next kid, so no adjustment is needed unless you removed the last element, in
-which case the modulo brings you back to the front.</p>
+<p>Simulating with a list works and is the version to write first. Keep the children
+in a list along with an index for whoever holds the potato, and each round move that index forward by
+K minus 1 positions, wrapping with a modulo, then remove that child. After the removal the index is
+already pointing at the next child, so no adjustment is needed except when you removed the last
+element, where the modulo brings you back to the front.</p>
 
-<p>The minus 1 is where this goes wrong. The holder counts as word one, so a rhyme of 3 words
-moves the potato only 2 places. Get that backwards and every answer is off.</p>
+<p>That minus 1 is where this goes wrong. The child holding the potato counts as word one, so a rhyme
+of three words moves the potato only two places. Get it backwards and every single answer is off.</p>
 
-<p>Removing from the middle of a list is slow, so at 5000 kids the simulation does about 12
-million element shifts. That still finishes, but there is a much better way.</p>
+<p>Removing from the middle of a list is slow, so at 5000 children the simulation performs something
+like 12 million element shifts. It still finishes, but there is a far better way available.</p>
 
-<p>Think about it backwards. With one kid, the survivor sits at position 0. If you know the
-surviving position for a circle of size m minus 1, then adding one more kid shifts that answer by
-K places, so the position for size m is (previous + K) modulo m. Loop m from 2 up to N and you
-have the answer in N steps with no list at all. Add 1 at the end, because the kids are numbered
-from 1 and the positions are numbered from 0.</p>
+<p>Think about it backwards. With one child, the survivor sits at position 0. If you know the surviving
+position for a circle of size m minus 1, then adding one more child shifts that answer by K places, so
+the position for size m is (previous + K) modulo m. Looping m from 2 up to N gives the answer in N
+steps with no list at all, and you add 1 at the end because the children are numbered from 1 while the
+positions are numbered from 0.</p>
 
-<p>Check the edges. One kid means that kid survives without the rhyme ever finishing. A rhyme of
-one word means kids go out in order 1, 2, 3, and so on, so the survivor is kid N.</p>
+<p>Check the edges. A single child survives without the rhyme ever finishing, and a rhyme of one word
+eliminates children in the order 1, 2, 3, and so on, leaving child N.</p>
 """,
     sol=dict(
         python="""
@@ -315,30 +316,30 @@ spaces.</li>
            ["B7-E7", "B7 B7 C7 C7 D7 D7 E7 E7"],
            ["A1-A2,C3-C4,E5-E6,G7-G8", "A1 C3 E5 G7 A2 C4 E6 G8"]],
     approach="""
-<p>Two halves. Turn the fleet into something you can look up by square, then walk the shots.</p>
+<p>Two halves again: turn the fleet into something you can look up by square, then walk
+the shots.</p>
 
-<p>Give every ship an index and build a table from square name to ship index. Expanding a ship
-is easier than it looks because one of the two coordinates is always fixed. Compare the two end
-squares: if the letters match, the ship runs down a column and you loop over the digits between
-them, and if the digits match, it runs along a row and you loop over the letters. Sort the two
-ends so the loop counts upward either way, since D4-A4 describes the same ship as A4-D4.</p>
+<p>Give every ship an index and build a table mapping square name to ship index. Expanding a ship is
+easier than it looks, because one of the two coordinates is always fixed. Compare the two end squares:
+matching letters mean the ship runs down a column and you loop over the digits between them, while
+matching digits mean it runs along a row and you loop over the letters. Sort the two ends first so
+that the loop counts upward either way, since D4-A4 describes the same ship as A4-D4.</p>
 
-<p>Also keep, for each ship, how many of its squares are still undamaged. That number is what
-turns an H into an S.</p>
+<p>Alongside that, record for each ship how many of its squares are still undamaged. That number is
+what turns an H into an S.</p>
 
-<p>Now the shots are one pass. Look the square up. If it belongs to no ship, write M. If it
-belongs to a ship but was already hit, write M as well. Otherwise mark the square hit, subtract
-one from that ship's remaining count, and write S if the count reached zero or H if it did
-not.</p>
+<p>The shots are then a single pass. Look the square up. If it belongs to no ship, write M. If it
+belongs to a ship but has already been hit, write M as well. Otherwise mark the square as hit,
+subtract one from that ship's remaining count, and write S if the count has reached zero or H if it
+has not.</p>
 
-<p>The already hit rule is the whole difficulty. Without a set of squares you have already
-shot at, a second shot at A1 reads as a fresh hit and can even sink a ship twice. Track the
-squares, not just the ships.</p>
+<p>That already hit rule carries the whole difficulty. Without a set recording the squares you have
+fired at, a second shot at A1 reads as a fresh hit and can even sink a ship a second time, so track
+the squares and not merely the ships.</p>
 
-<p>Converting a square name to a pair of numbers is subtraction: the column is the letter minus
-the letter A, and the row is the digit minus the character zero. You do not strictly need the
-numbers here, since the square name itself works as a lookup key, but you do need them to expand
-the ships.</p>
+<p>Converting a square name to a pair of numbers is subtraction, with the column being the letter minus
+A and the row the digit minus the character zero. You do not strictly need the numbers for the lookup,
+since the square name works as a key, but you do need them to expand the ships.</p>
 """,
     sol=dict(
         python="""
@@ -514,30 +515,30 @@ final squares.</li>
            ["1>2", "1"],
            ["70>100", "6 6 6 6 6 6 6 6 6 6 6 6 4 4 6 6"]],
     approach="""
-<p>Everything the single player version needed is still here, plus one new thing: two positions
-instead of one, and a rule for whose turn it is.</p>
+<p>Everything the one player version needed is still here, with two positions
+instead of one and a rule for whose turn it is.</p>
 
-<p>Keep the two squares in a two element array rather than in two separate variables. Then the
-player taking roll number i, counting from 0, is simply <code>i % 2</code>, and you index the
-array with it. Writing it with two variables and an if statement works too, but it doubles every
-line inside the loop and doubles the chances of updating the wrong one.</p>
+<p>Keep the two squares in a two element array rather than as separate variables, because then the
+player taking roll number i, counting from 0, is simply <code>i % 2</code> and you index the array with
+it. Two variables and an if statement work too, but that doubles every line inside the loop and doubles
+the chances of updating the wrong one.</p>
 
-<p>Build the jump lookup exactly as before, a split on the comma and then on the greater-than
+<p>Build the jump lookup exactly as before, splitting on the comma and then on the greater-than
 sign.</p>
 
-<p>The three board rules are unchanged and are still where the marks are. The overshoot rule
-wastes the turn rather than clamping, so a token on 97 rolling a 6 stays on 97. The jump happens
-once and is not chained, so a ladder landing you on the foot of another ladder leaves you where
-it put you. And reaching 100 ends the race at once.</p>
+<p>The three board rules are unchanged and still carry most of the marks. Overshooting wastes the turn
+rather than clamping, so a token on 97 rolling a 6 stays on 97. A jump happens once and is never
+chained, so a ladder that lands you on the foot of another ladder leaves you exactly where it put you.
+And reaching 100 ends the race immediately.</p>
 
-<p>The new trap is the roll number. The output wants the position of the winning roll in the
-shared list, counting from 1, not the number of turns that player took. If A wins on their fifth
-turn, that is roll 9, not roll 5. Break out of the loop the moment a token reaches 100 and report
-the index you were on, converted to one based.</p>
+<p>The new trap is the roll number. The output asks for the position of the winning roll within the
+shared list, counting from 1, rather than the number of turns that player personally took, so a win on
+A's fifth turn is roll 9 and not roll 5. Break out of the loop the moment a token reaches 100 and
+report the index you were on, converted to one based.</p>
 
-<p>When the rolls run out with nobody home, report both squares in player order, A first, whatever
-their sizes. Note that a slide can leave a player behind where they started, so do not assume A's
-square is the larger one or that either token only moves forward.</p>
+<p>When the rolls run out with nobody home, report both squares in player order with A first, whatever
+their sizes. A slide can leave a player behind where they started, so do not assume A's square is the
+larger or that either token only ever moves forward.</p>
 """,
     sol=dict(
         python="""

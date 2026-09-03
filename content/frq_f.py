@@ -76,32 +76,30 @@ word AGAIN appended when the move earns another turn.</li>
            ["0 0 0 0 0 20 1 1 1 1 1 1 1 1", "5"],
            ["6 0 0 0 0 0 0 0 0 0 0 0 5 0", "0"]],
     approach="""
-<p>The sowing loop is short, but three details in it decide the answer, and all three are easy to
-get slightly wrong.</p>
+<p>The sowing loop is short, but three details inside it decide the answer and all
+three are easy to get slightly wrong.</p>
 
-<p>Empty the chosen pit before you start dropping. If you sow enough stones to travel all the way
-round the board, the pit you started from should receive one of them, and it can only do that if
-it was set to zero first. The eighth test sows fourteen stones from pit 0 for exactly this
-reason.</p>
+<p>First, empty the chosen pit before you start dropping. If you sow enough stones to travel all the way
+round the board, the pit you started from should receive one of them, and it can only do so if it was
+set to zero beforehand. The eighth test sows fourteen stones from pit 0 for exactly this reason.</p>
 
-<p>Skip hollow 13 without spending a stone. The natural way to write the loop is to advance the
-index, then check whether it landed on 13 and advance again if so, and only then drop. Writing it
-the other way, spending a stone and throwing it away, loses one stone per lap.</p>
+<p>Second, skip hollow 13 without spending a stone on it. The natural way to write that is to advance
+the index, check whether it landed on 13 and advance again if so, and only then drop. Writing it the
+other way round, spending a stone and discarding it, loses one stone per lap.</p>
 
-<p>Remember where the last stone actually landed, after any skipping. That hollow is what every
-rule below keys off, so track it as you go rather than trying to compute it from the arithmetic
+<p>Third, remember where the last stone actually landed after any skipping, because every rule below
+keys off that hollow. Track it as you go rather than trying to reconstruct it arithmetically
 afterwards.</p>
 
-<p>Now the two special cases. The free turn is a plain check that the last hollow is 6.</p>
+<p>The free turn is then a plain check that the last hollow is 6. The capture needs the pit to have been
+empty before the last stone arrived, which means its count is exactly 1 now, and checking the count
+after sowing is safer than keeping a snapshot of the board, since a hollow you passed through on an
+earlier lap would confuse a snapshot. It also needs the opposite hollow, 12 minus the index, to hold at
+least one stone. When both conditions hold, move that single stone together with everything opposite
+into your store and zero both hollows.</p>
 
-<p>The capture needs the pit to have been empty <i>before</i> the last stone arrived, which means
-its count is exactly 1 now. Check the count after sowing rather than keeping a snapshot of the
-board, since a hollow you passed through on an earlier lap would confuse a snapshot. It also
-needs the opposite hollow, 12 minus the index, to hold at least one stone. When both hold, move
-that single stone plus everything opposite into your store and zero both hollows.</p>
-
-<p>A capture and a free turn can never both happen, since one requires the last stone in a pit and
-the other requires it in the store, so there is no ordering question between them.</p>
+<p>A capture and a free turn can never occur together, since one requires the last stone in a pit and
+the other requires it in the store, so there is no ordering question to resolve between them.</p>
 """,
     sol=dict(
         python="""
@@ -250,31 +248,30 @@ square.</li>
            ["....*;.....;.....;.....;.....", "4", "0"],
            ["*........*;..........;..........;..........;*........*", "2", "5"]],
     approach="""
-<p>Three parts, and only the middle one is interesting: count the neighbours of a square, spread
-the opening, then print.</p>
+<p>Three parts, of which only the middle one is interesting: count the
+neighbours of a square, spread the opening, then print.</p>
 
-<p>Write the neighbour count as its own function. Loop the row offset and the column offset each
-from minus one to one, skip the pair where both are zero, throw away anything off the board, and
-add one for every asterisk. Getting this right once means you never think about the eight
+<p>Write the neighbour count as a function of its own. Loop the row offset and the column offset each
+from minus one to one, skip the pair where both are zero, discard anything falling off the board, and
+add one for every asterisk. Getting that right once means you never have to think about the eight
 directions again.</p>
 
-<p>For the spread, use a queue rather than recursion. Push the clicked square, then repeatedly
-pop a square, and if it is already uncovered skip it, otherwise uncover it and record its count.
-Only when that count is zero do you push its eight neighbours. That single condition is the whole
-rule: a square with a mine beside it is uncovered but is a dead end.</p>
+<p>For the spread, use a queue rather than recursion. Push the clicked square, then repeatedly pop one,
+skipping it if it is already uncovered and otherwise uncovering it and recording its count. Only when
+that count is zero do you push its eight neighbours, and that single condition is the whole rule, since
+a square with a mine beside it is uncovered but is a dead end. Recursion works too, but a 20 by 20 field
+of open ground goes 400 frames deep, which is comfortable in C++ and Java and close enough to Python's
+default limit to be worth avoiding.</p>
 
-<p>Recursion works too, but a 20 by 20 field of open ground goes 400 frames deep, which is fine in
-C++ and Java and close enough to Python's default limit to be worth avoiding.</p>
+<p>Check whether a square is already uncovered when you pop it rather than when you push it. Squares get
+pushed repeatedly from different directions, and filtering only at push time still lets duplicates
+through and can send the search round in circles.</p>
 
-<p>Check whether the square is already uncovered when you pop it, not when you push it. Squares
-get pushed several times over from different directions, and filtering only at push time still
-lets duplicates through and can send the search round in circles.</p>
-
-<p>Two things about printing. A mine is never uncovered by a legal click, so it keeps whatever it
-looked like before, which in this problem is a covered square and prints as a period. And an
-uncovered square with a count of zero prints as the digit 0, not as a period, which is what
-separates it from a square nobody ever reached. Getting those two confused makes the output look
-almost right and score nothing.</p>
+<p>Two things about printing. A mine is never uncovered by a legal click, so it keeps whatever it looked
+like before, which in this problem is a covered square printing as a period. And an uncovered square
+with a count of zero prints as the digit 0 rather than as a period, since that is what distinguishes it
+from a square nobody ever reached. Confusing those two makes the output look almost right and score
+nothing.</p>
 """,
     sol=dict(
         python_helpers="""
@@ -476,31 +473,30 @@ L: wheel one turns to 6, shift 3, giving O.
            ["MEET ME AT THE OLD MILL AT MIDNIGHT ON TUESDAY", "QRS"],
            ["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAA"]],
     approach="""
-<p>Keep the three wheels as three integers from 0 to 25 and write the turning as its own step so
-you can test it on its own.</p>
+<p>Keep the three wheels as three integers from 0 to 25, and write the turning as a
+step of its own so that you can test it in isolation.</p>
 
-<p>Turning is a chain of carries. Add one to wheel one and take the remainder on 26. If the result
-is 0 then it wrapped, so do the same to wheel two, and if that lands on 0 as well, add one to
-wheel three. Checking for 0 after the modulo is the cleanest way to detect the wrap, because the
-only way to reach 0 by adding one is to have come from 25.</p>
+<p>Turning is a chain of carries. Add one to wheel one and take the remainder on 26, and if the result
+is 0 then it wrapped, so do the same to wheel two, and if that also lands on 0, add one to wheel three.
+Checking for 0 after the modulo is the cleanest way to detect a wrap, because the only way to reach 0
+by adding one is to have come from 25.</p>
 
-<p>Encoding is then one line. The shift is the three wheels added and reduced modulo 26, and the
-letter moves forward by that much, wrapping with another modulo. In every language that is
-<code>(c - 'A' + shift) % 26 + 'A'</code>.</p>
+<p>Encoding is then a single line. The shift is the three wheels added and reduced modulo 26, and the
+letter moves forward by that much with another modulo to wrap, which in every one of the three languages
+is <code>(c - 'A' + shift) % 26 + 'A'</code>.</p>
 
-<p>Three things decide whether this works.</p>
+<p>Three things decide whether this works. The wheels turn before the letter is encoded rather than
+after, and turning afterwards shifts every character of the output by one wheel position, so the whole
+message comes out wrong while still looking like a perfectly plausible cipher. If your first letter is
+off by exactly one, that is why.</p>
 
-<p>The wheels turn <i>before</i> the letter is encoded. Turning afterwards shifts every character
-of the output by one wheel position, so the whole message comes out wrong while still looking like
-a plausible cipher. If your first letter is off by exactly one, this is why.</p>
+<p>Characters that are not capital letters pass through untouched and do not turn the wheels at all,
+which means a message containing spaces encodes its letters exactly as if the spaces were not there.
+Turn the wheels on a space and every letter after the first one is wrong.</p>
 
-<p>Characters that are not capital letters are copied through and do not turn the wheels. That
-means a message with spaces in it encodes its letters exactly as if the spaces were not there. Turn
-the wheels on a space and every letter after the first space is wrong.</p>
-
-<p>The carry only happens on a wrap, not every 26 letters counted from the start. Those are the
-same thing when wheel one begins at A, which is why the second sample hides the bug and the first
-one, starting at A with wheel two already at Y, does not.</p>
+<p>Finally, the carry happens on a wrap rather than every 26 letters counted from the beginning. Those
+two are the same thing when wheel one starts at A, which is why the second sample hides the bug while
+the first, which starts at A with wheel two already sitting at Y, exposes it.</p>
 """,
     sol=dict(
         python="""
@@ -622,31 +618,31 @@ they fall, separated by single spaces.</li>
            "H2:0 H2:2 H2:4 H2:6 H2:0 H2:2 H2:4 H2:6",
            "V3:0 V1:1 V1:2 V1:3 V1:4 V1:5 V1:6 V1:7 H8:0"],
     approach="""
-<p>You cannot get away with tracking only the eight heights, because clearing a row can leave a
-column with a hole under it. Keep the actual well: a list of rows, each row holding 8 squares,
-with row 0 as the floor. Grow the list whenever a piece needs a row that does not exist yet.</p>
+<p>Tracking only the eight column heights will not do, because clearing a row can
+leave a column with a hole underneath it. Keep the actual well as a list of rows, each holding 8
+squares, with row 0 as the floor, and grow the list whenever a piece needs a row that does not yet
+exist.</p>
 
-<p>Write a helper that returns the height of a column, meaning one more than the index of its
-highest filled square, or 0 when the column is empty. Everything else is built on it.</p>
+<p>Write a helper returning the height of a column, meaning one more than the index of its highest
+filled square, or 0 when the column is empty. Everything else is built on top of it.</p>
 
-<p>Landing a piece is then one line of thought each. A horizontal bar of width w at column c lands
-on the row equal to the largest height among columns c through c + w - 1, and fills those squares
-in that one row. A vertical bar of height n at column c starts at that column's height and fills
-n rows upward in that single column.</p>
+<p>Landing a piece is then one line of thought apiece. A horizontal bar of width w at column c comes to
+rest on the row equal to the largest height among columns c through c + w - 1, filling those squares in
+that single row. A vertical bar of height n at column c starts at that column's height and fills n rows
+upward in that one column.</p>
 
-<p>The clearing step is where the problem is won or lost. Walk the rows and keep only the ones
-that are not completely full, then rebuild the well from what survived. Doing it that way handles
-several rows going at once for free, and it avoids the classic bug of deleting row by row while
-iterating upward, which skips a row every time one is removed.</p>
+<p>The clearing step is where the problem is won or lost. Walk the rows, keep only those that are not
+completely full, and rebuild the well from what survived. Doing it that way handles several rows going
+at once for free, and it sidesteps the classic bug of deleting row by row while iterating upward, which
+skips a row every time one is removed.</p>
 
-<p>Also note that clearing can drop material into a column that was empty below it, which is
-exactly why the well has to be modelled square by square. A solution that adjusts heights
-arithmetically after a clear gets the first sample right and then drifts.</p>
+<p>Note too that clearing can drop material into a column that was empty below it, which is exactly why
+the well has to be modelled square by square. A solution that adjusts the heights arithmetically after a
+clear gets the first sample right and then drifts.</p>
 
-<p>Parsing is a split on the space, then read the first character for the shape, everything
-between it and the colon as the length, and everything after the colon as the column. Beware that
-a bar can be up to 8 long, so the length is not always a single digit in your own test data even
-though it is here.</p>
+<p>Parsing is a split on the space, then the first character for the shape, everything between it and
+the colon for the length, and everything after the colon for the column. A bar can be up to 8 long, so
+the length is not always a single digit once you start writing test data of your own.</p>
 """,
     sol=dict(
         python_helpers="""
