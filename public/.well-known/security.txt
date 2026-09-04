@@ -2,7 +2,8 @@
 # A study site for the American Computer Science League. Static content plus one
 # endpoint, /api/run, which proxies submitted code to a third party compiler.
 
-Contact: mailto:ctwilliamwei@gmail.com
+Contact: mailto:security@sfhsacsl.org
+Contact: mailto:contact@sfhsacsl.org
 Contact: https://github.com/citroniumthe4th/SFHS-ACSL-Guide/security/advisories/new
 Contact: https://github.com/citroniumthe4th/SFHS-ACSL-Guide/issues
 Expires: 2027-09-04T00:00:00.000Z
