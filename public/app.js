@@ -1199,6 +1199,22 @@ function showResults(summary, detail) {
   collapseResults(false);
 }
 
+// The runner is not the only thing that can answer a request to it. The rate limit rule in
+// front of the function replies 403 itself, and a platform error or a deploy in flight can
+// reply too, none of it in the shape report() expects. Without this the 403 body parsed
+// cleanly, arrived with no stdout, and was read as a run that printed nothing, so a student
+// being rate limited was told their correct program failed every test.
+function runnerResponse(r) {
+  if (r.ok) return r.json();
+  if (r.status === 429 || r.status === 403) {
+    return { status: "error", message: "Too many runs from your network in a short space of "
+             + "time. The limit is shared by everyone on the same connection, so if your whole "
+             + "class is submitting at once, give it a minute and try again." };
+  }
+  return { status: "error", message: "The code runner could not be reached just now (HTTP "
+           + r.status + "). Try again in a moment." };
+}
+
 function execute(full) {
   var p = curProblem;
   var cases = full ? p.tests : p.tests.slice(0, 6);
@@ -1212,7 +1228,7 @@ function execute(full) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ lang: curLang, code: cm.getValue(), stdin: stdin })
-  }).then(function (r) { return r.json(); })
+  }).then(runnerResponse)
     .then(function (res) { report(res, cases, full); })
     .catch(function (e) {
       showResults('<span class="st no">Error</span><span>could not reach the code runner</span>',
@@ -1235,7 +1251,7 @@ function runCustom() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ lang: curLang, code: cm.getValue(),
                            stdin: text.replace(/\s+$/, "") + "\n" })
-  }).then(function (r) { return r.json(); })
+  }).then(runnerResponse)
     .then(function (res) {
       if (res.status === "compile_error") {
         return showResults('<span class="st no">Compile error</span>'
