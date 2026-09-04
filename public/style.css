@@ -637,12 +637,114 @@ details.reveal > div { padding: 0 14px 14px; }
   .ws-left { flex: none; max-width: none; border-right: 0; border-bottom: 1px solid var(--line); }
   .ws-right { height: 78vh; }
 }
+/* --------------------------------------------------------------- narrow screens
+
+   The sidebar goes, so #topicbar takes over as the way between categories, and the top bar
+   becomes two rows: identity and settings above, the four sections below. Everything stays
+   reachable without a menu to open, which is one less thing to get wrong on a touch screen. */
+
+.topicbar { display: none; }
+
+.ws-needs-desk { display: none; padding: 26px 16px 40px; border-top: 1px solid var(--line); }
+.ws-needs-desk h2 { margin: 0 0 10px; }
+.ws-needs-desk p { color: var(--text-dim); max-width: 56ch; }
+
 @media (max-width: 780px) {
+  :root { --topbar-h: 96px; }
+
+  .topbar {
+    height: auto;
+    min-height: var(--topbar-h);
+    flex-wrap: wrap;
+    gap: 0 12px;
+    padding: 8px 12px 0;
+  }
+  .brand { order: 1; }
+  .brand-name { display: none; }
+  .topbar-right { order: 2; margin-left: auto; }
+
+  /* Second row, full width, and scrollable sideways if the four labels ever outgrow it
+     rather than wrapping into a taller bar. */
+  .tabs {
+    order: 3;
+    width: 100%;
+    margin-top: 8px;
+    gap: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tabs a {
+    flex: 1 0 auto;
+    text-align: center;
+    padding: 10px 12px;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .tabs a.on { background: transparent; border-bottom-color: var(--accent); }
+
   .sidebar { display: none; }
   .main { padding: 20px 16px 60px; }
-  .brand-name { display: none; }
-  .tabs a { padding: 6px 9px; }
+
+  .topicbar:not(.empty) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .topicbar label {
+    font: 600 11px var(--sans);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .topicbar select {
+    flex: 1;
+    min-width: 0;
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 9px 10px;
+    font: 14px var(--sans);
+  }
+
+  /* Writing code needs a keyboard and room to see the problem beside it. The statement and
+     the test data still read well here, so only the editor half is swapped out. */
+  .ws-right { display: none; }
+  .ws-needs-desk { display: block; }
+  .ws-left { border-bottom: 0; }
 }
+
+/* Small phones. The four section labels overflow their strip by about 57px at 320, and the
+   strip scrolls, but a section you cannot see is a section you will not press. Tighten until
+   all four fit and keep the scroll as the backstop for longer labels. */
+@media (max-width: 400px) {
+  .topbar { padding: 8px 10px 0; }
+  .tabs a { padding: 10px 7px; font-size: 12.5px; }
+  .topicbar:not(.empty) { padding: 10px 12px; }
+  .main { padding: 18px 12px 56px; }
+  .pager { flex-direction: column; }
+  .pager a.nxt { text-align: left; align-items: flex-start; }
+}
+
+
+/* Previous and next category, which is the only way to walk them in order without a sidebar. */
+.pager { display: flex; gap: 12px; margin: 34px 0 0; border-top: 1px solid var(--line); padding-top: 18px; }
+.pager a {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  color: var(--text); font-weight: 600;
+}
+.pager a:hover { border-color: var(--accent-dim); text-decoration: none; }
+.pager a.nxt { text-align: right; align-items: flex-end; }
+.pager span { font: 600 11px var(--sans); letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-faint); }
 
 /* Shown only when localStorage refuses a write, which is the one time the app has to
    interrupt: the editor saves on every keystroke and silence would look like success. */

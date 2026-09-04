@@ -271,6 +271,11 @@ function paintChrome(section) {
       || (section === "problem" && s === "problems")
       || (section === "missed" && s === "practice");
     links[i].classList.toggle("on", on);
+    // On a phone the four sections sit in a strip that can scroll, and the one you are in is
+    // not always the one on screen.
+    if (on && links[i].scrollIntoView) {
+      links[i].scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
   }
   var btns = el("division-switch").querySelectorAll("button");
   for (var j = 0; j < btns.length; j++) {
@@ -279,6 +284,36 @@ function paintChrome(section) {
 }
 
 // ------------------------------------------------------------------ sidebar
+
+// The narrow-screen stand-in for the sidebar. It is always rendered and CSS decides whether it
+// is on screen, so nothing here has to know how wide the window is or listen for resizes.
+function renderTopicBar(section, active) {
+  var bar = el("topicbar");
+  if (section !== "guide" && section !== "practice") {
+    bar.innerHTML = "";
+    bar.classList.add("empty");
+    return;
+  }
+  bar.classList.remove("empty");
+  var list = topicsFor(division);
+  var html = '<label for="topic-jump">Category</label><select id="topic-jump">';
+  if (!active) html += '<option value="">Choose a category</option>';
+  var lastContest = null;
+  list.forEach(function (t) {
+    if (t.contest !== lastContest) {
+      if (lastContest !== null) html += "</optgroup>";
+      lastContest = t.contest;
+      html += '<optgroup label="' + CONTEST_NAMES[t.contest] + '">';
+    }
+    html += '<option value="' + esc(t.id) + '"' + (t.id === active ? " selected" : "") + ">"
+          + esc(t.name) + "</option>";
+  });
+  if (lastContest !== null) html += "</optgroup>";
+  bar.innerHTML = html + "</select>";
+  el("topic-jump").addEventListener("change", function (e) {
+    if (e.target.value) go("/" + section + "/" + e.target.value);
+  });
+}
 
 function renderSidebar(section, active) {
   var side = el("sidebar");
@@ -338,8 +373,21 @@ function guideIndex() {
   });
 }
 
+// A category that belongs to one division only should put you in that division, the way a
+// shared problem link already does. Otherwise the page claims the wrong division in its own
+// eyebrow and goes missing from the sidebar and the category picker.
+function adoptDivisionFor(t) {
+  if (t.div === "both" || t.div === division) return;
+  division = t.div;
+  save("division", division);
+  paintChrome(route().section);
+  renderSidebar(route().section, t.id);
+  renderTopicBar(route().section, t.id);
+}
+
 function guidePage(topicId) {
   var t = topicById(topicId);
+  if (t) adoptDivisionFor(t);
   if (!t || !GUIDE[topicId]) {
     return notFound("There is no study guide for \u201c" + topicId + "\u201d. Categories differ "
                     + "between the two divisions, so a link shared by someone in the other one "
@@ -351,6 +399,20 @@ function guidePage(topicId) {
     " short answer questions</a>" +
     '<a class="btn" href="/problems">Programming problems</a>' +
     "</div>";
+
+  // With no sidebar on a phone, these are the only way to walk the categories in order.
+  var order = topicsFor(division);
+  var at = order.map(function (x) { return x.id; }).indexOf(topicId);
+  var prev = at > 0 ? order[at - 1] : null;
+  var next = at >= 0 && at < order.length - 1 ? order[at + 1] : null;
+  if (prev || next) {
+    foot += '<nav class="pager" aria-label="Categories">' +
+      (prev ? '<a href="/guide/' + prev.id + '"><span>Previous</span>' + esc(prev.name) + "</a>"
+            : "<span></span>") +
+      (next ? '<a class="nxt" href="/guide/' + next.id + '"><span>Next</span>' + esc(next.name)
+              + "</a>" : "<span></span>") +
+      "</nav>";
+  }
   el("main").innerHTML = '<div class="wrap">' +
     '<div class="eyebrow">' + CONTEST_NAMES[t.contest] + " &middot; " + division + " division</div>" +
     "<h1>" + esc(t.name) + "</h1>" + GUIDE[topicId] + foot + "</div>";
@@ -401,6 +463,7 @@ var quiz = null;
 
 function practicePage(topicId) {
   var t = topicById(topicId);
+  if (t) adoptDivisionFor(t);
   if (!t) {
     return notFound("There are no practice questions under \u201c" + topicId + "\u201d. Categories "
                     + "differ between the two divisions, so a link shared by someone in the other "
@@ -909,6 +972,14 @@ function problemPage(pid) {
           '<div class="console" id="console"></div>' +
         "</div>" +
       "</div>" +
+      '<div class="ws-needs-desk">' +
+        "<h2>Open this one on a computer</h2>" +
+        "<p>The editor needs a keyboard and room to see your code beside the problem, so it is " +
+        "switched off at this width. The statement, the sample data, and the visible test cases " +
+        "are all above, and they read fine here.</p>" +
+        "<p>Anything you write is saved in the browser you write it in, so come back to this " +
+        "problem on a laptop or desktop and start there.</p>" +
+      "</div>" +
     "</div>";
 
   drawStatement();
@@ -1267,6 +1338,7 @@ function render() {
 
   paintChrome(r.section);
   renderSidebar(r.section, r.arg);
+  renderTopicBar(r.section, r.arg);
   // The problem workspace is a full height split, so a footer under it would fight the layout.
   el("footer").classList.toggle("hidden", r.section === "problem");
 
