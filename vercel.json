@@ -66,5 +66,6 @@
       "source": "/problem/:id",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "cleanUrls": true
 }

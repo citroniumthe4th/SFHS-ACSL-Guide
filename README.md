@@ -108,8 +108,15 @@ python3 content/build.py     # rewrites public/data/frq.js
 python3 content/verify.py    # rechecks every computable multiple choice answer
 python3 content/checkgen.py  # rechecks the generated questions
 python3 content/sitemap.py   # rewrites sitemap.xml and robots.txt
-python3 content/stamp.py     # rewrites the ?v= cache keys in the HTML
+python3 content/stamp.py     # cache keys, then the per URL copies
 ```
+
+`stamp.py` calls `content/prerender.py` itself, which writes a copy of the shell for each of
+the sixty content URLs with its own title, description, canonical, and og tags already in the
+head. The router sets all of that on every navigation anyway, which is enough for Google since
+it runs the page, but Slack, Discord, iMessage, and Bing read the markup and stop. Without the
+copies every URL previews as the same generic card. They are made from `index.html` after it is
+stamped, which is why the two steps are chained rather than left to be remembered separately.
 
 `verify.py` re-derives 200 of the 219 answers using `content/solvers.py`, which holds its own
 implementations of everything the bank asks about. The remaining 19 are definitional and have no

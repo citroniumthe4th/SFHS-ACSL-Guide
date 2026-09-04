@@ -8,6 +8,7 @@ Run it after editing anything under public/.
 import hashlib
 import os
 import re
+import subprocess
 import sys
 
 PUBLIC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "public")
@@ -38,6 +39,11 @@ def main():
         open(path, "w").write(html)
     print("stamped %d asset(s)%s" % (len(changed),
                                      (": " + ", ".join(changed)) if changed else ""))
+    # The per URL copies are made from index.html, so they have to be remade whenever it
+    # changes. Doing it here rather than in a separate step is the only way they cannot
+    # drift into serving a stale asset hash.
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                 "prerender.py")], check=True)
 
 
 if __name__ == "__main__":

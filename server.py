@@ -109,9 +109,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     def translate_path(self, path):
         parts = path.split("?")[0].strip("/").split("/")
-        if parts and parts[0] in APP_ROUTES and len(parts) <= 2:
-            return os.path.join(ROOT, "index.html")
-        return super().translate_path(path)
+        if not parts or parts[0] not in APP_ROUTES or len(parts) > 2:
+            return super().translate_path(path)
+        # Vercel has cleanUrls on, so /guide/lisp serves guide/lisp.html when content/
+        # prerender.py has written one. Ids with no file fall back to the shell, which is
+        # how an unknown one still reaches the app's own not found page.
+        page = os.path.join(ROOT, *parts) + ".html"
+        return page if os.path.isfile(page) else os.path.join(ROOT, "index.html")
 
     def log_message(self, *a):
         pass
