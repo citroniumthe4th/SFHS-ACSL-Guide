@@ -11,6 +11,7 @@ memory cap so a runaway expression fails loudly rather than taking the machine d
 """
 import json
 import os
+import random
 import re
 import resource
 import signal
@@ -65,6 +66,41 @@ def load_bank():
     return json.loads(out.stdout)
 
 
+def check_positions(bank):
+    """Fails if the answer a student sees lands in one position too often.
+
+    Every question in this bank was written with its right answer first, which put 195 of the
+    219 correct answers in position A. Nothing here caught that, because each answer was
+    individually correct; the defect only exists across the set. A student could have scored
+    89 percent by pressing A and learned nothing.
+
+    app.js now shuffles the choices before showing them, so what matters is the distribution
+    of the presented order, not the stored one. This reproduces that shuffle over the whole
+    bank and checks the result is somewhere near even.
+    """
+    rounds, counts, longest = 40, {}, max(len(q["choices"]) for q in bank)
+    rng = random.Random(20260904)
+    for _ in range(rounds):
+        for q in bank:
+            n = len(q["choices"])
+            fixed = 1 if str(q["choices"][-1]).strip().lower() == NONE.lower() else 0
+            order = list(range(n - fixed))
+            rng.shuffle(order)
+            order += list(range(n - fixed, n))
+            seen = order.index(q["ans"])
+            counts[seen] = counts.get(seen, 0) + 1
+
+    total = sum(counts.values())
+    worst = max(counts.values())
+    share = 100.0 * worst / total
+    spread = " ".join("%s %.0f%%" % ("ABCDE"[i], 100.0 * counts.get(i, 0) / total)
+                      for i in range(longest))
+    print("answer positions as shown: %s" % spread)
+    if share > 35.0:
+        print("  FAIL one position holds %.0f%% of the answers, over the 35%% ceiling" % share)
+        sys.exit(1)
+
+
 def main():
     try:
         resource.setrlimit(resource.RLIMIT_AS, (2 << 30, 2 << 30))
@@ -112,6 +148,8 @@ def main():
                 bad.append((qid, "marked None of the above but %r is listed" % got))
         elif got != want:
             bad.append((qid, "check says %r, marked answer is %r" % (got, want)))
+
+    check_positions(bank)
 
     none_ans = sum(1 for q in bank if q["choices"][q["ans"]] == NONE)
     print("%d questions, %d machine checked, %d conceptual, %d answer None of the above (%.0f%%)"

@@ -185,8 +185,8 @@ instruction?`,
   choices:["X minus (X divided by Y) times Y","X divided by Y then times Y","Y minus X divided by Y","X minus Y until the result is negative","None of the above"], ans:0,
   why:`The truncating divide throws away exactly the part you are trying to recover, so
 multiplying the quotient back by Y and subtracting it from X brings the remainder back. Written out
-that is LOAD X, DIV Y, MULT Y, STORE T, LOAD X, SUB T. The last choice nearly works but overshoots,
-since it stops one subtraction after the remainder appears, and it needs a loop besides.` },
+that is LOAD X, DIV Y, MULT Y, STORE T, LOAD X, SUB T. Repeated subtraction of Y nearly works but
+overshoots, since it stops one subtraction after the remainder appears, and it needs a loop besides.` },
 
 { id:"ws-01", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "PROGRAM", what is S[2:5]?`,

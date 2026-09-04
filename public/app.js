@@ -104,6 +104,35 @@ function missedElsewhere(div) {
   }).length;
 }
 
+// Every question in the bank was written with its right answer first and its distractors
+// after it, which is the natural way to write one and a disaster to practise against: 195 of
+// the 219 correct answers sat in position A. So no question is ever shown in the order it was
+// stored. The stored order stays canonical, which is what verify.py checks against, and the
+// order a student sees is decided here.
+//
+// None of the above is the one option whose position carries meaning, so it stays last.
+function permute(q) {
+  var n = q.choices.length;
+  var fixed = /^none of the above$/i.test(String(q.choices[n - 1]).trim()) ? 1 : 0;
+  var order = [];
+  for (var i = 0; i < n - fixed; i++) order.push(i);
+  shuffle(order);
+  for (var k = 0; k < fixed; k++) order.push(n - fixed + k);
+  return order;
+}
+
+// A shallow copy wearing the given order. Everything else about the question, its id above
+// all, is untouched, so scoring and the missed list keep working on the canonical question.
+function present(q, order) {
+  var copy = {}, i;
+  for (var k in q) if (Object.prototype.hasOwnProperty.call(q, k)) copy[k] = q[k];
+  copy.choices = order.map(function (j) { return q.choices[j]; });
+  copy.ans = order.indexOf(q.ans);
+  return copy;
+}
+
+function presented(q) { return present(q, permute(q)); }
+
 function shuffle(a) {
   for (var i = a.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
@@ -380,8 +409,8 @@ function practicePage(topicId) {
     return;
   }
   if (!quiz || quiz.topic !== topicId || quiz.division !== division) {
-    quiz = { topic: topicId, division: division, list: shuffle(qs.slice()), i: 0,
-             picked: null, right: 0, seen: 0, endless: false };
+    quiz = { topic: topicId, division: division, list: shuffle(qs.slice()).map(presented),
+             i: 0, picked: null, right: 0, seen: 0, endless: false };
   }
   drawQuestion();
 }
@@ -398,7 +427,8 @@ function fillAhead() {
 function setMode(endless) {
   quiz.endless = endless;
   quiz.i = 0; quiz.picked = null; quiz.right = 0; quiz.seen = 0;
-  quiz.list = endless ? [] : shuffle(questionsFor(quiz.topic, quiz.division).slice());
+  quiz.list = endless ? []
+                     : shuffle(questionsFor(quiz.topic, quiz.division).slice()).map(presented);
   drawQuestion();
 }
 
@@ -537,6 +567,9 @@ function buildExam(contest) {
     contest: contest,
     division: div,
     ids: picked.map(function (q) { return q.id; }),
+    // Kept alongside the ids, because a reload that reshuffled the choices would silently
+    // move the answer out from under whatever the student had already picked.
+    orders: picked.map(permute),
     answers: picked.map(function () { return null; }),
     at: 0,
     deadline: Date.now() + EXAM_SECONDS * 1000,
@@ -560,9 +593,23 @@ function loadExam() {
   if (typeof e.deadline !== "number" || !isFinite(e.deadline)) return null;
   if (!(e.at >= 0 && e.at < e.ids.length)) return null;
   if (!e.ids.every(function (id) { return questionById(id); })) return null;
+  if (!Array.isArray(e.orders) || e.orders.length !== e.ids.length) return null;
+  var shapeOk = e.orders.every(function (o, i) {
+    var n = questionById(e.ids[i]).choices.length;
+    if (!Array.isArray(o) || o.length !== n) return false;
+    var seen = o.slice().sort(function (x, y) { return x - y; });
+    return seen.every(function (v, j) { return v === j; });
+  });
+  if (!shapeOk) return null;
   return e.answers.every(function (a, i) {
     return a === null || (a >= 0 && a < questionById(e.ids[i]).choices.length);
   }) ? e : null;
+}
+
+// The question as this paper shows it, which is the only version its saved answers mean
+// anything against.
+function examQ(i) {
+  return present(questionById(exam.ids[i]), exam.orders[i]);
 }
 
 function questionById(id) {
@@ -635,7 +682,7 @@ function examPage(contestArg) {
 
 function drawExamQuestion() {
   stopClock();
-  var q = questionById(exam.ids[exam.at]);
+  var q = examQ(exam.at);
   var html = '<div class="wrap">' +
     '<div class="eyebrow"><a href="/exam">Mock exam</a> &middot; ' + exam.division +
     " division</div><h1>Contest " + exam.contest + "</h1>" +
@@ -708,8 +755,7 @@ function finishExam() {
   exam.submitted = true;
   // Only now does anything get recorded, which is what keeps the misses bank honest.
   exam.ids.forEach(function (id, i) {
-    var q = questionById(id);
-    save("q:" + id, exam.answers[i] === q.ans);
+    save("q:" + id, exam.answers[i] === examQ(i).ans);
   });
   saveExam();
   drawExamResults();
@@ -719,7 +765,7 @@ function drawExamResults() {
   stopClock();
   var right = 0;
   exam.ids.forEach(function (id, i) {
-    if (exam.answers[i] === questionById(id).ans) right++;
+    if (exam.answers[i] === examQ(i).ans) right++;
   });
   var tone = right >= 5 ? "ok" : right >= 3 ? "mid" : "no";
 
@@ -733,7 +779,7 @@ function drawExamResults() {
     '<a class="btn" href="/missed">Review missed questions</a></div>';
 
   exam.ids.forEach(function (id, i) {
-    var q = questionById(id);
+    var q = examQ(i);
     var ok = exam.answers[i] === q.ans;
     var t = topicById(q.topic);
     html += '<div class="review"><div class="review-head"><span class="n">Question ' + (i + 1) +
@@ -769,7 +815,8 @@ function missedPage() {
     return;
   }
   if (!quiz || quiz.topic !== "__missed" || quiz.division !== division) {
-    quiz = { topic: "__missed", division: division, list: shuffle(missed.slice()), i: 0,
+    quiz = { topic: "__missed", division: division,
+             list: shuffle(missed.slice()).map(presented), i: 0,
              picked: null, right: 0, seen: 0 };
   }
   drawQuestion();
