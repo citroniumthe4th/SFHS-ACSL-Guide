@@ -69,6 +69,32 @@ would rather not lean on a free community service, run your own
 If the deploy rejects `maxDuration`, drop the `functions` block from `vercel.json`. Compiles
 usually finish in a few seconds, so the 10 second default is workable.
 
+## What the site does and does not protect
+
+Worth knowing before you point a class at it.
+
+`api/run.js` compiles whatever it is handed, so it is the only part of this that a stranger can
+make do work. Three things stand between it and abuse: cross site posts are refused outright,
+the input and source sizes are capped, and each address gets 120 runs a minute. That last one is
+best effort. Vercel keeps a function instance warm between requests, so the counter catches a
+flood from one address, but it resets on a cold start and a second instance counts separately.
+The ceiling is set high on purpose, because a school NAT puts a whole lab behind one address and
+a limit tuned to one student would lock out the class. If the Vercel usage graph ever looks
+wrong, `MAX_PER_WINDOW` in `api/run.js` is the dial, and a shared counter in Vercel KV is the
+real fix.
+
+Everything the site knows ships to the browser in `public/data/`. The hidden test inputs, the
+answer keys, and the reference solutions are all in there, and the give up gate is drawn in
+JavaScript rather than enforced anywhere. The rendered page is honest about it, the DOM holds
+nothing for the sealed cases, but anyone who opens the network tab can read the lot. That is
+inherent to a static site with no grader behind it, so treat scores as practice rather than as
+anything to grade on.
+
+Responses carry a content security policy that allows scripts only from the site itself. There
+are no inline scripts and no CDN, so nothing legitimate needs an exception, and the policy means
+an injected `<script>` would not run even if some content slipped through unescaped. `server.py`
+sends the same headers, so a policy that breaks the editor breaks it locally first.
+
 ## Regenerating the content
 
 Test case outputs are never typed by hand. `content/build.py` runs the Python reference solution

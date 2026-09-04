@@ -24,11 +24,38 @@ function store(key, fallback) {
   } catch (e) { return fallback; }
 }
 function save(key, val) {
-  try { localStorage.setItem("acsl:" + key, JSON.stringify(val)); } catch (e) {}
+  try {
+    localStorage.setItem("acsl:" + key, JSON.stringify(val));
+  } catch (e) {
+    // A full quota is the one failure worth interrupting for. Everything else here is a
+    // preference, but the editor saves on every keystroke, and a student who is told
+    // nothing will keep typing into a box that has quietly stopped keeping anything.
+    warnOnce("Your browser will not store any more, so your work is no longer being saved. "
+             + "Copy your code somewhere safe, then use Forget everything in the footer to "
+             + "clear room.");
+  }
 }
 
+var warned = false;
+function warnOnce(text) {
+  if (warned) return;
+  warned = true;
+  var bar = document.createElement("div");
+  bar.className = "storage-warning";
+  bar.textContent = text;
+  var x = document.createElement("button");
+  x.textContent = "Dismiss";
+  x.addEventListener("click", function () { bar.remove(); });
+  bar.appendChild(x);
+  document.body.appendChild(bar);
+}
+
+// Both of these are read straight back out of storage, so treat anything unrecognised the
+// way a fresh visitor would be treated rather than carrying a bad value through the app.
 var division = store("division", "senior");
+if (division !== "junior" && division !== "senior") division = "senior";
 var theme = store("theme", "dark");
+if (theme !== "dark" && theme !== "light") theme = "dark";
 document.documentElement.setAttribute("data-theme", theme);
 
 // ------------------------------------------------------------------ helpers
@@ -394,11 +421,23 @@ function buildExam(contest) {
 
 function saveExam() { save("exam", exam); }
 
+// The exam in progress is plain JSON in localStorage, and it is read back on every visit
+// to the section. A record that has been truncated, hand edited, or left behind by an
+// older question set used to be handed straight to the renderer, which blanked the page
+// and then blanked it again on the next reload, since nothing ever threw the bad record
+// away. Vet the whole shape here instead: anything that fails is dropped, and the caller
+// builds a fresh paper.
 function loadExam() {
   var e = store("exam", null);
-  if (!e || !e.ids) return null;
-  var ok = e.ids.every(function (id) { return questionById(id); });
-  return ok ? e : null;
+  if (!e || !Array.isArray(e.ids) || !e.ids.length) return null;
+  if (!Array.isArray(e.answers) || e.answers.length !== e.ids.length) return null;
+  if (!(e.contest >= 1 && e.contest <= 4)) return null;
+  if (typeof e.deadline !== "number" || !isFinite(e.deadline)) return null;
+  if (!(e.at >= 0 && e.at < e.ids.length)) return null;
+  if (!e.ids.every(function (id) { return questionById(id); })) return null;
+  return e.answers.every(function (a, i) {
+    return a === null || (a >= 0 && a < questionById(e.ids[i]).choices.length);
+  }) ? e : null;
 }
 
 function questionById(id) {

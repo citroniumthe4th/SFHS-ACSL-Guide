@@ -643,3 +643,20 @@ details.reveal > div { padding: 0 14px 14px; }
   .brand-name { display: none; }
   .tabs a { padding: 6px 9px; }
 }
+
+/* Shown only when localStorage refuses a write, which is the one time the app has to
+   interrupt: the editor saves on every keystroke and silence would look like success. */
+.storage-warning {
+  position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 90;
+  display: flex; gap: 14px; align-items: center;
+  padding: 12px 16px; border-radius: 8px;
+  background: #b4232a; color: #fff;
+  font-size: 14px; line-height: 1.45;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
+}
+.storage-warning button {
+  margin-left: auto; flex: none; cursor: pointer;
+  padding: 5px 12px; border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, .55);
+  background: transparent; color: #fff; font: inherit;
+}

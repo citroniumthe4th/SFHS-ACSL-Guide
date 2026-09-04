@@ -18,6 +18,21 @@ INCLUDE_DIR = os.path.join(HERE, "cppinclude")
 COMPILE_TIMEOUT = 30
 RUN_TIMEOUT = 12
 MAX_CODE = 200_000
+MAX_STDIN = 100_000
+MAX_BODY = 1_000_000
+
+# Mirrors what vercel.json sends in production, so a policy that breaks the editor breaks
+# it here first rather than after a deploy.
+HEADERS = [
+    ("Cache-Control", "no-store"),
+    ("Content-Security-Policy",
+     "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+     "img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; "
+     "form-action 'none'; frame-ancestors 'none'; object-src 'none'"),
+    ("X-Content-Type-Options", "nosniff"),
+    ("Referrer-Policy", "no-referrer"),
+    ("X-Frame-Options", "DENY"),
+]
 
 # (compile argv or None, run argv, source filename). {d} is the temp dir.
 LANGS = {
@@ -103,6 +118,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json({"status": "error", "message": "unknown endpoint"}, 404)
         try:
             n = int(self.headers.get("Content-Length", 0))
+            if n > MAX_BODY:
+                raise ValueError("body too large")
             req = json.loads(self.rfile.read(n))
             lang = req["lang"]
             code = req["code"]
@@ -111,12 +128,15 @@ class Handler(SimpleHTTPRequestHandler):
                 raise ValueError("unsupported language")
             if not isinstance(code, str) or len(code) > MAX_CODE:
                 raise ValueError("bad source")
+            if not isinstance(stdin_text, str) or len(stdin_text) > MAX_STDIN:
+                raise ValueError("bad input")
         except Exception as e:
             return self._json({"status": "error", "message": "Bad request: %s" % e}, 400)
         self._json(run_code(lang, code, stdin_text))
 
     def end_headers(self):
-        self.send_header("Cache-Control", "no-store")
+        for k, v in HEADERS:
+            self.send_header(k, v)
         super().end_headers()
 
 

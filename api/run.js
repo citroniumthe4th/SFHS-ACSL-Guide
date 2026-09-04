@@ -22,10 +22,51 @@ function shimJava(code) {
   );
 }
 
+const MAX_CODE = 200000;
+const MAX_STDIN = 100000;
+
+// Best effort throttle. Vercel keeps an instance warm between requests, so this catches a
+// flood from one address; across a cold start or a second instance it starts over. That is
+// the point at which somebody is deliberately abusing this rather than fat fingering a
+// loop, and the honest fix then is a shared counter.
+// ponytail: per-instance Map, move to Vercel KV if the abuse gets organised.
+// The ceiling is deliberately loose. A school NAT puts an entire computer lab behind one
+// address, so a limit tuned to a single student would lock out the class it was written
+// for. What it has to stop is a script, and a script runs thousands a minute.
+const WINDOW_MS = 60000;
+const MAX_PER_WINDOW = 120;
+const HITS = new Map();
+
+function throttled(who) {
+  const now = Date.now();
+  const recent = (HITS.get(who) || []).filter((t) => now - t < WINDOW_MS);
+  recent.push(now);
+  HITS.set(who, recent);
+  if (HITS.size > 5000) HITS.clear(); // the map is a cache, not a ledger
+  return recent.length > MAX_PER_WINDOW;
+}
+
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") {
     return res.status(405).json({ status: "error", message: "POST only" });
+  }
+
+  // The editor posts from this site and nowhere else. A cross site post is either a
+  // mistake or someone borrowing the runner for free compute. Browsers that omit the
+  // header, and anything that is not a browser, fall through to the rate limit below,
+  // which is the only check a determined caller cannot simply decline to send.
+  const from = req.headers["sec-fetch-site"];
+  if (from && from !== "same-origin" && from !== "none") {
+    return res.status(403).json({ status: "error", message: "Cross site requests are not served." });
+  }
+
+  const who = String(req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
+  if (throttled(who)) {
+    return res.status(429).json({
+      status: "error",
+      message: "That is a lot of runs in one minute. Wait a moment and try again.",
+    });
   }
 
   let body = req.body;
@@ -37,16 +78,23 @@ module.exports = async (req, res) => {
     }
   }
   const { lang, code, stdin = "" } = body || {};
-  const spec = COMPILERS[lang];
+  // hasOwnProperty, not a plain lookup: "constructor" and "__proto__" both come back
+  // truthy off the prototype chain and would walk straight past an unsupported check.
+  const known = typeof lang === "string" && Object.prototype.hasOwnProperty.call(COMPILERS, lang);
+  const spec = known ? COMPILERS[lang] : null;
   if (!spec) return res.status(400).json({ status: "error", message: "Unsupported language" });
-  if (typeof code !== "string" || code.length > 200000) {
+  if (typeof code !== "string" || code.length > MAX_CODE) {
     return res.status(400).json({ status: "error", message: "Bad source" });
+  }
+  const input = String(stdin);
+  if (input.length > MAX_STDIN) {
+    return res.status(400).json({ status: "error", message: "Too much input" });
   }
 
   const payload = {
     compiler: spec.compiler,
     code: lang === "java" ? shimJava(code) : code,
-    stdin: String(stdin),
+    stdin: input,
     "compiler-option-raw": spec.raw || "",
   };
 
