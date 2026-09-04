@@ -16,6 +16,10 @@ var LANGS = [
 
 var CONTEST_NAMES = { 1: "Contest 1", 2: "Contest 2", 3: "Contest 3", 4: "Contest 4" };
 
+// A shortcut nobody knows about is the same as no shortcut, and the modifier differs by
+// platform, so name the one the reader actually has.
+var META = /Mac|iPhone|iPad/.test(navigator.platform) ? "  \u2318" : "  Ctrl";
+
 // ------------------------------------------------------------------ storage
 
 function store(key, fallback) {
@@ -969,8 +973,10 @@ function problemPage(pid) {
           '<button class="btn btn-ghost" id="reset">Reset code</button>' +
           '<span class="spacer"></span>' +
           '<button class="btn btn-ghost" id="toggle-input">Custom input</button>' +
-          '<button class="btn" id="run">Run visible tests</button>' +
-          '<button class="btn btn-primary" id="submit">Submit</button>' +
+          '<button class="btn" id="run" title="Run the six visible tests' + META + '-Enter">' +
+            "Run visible tests</button>" +
+          '<button class="btn btn-primary" id="submit" title="Run all twelve' + META
+            + '-Shift-Enter">Submit</button>' +
         "</div>" +
         '<div class="editor-host" id="editor-host"></div>' +
         '<div class="custom-input" id="custom-input" hidden>' +
@@ -1025,6 +1031,7 @@ function problemPage(pid) {
 
   // ACSL tells you in every problem to make up test data of your own, so make that possible.
   var lines = p.samples[0]["in"].length;
+  el("editor-host").title = "Comment or uncomment the selection with" + META + "-/";
   el("stdin-hint").textContent = lines === 1
     ? "One line per run. Blank lines are ignored."
     : lines + " lines per run, one per parameter. Add more blocks to run several at once.";
@@ -1052,6 +1059,14 @@ function problemPage(pid) {
     smartIndent: true,
     electricChars: true,
     matchBrackets: true,
+    // Typing an opening bracket or quote writes the closing one and leaves the cursor between
+    // them, and Enter inside a pair opens an indented line with the closer below. This is an
+    // editing aid in the same family as the auto-indent, not completion: nothing is ever
+    // suggested and no identifier is ever filled in.
+    //
+    // triples covers Python docstrings and Java text blocks, where without it a third quote
+    // would land outside the pair the first two just made.
+    autoCloseBrackets: { triples: "'\"" },
     styleActiveLine: true,
     lineWrapping: false,
     extraKeys: {
@@ -1059,7 +1074,17 @@ function problemPage(pid) {
         if (c.somethingSelected()) c.indentSelection("add");
         else c.replaceSelection("    ", "end");
       },
-      "Shift-Tab": function (c) { c.indentSelection("subtract"); }
+      "Shift-Tab": function (c) { c.indentSelection("subtract"); },
+      // Comment out the selection, or the current line. The mode decides the syntax, so this
+      // is # in Python and // in Java and C++ without the editor being told which.
+      "Ctrl-/": "toggleComment",
+      "Cmd-/": "toggleComment",
+      // Every judge and IDE runs on one of these. During a thirty minute paper, reaching for
+      // the mouse after each edit is a real cost.
+      "Ctrl-Enter": function () { var b = el("run"); if (b && !b.disabled) b.click(); },
+      "Cmd-Enter": function () { var b = el("run"); if (b && !b.disabled) b.click(); },
+      "Shift-Ctrl-Enter": function () { var b = el("submit"); if (b && !b.disabled) b.click(); },
+      "Shift-Cmd-Enter": function () { var b = el("submit"); if (b && !b.disabled) b.click(); }
     }
   });
   window.__cm = cm;

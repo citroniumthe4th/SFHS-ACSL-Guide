@@ -47,6 +47,11 @@ rather than secret, and the site says so, because the whole bundle reaches every
 is also a custom input box, since every ACSL problem tells you to make up test data of your own,
 and it runs your code against whatever you type without checking it against anything.
 
+The editor closes brackets and quotes as you type, matches them, indents for you, comments a
+selection with Ctrl-/ or Cmd-/, and runs on Ctrl-Enter or submits on Ctrl-Shift-Enter. It does not
+complete anything: no method lists, no identifier suggestions, nothing that would answer the
+problem for you. Editing aids yes, hints no.
+
 On a screen narrower than 780px the editor is replaced by a note asking you to open the problem
 on a computer. The statement, the samples, and the visible test cases stay readable there.
 
@@ -275,7 +280,9 @@ public/                the site
   privacy.html         what is stored and what is sent
   .well-known/         security.txt
   data/                topics, guide text, question bank, generated problems, gen.js
-  vendor/codemirror    editor, vendored so the site works offline
+  vendor/codemirror    editor, vendored so the site works offline. Addons are limited to
+                       editing aids: close and match brackets, comment toggle, active line.
+                       show-hint is deliberately absent.
 ```
 
 ## Accessibility
