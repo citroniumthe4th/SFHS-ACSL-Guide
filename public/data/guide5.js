@@ -15,8 +15,7 @@ circled plus and XNOR a circled dot.</p>
 <p>Precedence runs NOT first, then AND, then OR, which is why AB + C means (A AND B) OR C. The
 notation is chosen so that AND looks like multiplication and OR like addition, and a surprising
 amount of ordinary algebra carries over unchanged. The place the analogy breaks is that A + AB
-simplifies to A, which has no arithmetic counterpart at all, and that is exactly the identity people
-forget they are allowed to use.</p>
+simplifies to A, which has no arithmetic counterpart at all, and and that is the identity easiest to forget you are allowed to use.</p>
 
 <h3>The laws</h3>
 <table class="tbl">
@@ -33,9 +32,13 @@ forget they are allowed to use.</p>
 <tr><td>Distributive</td><td>A(B + C) = AB + AC and A + BC = (A + B)(A + C)</td></tr>
 <tr><td>DeMorgan</td><td>(A + B)' = A'B' and (AB)' = A' + B'</td></tr>
 </table>
-<p>The second distributive law, where OR distributes over AND, is the one with no arithmetic
-analogue, and it is worth staring at until it stops looking wrong. It turns A + BC into
-(A + B)(A + C), which is occasionally exactly the factoring a problem is built around.</p>
+<p>The second distributive law, where OR distributes over AND, is the one with no analogue in
+ordinary arithmetic, so it will look wrong the first few times you use it. Verify it once with a
+truth table and you never have to wonder again: A + BC and (A + B)(A + C) agree on every assignment
+of A, B and C.</p>
+
+<p>Once you trust it, use it as a factoring rule. An expression of the form A + BC can be turned
+into a product, which is often the step a simplification problem is built around.</p>
 
 <h3>Simplifying</h3>
 <p>A workable order of attack is to push every NOT inward with DeMorgan until the bars sit only on
@@ -62,7 +65,7 @@ the table. With n variables there are 2 to the n rows, so three variables means 
 a minute of work.</p>
 
 <p>Write the rows in binary counting order so that you cannot skip one, and give each subexpression
-its own column rather than trying to evaluate the whole line in a single step. A truth table also
+its own column instead of trying to evaluate the whole line in a single step. A truth table also
 settles any argument about whether a simplification is right, since two expressions are equal
 exactly when their columns agree on every row.</p>
 
@@ -176,11 +179,15 @@ at 2i and 2i + 1 and the parent of index i sits at i over 2 with the fraction dr
 hands you an array and asks whether it is a heap, check that relation at every index rather than
 trying to picture the tree.</p>
 
-<h3>The errors that survive knowing the material</h3>
-<p>Building a binary search tree from sorted input and drawing a balanced tree instead of a chain is
-the biggest one. After that: confusing preorder with postorder, using the wrong donor on a two child
-deletion, assuming a heap is sorted, and forgetting that popping an empty stack yields NIL rather
-than nothing at all, which matters whenever the problem is counting outputs.</p>
+<h3>Checking a tree you have drawn</h3>
+<p>Check the tree first. If the keys arrived sorted, does your drawing show the chain that produces
+rather than a balanced tree? Did every duplicate key go left? For a two child deletion, did you
+promote the left child and reattach the right subtree, which is ACSL's rule and not the donor swap
+taught elsewhere?</p>
+
+<p>Then two that come up constantly. A heap is not sorted, so read a level order listing off your
+drawing rather than assuming it comes out in order. And popping an empty stack or queue yields NIL,
+which is a value and appears in the output, so it counts whenever the question is counting.</p>
 `
 
 });

@@ -62,10 +62,11 @@ separated by semicolons.</li>
            "..#..;.....;#...#;.....;..#..",
            "...........;.#.#.#.#.#.;...........;.#.#.#.#.#.;...........;.#.#.#.#.#.;..........."],
     approach="""
-<p>The obvious recursion, where each square asks its right neighbour and its lower
-neighbour how many routes they see, is correct and hopeless. On a 17 by 17 grid it explores something
-like 300 million branches, because it keeps resolving the same square over and over from different
-directions.</p>
+<p>The obvious recursion, where each square asks its right neighbour and its lower neighbour how
+many routes they see, gives the right answer but does far too much work. It re-solves the same square
+once for every distinct route that reaches it, so its running time grows with the number of routes
+rather than with the size of the grid, and on a 17 by 17 grid the number of routes runs into the
+billions.</p>
 
 <p>A table fixes that. Let <code>ways[r][c]</code> hold the number of routes from the top left corner
 to that square. A blocked square gets 0, and any other square gets <code>ways[r - 1][c]</code> plus

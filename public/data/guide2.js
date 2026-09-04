@@ -18,7 +18,7 @@ which either reading gives, but int(-3.8) is -4 rather than -3.</p>
 
 <p>Control flow is if, then, and else for branching, while for conditional loops, and for with an
 optional step for counted ones. Arrays take one or two subscripts, and strings index from zero and
-take substrings with a colon, under the rules set out below rather than Python's.</p>
+take substrings with a colon, under the rules set out below, not Python's.</p>
 
 <p>Division needs the same care. Unless the problem says otherwise, treat a slash as ordinary real
 division and rely on int wherever a whole number is wanted. If a program computes 7 / 2 and then
@@ -59,9 +59,13 @@ would pass the limit, so for i = 10 to 1 step -3 gives 10, 7, 4, and 1. A limit 
 lands on is not a problem: for i = 1 to 10 step 4 gives 1, 5, and 9, then stops because 13 is past
 10.</p>
 
-<p>When the loop finishes, the counter holds the first value that failed the test rather than the
-last one that passed, so after for i = 1 to 5 the counter holds 6. Problems that print the counter
-after the loop are testing precisely this, and there is no way to get it right by intuition.</p>
+<p>What the counter holds once the loop has finished is a different question, and one the ACSL
+reference does not answer. Many languages leave it one step past the limit, so that for i = 1 to 5
+ends with i at 6, but that is a property of those languages and not a rule ACSL states.</p>
+
+<p>So if a program prints the counter after its loop, read what the problem itself tells you. If it
+tells you nothing, say so in your working instead of assuming a value: a question that depends on
+this will define it.</p>
 
 <p>A while loop tests before its body, which means a condition that starts out false gives zero
 passes and leaves every variable untouched. Whenever the answer to a while question looks
@@ -77,14 +81,14 @@ loop.</p>
 a program walks a matrix and swaps A(i, j) with A(j, i) it is transposing, and the loop bounds
 decide whether it does each swap once or twice. Swapping across the entire square performs every
 exchange twice and therefore leaves the matrix exactly as it was, which is a favourite trick and
-looks like a bug in your own working rather than the point of the question.</p>
+looks like a bug in your own working, when it is the point of the question.</p>
 
 <h3>Strings</h3>
 <p>Strings index from zero, so for S = "PROGRAM" the first character is S[0] and the last is S[6].
 The substring notation is where ACSL differs from the languages you have written in, and it differs
 in two ways. A single bound is a count of characters taken from the end the colon leans towards, so
 S[:3] is the first three characters, PRO, and S[4:] is the last four, GRAM. Two bounds are positions
-and the second is included, so S[2:5] is positions 2 through 5, which is OGRA rather than OGR.</p>
+and the second is included, so S[2:5] is positions 2 through 5, which is OGRA, not OGR.</p>
 
 <p>The official page states it with S = "ACSL WDTPD": S[:3] is ACS, S[4:] is DTPD, and S[2:6] is
 SL WD. Check any substring you are unsure about against those three before you commit to it.</p>
@@ -100,8 +104,7 @@ pass.</p>
 because knowing the intent catches your own arithmetic slips before they reach the answer line.
 Then write down the initial values, build the trace table with a column for the loop condition,
 and finally answer exactly the question that was asked. Some problems want the final value of a
-variable, some want the number of times a loop ran, and some want what was printed inside the loop
-rather than after it, and those are three different answers to the same trace.</p>
+variable, some want the number of times a loop ran, and some want what was printed inside the loop instead of after it, and those are three different answers to the same trace.</p>
 
 <p>If the loop is clearly going to run thirty or more times, stop tracing and look for the pattern.
 These problems are written so that a shortcut exists, and it is nearly always an arithmetic
@@ -171,23 +174,23 @@ reverse the order of the blocks and it will not, which is the sort of thing the 
 checking.</p>
 
 <h3>How to trace one</h3>
-<p>Write the variables in a row and update them line by line, crossing old values out rather than
-erasing them so that you can retrace your steps when the answer looks wrong. When you reach a
+<p>Write the variables in a row and update them line by line, crossing old values out instead of erasing them so that you can retrace your steps when the answer looks wrong. When you reach a
 condition, write it out with the current numbers substituted in, decide true or false, and note
 which branch you took. Inside a nested structure, note which if you are currently inside as well,
-since that is the piece people lose.</p>
+since that is the piece most often dropped.</p>
 
 <p>Then answer the question that was asked. Some of these programs produce output inside a branch,
-so a branch that never runs means nothing is printed at all, and the answer is that there is no
-output rather than a number.</p>
+so a branch that never runs means nothing is printed at all, and the answer is that there is no output, not a number.</p>
 
-<h3>The mistakes that actually happen</h3>
-<p>Reading a single equals sign in a condition as a comparison is the most common, followed closely
-by attaching an else to the wrong if. After those come evaluating a condition against a variable's
-original value when an earlier branch has already changed it, and forgetting that a not applies
-only to the thing immediately after it unless parentheses say otherwise. None of these are
-conceptual gaps, which is what makes them worth guarding against deliberately rather than trusting
-that you know better.</p>
+<h3>Before you commit to a trace</h3>
+<p>Run these four over your trace before you commit to it. Read every condition and confirm you
+have a comparison and not an assignment. Draw a line from each else to the if it belongs to. Check
+that each condition was evaluated against the value the variable held at that moment, not the one it
+started with. And confirm that every not covers only the thing immediately after it, unless
+parentheses widen it.</p>
+
+<p>These are reading errors rather than gaps in understanding, so knowing the material is not what
+protects you from them. Running the four checks is.</p>
 `
 
 });

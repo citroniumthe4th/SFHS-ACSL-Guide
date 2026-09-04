@@ -88,18 +88,20 @@ BG done, MULT =-1, then store.</p>
 relying on the truncating divide. And a swap needs a third memory word, because there is only one
 accumulator to hold a value in transit.</p>
 
-<h3>Operand order, and what else bites</h3>
-<p>Reversing the operand order on SUB or DIV is the most common. Then branching on the wrong sign,
-or forgetting that the accumulator must be reloaded before a branch when an intervening instruction
-has changed it. Running a loop one pass too many or too few, which the trace table prevents.
-Treating DC as an executed instruction rather than a value set up before the program runs. And
-rounding a negative quotient the wrong way, since -7 divided by 2 is -3 under the ACSL rule and not
--4.</p>
+<h3>What the trace table is for</h3>
+<p>With the trace table beside you, check these six. On every SUB and DIV, is the accumulator the
+left operand? Before each branch, does the accumulator still hold the value you meant to test, or has
+an instruction since then overwritten it? Does the loop run the number of passes your table shows
+rather than the number you expected? Is every DC treated as a value set up before the program starts
+rather than as an instruction that executes? On a negative quotient, did you truncate toward zero, so
+that -7 divided by 2 is -3? And after each READ, ADD, SUB and MULT, did you reduce modulo 1,000,000
+before carrying the value forward?</p>
 `,
 
 "wdtpd-strings": `
-<p class="lead">Contest 4 for Junior. Strings in ACSL pseudocode index from zero and support
-slicing, and almost all of the difficulty in this category is index arithmetic rather than logic.</p>
+<p class="lead">Contest 4 for Junior. Strings in ACSL pseudocode index from zero and take
+substrings with a bracket notation of their own, which is not the one Python uses. Almost all of
+the difficulty in this category is index arithmetic, so the work is in writing the positions down.</p>
 
 <h3>Indexing and substrings</h3>
 <p>Positions start at 0. For S equal to "PROGRAM" the characters sit at positions 0 through 6, so
@@ -168,7 +170,7 @@ is a loop with step 2, where the starting index decides which half you get. And 
 converts a character to a number, adds a shift, wraps with a modulo, and converts back, so check
 whether the wrap uses 26 and where the alphabet is taken to start.</p>
 
-<h3>Where the answers actually go wrong</h3>
+<h3>Before you write the substring down</h3>
 <p>Before you write anything down, run these four checks on your work. Did you count positions from
 0 rather than 1? Did you use len(s) - 1 as the last valid position rather than len(s)? For a
 two-bound substring, did you include the character at the second position? And did you read the

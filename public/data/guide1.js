@@ -1,10 +1,13 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "number-systems": `
-<p class="lead">Every number you write is a string of digits plus an agreement about what the
-positions are worth, and the base is that agreement. Once you stop thinking of 1010 as a number
-and start thinking of it as four positions whose values depend on which base you are in, the rest
-of this category is arithmetic you already know.</p>
+<p class="lead">Read 3204 in base 5 as 3&nbsp;&times;&nbsp;125 + 2&nbsp;&times;&nbsp;25
++ 0&nbsp;&times;&nbsp;5 + 4&nbsp;&times;&nbsp;1, which is 429. Each digit is worth itself multiplied
+by a power of the base, and which power depends on how far left the digit sits.</p>
+
+<p>That one line is the whole category. Every conversion, and every piece of arithmetic done without
+leaving a base, is an application of it, so if a question stops making sense, expand the number that
+way and work from there.</p>
 
 <h3>Place value</h3>
 <p>In base b, a digit sitting k places to the left of the point is worth that digit multiplied by
@@ -14,8 +17,7 @@ no 5s, and four 1s, which comes to 375 + 50 + 0 + 4, or 429 in decimal.</p>
 <p>ACSL works in four bases, and you should be equally comfortable in all of them. Base 2 uses
 only 0 and 1, base 8 uses 0 through 7, base 10 is the one you grew up with, and base 16 runs 0
 through 9 and then borrows the letters A through F to stand for ten through fifteen. The letters
-are the only genuinely new notation here, and students who lose marks in this category almost
-never lose them on the concept.</p>
+are the only genuinely new notation here, and marks in this category are rarely lost them on the concept.</p>
 
 <h3>What to have memorized</h3>
 <p>Thirty minutes for six problems does not leave room to derive things you could have known. Come
@@ -76,8 +78,7 @@ Finally E minus 6 is 8, so the answer is 8BC2. If you have time, checking in dec
 62893 minus 27115 is 35778, and 8BC2 is 35778.</p>
 
 <p>One quick sanity check catches most slips. The last digit of a sum or difference depends only
-on the last digits of the operands, taken modulo the base, so if your final digit is wrong the
-mistake is arithmetic rather than a misread of the problem.</p>
+on the last digits of the operands, taken modulo the base, so if your final digit is wrong the mistake is arithmetic and not a misread of the problem.</p>
 
 <h3>Digits after the point</h3>
 <p>Positions to the right of the point are worth negative powers of the base, which means 0.101 in
@@ -106,10 +107,12 @@ three pairs and treat each pair as its own number between 0 and 255.</p>
 `,
 
 "recursive-functions": `
-<p class="lead">These problems give you a function defined in terms of itself and ask for one
-value. There is no code to write and nothing clever to spot, which means the marks go to whoever
-keeps the cleanest paper. Unwind the definition until you hit a case that answers itself, then
-wind back up without dropping anything on the way.</p>
+<p class="lead">These questions test careful tracing rather than insight. You are given a function
+defined in terms of itself and asked for one value: expand the calls until you reach a case that
+answers itself, then substitute the results back in, one line at a time.</p>
+
+<p>There is no code to write and nothing hidden to spot. What decides the answer is whether your
+paper stays legible enough to substitute back without dropping a term.</p>
 
 <h3>Reading the definition</h3>
 <p>ACSL writes a recursive function as a set of rules with a condition attached to each one, like
@@ -143,7 +146,7 @@ first is not fussiness.</p>
 
 <p>The other thing this trace shows is that the plus 2 appears four times, once per level. Adding
 it once at the end is the single most common way to get these wrong, and it happens because the
-constant looks like part of the definition rather than part of each step.</p>
+constant looks like part of the definition and not part of each step.</p>
 
 <h3>Two arguments instead of one</h3>
 <p>Nothing changes when a second variable appears except that you now have two numbers to keep
@@ -172,7 +175,7 @@ exactly what a programmer means by memoisation, and it is worth recognising that
 because the same problem shows up in the programming half of the contest.</p>
 
 <h3>Definitions disguised as pictures</h3>
-<p>Some problems in this category describe a process rather than writing a formula. A square gets
+<p>Some problems in this category describe a process instead of writing a formula. A square gets
 divided into smaller squares, some of them get painted, and the rule is applied again to the ones
 that were not. A segment gets split and a piece thrown away. A pattern of dots grows by a stated
 rule.</p>

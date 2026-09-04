@@ -54,7 +54,7 @@ both brackets are discarded.</p>
 whose precedence is higher, and also pop operators of equal precedence when the incoming operator
 is left associative. For the exponent, which is right associative, you do not pop the equal ones.
 That single clause is the only place where the exponent is treated differently from everything
-else, and it is what produces A B C ^ ^ rather than A B ^ C ^. When the scan ends, pop whatever
+else, and it is what produces A B C ^ ^ and not A B ^ C ^. When the scan ends, pop whatever
 remains on the stack into the output.</p>
 
 <h3>Reading the notations backwards</h3>
@@ -78,12 +78,15 @@ failures look random until you notice they are all minus signs and slashes.</p>
 <p>Prefix evaluates the same way with the scan running right to left, and there the first value
 popped is the left operand instead.</p>
 
-<h3>The exponent, and three other ways to lose a mark</h3>
-<p>Treating the exponent as left associative accounts for more lost marks in this category than
-everything else combined. After that come popping operands in the wrong order for minus and divide,
-forgetting to drain the operator stack when the scan ends, and answering in prefix when the problem
-asked for postfix. That last one is worth a deliberate second look at the question before you write
-anything down, because it costs a mark you had already earned.</p>
+<h3>Read the question again, then check three things</h3>
+<p>Start with the question itself: read it again and confirm which notation it asked for. Answering
+in prefix when it wanted postfix throws away work you have already done correctly, and it is the one
+item on this list you can rule out before you begin.</p>
+
+<p>Then three checks on the work. Confirm you grouped the exponent from the right, since that is the
+one operator here that does not associate leftward. Check the operand order on every minus and
+divide, where the first value popped is the right-hand operand. And confirm the operator stack is
+empty, since anything still on it when the scan ends belongs on the output.</p>
 `,
 
 "bit-string-flicking": `
@@ -95,7 +98,7 @@ losing a bit somewhere in the middle.</p>
 
 <p>The bits on the left are called the most significant and those on the right the least
 significant, which is the same convention as ordinary decimal. Programmers use bit strings to hold
-a set of flags in a single variable rather than an array of booleans, to represent membership in a
+a set of flags in a single variable instead of an array of booleans, to represent membership in a
 set, and to multiply or divide by powers of two, so the topic connects directly to assembly
 language, digital electronics, and anything close to hardware.</p>
 
@@ -132,8 +135,7 @@ everything, as usual.</p>
 
 <p>So 10110 | 01001 &amp; 11100 means 10110 | (01001 &amp; 11100). The AND gives 01000 and the OR
 then gives 11110. Reading the line strictly left to right instead produces 11111, and that wrong
-answer is among the choices every single time this question is asked, because it is the answer
-almost everyone reaches when they are hurrying.</p>
+answer is among the choices every single time this question is asked, because it is where hurrying lands you.</p>
 
 <h3>Shortcuts worth knowing</h3>
 <p>On a string of length L, LCIRC-n and RCIRC-(L minus n) are the same operation, so circulating a
@@ -142,8 +144,7 @@ whichever is shorter. Before doing either, reduce the count modulo the length, s
 four bit string is really RCIRC-1 and trying to count nine positions round a four bit string is how
 bits go missing.</p>
 
-<p>Shifting by the length or more gives all zeros, which is a legitimate answer rather than an
-error. A few identities are worth recognising on sight as well: X XOR X is all zeros, X XOR with
+<p>Shifting by the length or more gives all zeros, which is a legitimate answer and not an error. A few identities are worth recognising on sight as well: X XOR X is all zeros, X XOR with
 all zeros leaves X alone, and X XOR with all ones is the complement of X, so an exclusive or
 against a solid row of ones can simply be read as a tilde. Similarly X AND with the complement of X
 is all zeros, X OR with the complement of X is all ones, and a double complement can be crossed out
@@ -175,13 +176,17 @@ in the result where the mask already holds a 1 leaves X free. XOR never leaves a
 all, because each position determines X exactly, so an XOR equation has either one solution or
 none.</p>
 
-<h3>What actually goes wrong</h3>
-<p>Ignoring precedence and evaluating left to right is the biggest single loss. After that come
-confusing a shift with a circulate, since only one of them discards bits, and circulating in the
-wrong direction, which is easiest to keep straight by remembering that LCIRC moves bits toward the
-front and the ones that fall off the front reappear at the back. Watch too for the symbol ^, which
-means exclusive or here and exponentiation in the What Does This Program Do category, a collision
-that catches people who have just come from the other topic.</p>
+<h3>Precedence first, then the two confusions</h3>
+<p>Evaluate the precedence explicitly before you touch a bit. Write the expression out with
+brackets around every operation in the order it happens, then work outward from the innermost. Going
+left to right instead is the single largest source of wrong answers here, and bracketing first is
+what rules it out.</p>
+
+<p>Then two confusions worth naming, because they look alike on paper. A shift discards the bits that
+fall off the end and pads with zeros; a circulate brings them round to the other side. And LCIRC moves
+bits toward the front, with whatever falls off the front reappearing at the back. One more thing to
+watch: the symbol ^ means exclusive or here and exponentiation in What Does This Program Do, so check
+which category you are in before you read it.</p>
 `
 
 });

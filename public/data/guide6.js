@@ -18,8 +18,7 @@ of the three. Parentheses group, as everywhere else.</p>
 ab|cd means the whole of ab or the whole of cd, and a|bc* means a or else b followed by any number
 of c characters.</p>
 
-<p>The star binds only to the token directly in front of it, which is the detail that trips people
-in both directions. In ab*, the star applies to the b alone, so the pattern matches a, ab, abb, and
+<p>The star binds only to the token directly in front of it, which is the detail to check in both directions. In ab*, the star applies to the b alone, so the pattern matches a, ab, abb, and
 so on. To repeat the pair you have to write (ab)*.</p>
 
 <h3>Reading a machine</h3>

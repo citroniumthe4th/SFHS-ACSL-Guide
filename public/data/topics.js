@@ -17,7 +17,7 @@ window.TOPICS = [
   { id: "bit-string-flicking", name: "Bit-String Flicking", contest: 2, div: "both",
     blurb: "NOT, AND, OR, XOR, shifts, and circulates, with a precedence table that matters." },
   { id: "lisp", name: "LISP", contest: 2, div: "senior",
-    blurb: "Evaluating S-expressions innermost first, plus the list surgery functions." },
+    blurb: "Evaluating S-expressions innermost first, and the functions that take lists apart." },
   { id: "wdtpd-looping", name: "What Does This Program Do? - Looping", contest: 2, div: "junior",
     blurb: "FOR and WHILE loops, STEP values, and counting iterations correctly." },
 

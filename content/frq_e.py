@@ -362,8 +362,11 @@ jack, 12 a queen, 13 a king, and 14 an ace.</p>
 deck, their own card first and the loser's card second. If the two cards are equal, both cards are
 burned and leave the game entirely.</p>
 
-<p>Play continues until one player has no cards left, which loses them the game, or until 500
-rounds have been played. Both decks can empty on the same round, which is a draw.</p>
+<p>A player loses when their deck becomes empty. Play continues until that happens to one of them,
+or until 500 rounds have been played.</p>
+
+<p>Both decks can become empty after the same round, when the two cards were equal and each player
+had one card left. That is a draw, not a loss for either player.</p>
 """,
     example="""
 <table class="ex"><tr><th>Input</th><td>5 9 2<br>5 3 14</td></tr>

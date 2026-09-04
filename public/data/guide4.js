@@ -19,8 +19,7 @@ two.</p>
 
 <h3>Arithmetic</h3>
 <p>ADD and MULT take any number of arguments and fold across them from left to right, so
-(ADD 1 2 3 4) is 10. SUB and DIV take exactly two, written (SUB a b) and (DIV a b), so reach for
-nesting rather than a third argument when you need to subtract twice: 20 minus 5 minus 3 is
+(ADD 1 2 3 4) is 10. SUB and DIV take exactly two, written (SUB a b) and (DIV a b), so nest instead of reaching for a third argument when you need to subtract twice: 20 minus 5 minus 3 is
 (SUB (SUB 20 5) 3).</p>
 
 <p>DIV is ordinary division and keeps the fractional part. (DIV 7 2) is 3.5, not 3. This is the
@@ -39,13 +38,12 @@ MULT is then 11 times 20 times -2, or -440.</p>
 The names are historical, from the machine registers on the IBM 704 where LISP was first
 implemented, and there is no point trying to derive them.</p>
 
-<p>The difference between them is worth being pedantic about, because it is where most of the marks
-in this category are won or lost. CAR hands back an element, which might be a number or might
-itself be a list. CDR always hands back a list, even when that list has one element or none at all,
-so (CDR '(7)) is the empty list written (), not the number 7.</p>
+<p>At every step, ask what type came back. CAR hands back an element, which may be a number or may
+itself be a list. CDR hands back a list, even when that list holds one element or none, so
+(CDR '(7)) is the empty list written (), and not the number 7. Writing each intermediate result with
+its brackets intact keeps the distinction visible on the page.</p>
 
-<p>CONS puts a value on the front of a list, so (CONS 1 '(2 3)) gives (1 2 3), flat rather than
-nested. REVERSE reverses the top level elements and leaves anything nested inside them alone, which
+<p>CONS puts a value on the front of a list, so (CONS 1 '(2 3)) gives (1 2 3), flat and not nested. REVERSE reverses the top level elements and leaves anything nested inside them alone, which
 means (REVERSE '(1 (2 3) 4)) gives (4 (2 3) 1) and not (4 (3 2) 1).</p>
 
 <p>Here is the kind of question that separates people. Evaluate (CDR '((2 (3)) (4 (5 6) 7))). The
@@ -66,7 +64,7 @@ CAR of that gives B. Trying to do it in one leap is how people end up one elemen
 <h3>Variables and definitions</h3>
 <p>SETQ binds a name to a value, as in (SETQ x '(a b c)), after which x stands for that list
 wherever it appears. SET does the same with its first argument evaluated first. ATOM asks whether
-something is a single item rather than a list, and EQ tests equality.</p>
+something is a single item and not a list, and EQ tests equality.</p>
 
 <p>DEF, sometimes written DEFUN, defines a function, so after (DEF f (x) (MULT x x)) the expression
 (f 5) is 25. Problems that use DEF nearly always define a small recursive function and ask for one
@@ -105,9 +103,13 @@ before the first pass.</p>
 divide by the step, throw away the fraction, and add one. For a loop from a to b with a positive
 step s, that is int((b - a) / s) + 1.</p>
 
-<p>After the loop ends, the counter holds the first value that failed the test rather than the last
-one that passed, so after for i = 1 to 5 the counter holds 6. Problems that print the counter after
-the loop exist specifically to catch this, and there is no way to reason around it.</p>
+<p>What the counter holds once the loop has finished is a different question, and one the ACSL
+reference does not answer. Many languages leave it one step past the limit, so that for i = 1 to 5
+ends with i at 6, but that is a property of those languages and not a rule ACSL states.</p>
+
+<p>So if a program prints the counter after its loop, read what the problem itself tells you. If it
+tells you nothing, say so in your working instead of assuming a value: a question that depends on
+this will define it.</p>
 
 <h3>Conditional loops</h3>
 <pre><code>while condition
@@ -118,8 +120,7 @@ out false means the body never runs and every variable keeps its initial value. 
 looks like the starting value, that is the first thing to check.</p>
 
 <p>The other thing to watch is that the condition reads the current values, which the body has just
-changed. Give the condition its own column in your trace table rather than evaluating it in your
-head between rows.</p>
+changed. Give the condition its own column in your trace table instead of evaluating it in your head between rows.</p>
 
 <h3>Nested loops</h3>
 <p>The inner loop runs to completion for every single pass of the outer one, so two loops of four
@@ -133,8 +134,7 @@ for i = 1 to 4
     next j
 next i</code></pre>
 <p>The inner loop runs 4 times when i is 1, then 3, then 2, then 1, so c ends at 10. Whenever you
-see the outer counter appear in the inner bound, expect a triangular count like this rather than a
-rectangle, and add the row lengths rather than multiplying.</p>
+see the outer counter appear in the inner bound, expect a triangular count like this and not a rectangle, and add the row lengths rather than multiplying.</p>
 
 <h3>Recognising what a loop is for</h3>
 <p>Most of these programs are doing one of a handful of things, and naming the pattern tells you
@@ -144,12 +144,16 @@ counter advances only when a condition inside the loop holds. A running maximum 
 either at the first element or at an extreme value. And a variable that halves or doubles each pass
 means the loop count is logarithmic, so the trace is far shorter than the numbers suggest.</p>
 
-<h3>Off by one, every time</h3>
-<p>Being off by one on an inclusive bound is the classic, followed by forgetting that the counter
-ends one step past the limit. After those come running a while body once when the condition was
-false from the start, missing the final pass that pushes a variable negative, and resetting an
-accumulator inside the outer loop when it was declared outside it. That last one is purely a matter
-of reading the indentation, which is why redrawing a badly printed program is time well spent.</p>
+<h3>Counting the passes</h3>
+<p>Count the iterations on paper instead of in your head, then check five things. Is the upper
+bound inclusive, and did you count that last pass? For a while loop, was the condition true on entry
+at all, or does the body run zero times? Did you carry the loop through its final pass, including one
+that pushes a value negative? Is the accumulator reset where the indentation actually puts it, inside
+the outer loop or outside it? And if the program prints the counter after the loop, does the problem
+say what it holds, since the ACSL reference does not define it?</p>
+
+<p>The accumulator question is settled by reading the indentation, which is a good reason to redraw
+a badly printed program before tracing it.</p>
 `
 
 });

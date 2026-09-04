@@ -312,7 +312,7 @@ function guideIndex() {
     '<div class="eyebrow">' + division + " division</div>" +
     "<h1>Study guide</h1>" +
     "<p class=\"note\">Twelve categories across four contests. Each page is the material plus " +
-    "the mistakes that actually cost points.</p>";
+    "the checks to run before you write an answer down.</p>";
   var lastContest = null;
   list.forEach(function (t) {
     if (t.contest !== lastContest) {
