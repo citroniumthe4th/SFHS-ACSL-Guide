@@ -32,7 +32,7 @@ function save(key, val) {
     // preference, but the editor saves on every keystroke, and a student who is told
     // nothing will keep typing into a box that has quietly stopped keeping anything.
     warnOnce("Your browser will not store any more, so your work is no longer being saved. "
-             + "Copy your code somewhere safe, then use Forget everything in the footer to "
+             + "Copy your code somewhere safe, then use Clear my progress in the footer to "
              + "clear room.");
   }
 }
@@ -448,7 +448,8 @@ function drawQuestion() {
     (quiz.endless ? "" : " of " + quiz.list.length) + "</span>" +
     '<a class="note" href="/guide/' + t.id + '">' +
     (missedMode ? "Guide for " + esc(t.name) : "Read the guide for this category") + "</a>" +
-    '<span class="quiz-score">' + quiz.right + " / " + quiz.seen + "</span></div>" +
+    '<span class="quiz-score" id="quiz-score">' + quiz.right + " / " + quiz.seen +
+    "</span></div>" +
     (!missedMode && GEN.has(quiz.topic)
       ? '<div class="modes" id="modes">' +
           '<button class="' + (quiz.endless ? "" : "on") + '" data-endless="0">Question bank' +
@@ -495,10 +496,14 @@ function paintAnswer() {
   }
   var ok = quiz.picked === q.ans;
   var last = !quiz.endless && quiz.i === quiz.list.length - 1;
+  // answer() has already counted this one, but only drawQuestion writes the header, so
+  // without this the score still reads 0 / 0 underneath the word Correct.
+  var score = el("quiz-score");
+  if (score) score.textContent = quiz.right + " / " + quiz.seen;
   el("after").innerHTML =
-    '<div class="explain' + (ok ? "" : " wrong") + '"><h4><span class="verdict '
+    '<div class="explain' + (ok ? "" : " wrong") + '"><h2><span class="verdict '
     + (ok ? "ok" : "no") + '">' +
-    (ok ? "Correct" : "Not quite") + "</span></h4>" + q.why + "</div>" +
+    (ok ? "Correct" : "Not quite") + "</span></h2>" + q.why + "</div>" +
     '<div class="btn-row">' +
     (last ? '<button class="btn" id="restart">Start over</button>'
           : '<button class="btn btn-primary" id="next">Next question</button>') +
@@ -672,6 +677,14 @@ function examPage(contestArg) {
     exam = saved;
   } else if (!exam || exam.submitted || exam.contest !== contest
              || exam.division !== division) {
+    // The index warns that starting a new paper discards the old one, but the warning was
+    // the whole of the protection: clicking another contest simply did it. Half an hour of
+    // work deserves a question first.
+    if (saved && !saved.submitted
+        && !confirm("You have a mock exam in progress for Contest " + saved.contest
+                    + ". Starting Contest " + contest + " will discard it. Continue?")) {
+      return go("/exam");
+    }
     exam = buildExam(contest);
     saveExam();
   }
@@ -794,7 +807,7 @@ function drawExamResults() {
         '</span><span class="val">' + esc(c) + "</span></div>";
     });
     html += "</div>" +
-      '<div class="explain' + (ok ? "" : " wrong") + '"><h4>Why</h4>' + q.why + "</div></div>";
+      '<div class="explain' + (ok ? "" : " wrong") + '"><h2>Why</h2>' + q.why + "</div></div>";
   });
 
   el("main").innerHTML = html + "</div>";
@@ -1019,8 +1032,10 @@ function drawStatement() {
     dataList(visible, null, 1) +
 
     '<h3 class="sec">Test data 7 to 12</h3>' +
-    '<p class="note">Six sealed cases. You cannot see the inputs or the answers, exactly as in ' +
-    "a real contest. Submitting tells you which ones pass. Giving up unseals them.</p>" +
+    '<p class="note">Six more cases, hidden in this interface the way ACSL hides the second half. ' +
+    "Submitting tells you which ones pass, and showing the solution reveals them. They are hidden " +
+    "rather than secret: this site is one static bundle, so anyone reading the page source can " +
+    "find them. Treat your score here as practice rather than as a result.</p>" +
     dataList(hidden, gaveUp ? null : 0, 7) +
 
     '<h3 class="sec">Task</h3>' +
@@ -1035,15 +1050,16 @@ function drawStatement() {
     "The last 6 are hidden. The test cases vary in difficulty, and you should make up sample " +
     "data of your own to test your program properly.</p>" +
 
-    '<div class="btn-row"><button class="btn btn-danger" id="giveup">' +
-    (gaveUp ? "Solution shown below" : "Give up and show the solution") + "</button></div>" +
+    '<div class="btn-row"><button class="btn" id="giveup">' +
+    (gaveUp ? "Solution shown below" : "Show the solution") + "</button></div>" +
     '<div id="solution"></div>';
 
   el("ws-left").innerHTML = html;
   var gb = el("giveup");
   gb.disabled = gaveUp;
   gb.addEventListener("click", function () {
-    if (!confirm("This reveals the full solution and unlocks the hidden test data. Sure?")) return;
+    if (!confirm("Show the reference solution and all twelve test cases? This will mark the "
+                 + "solution as viewed.")) return;
     save("frq:" + p.id, "gaveup");
     drawStatement();
   });
@@ -1267,8 +1283,8 @@ function render() {
 }
 
 document.getElementById("wipe").addEventListener("click", function () {
-  if (!confirm("Forget every answer, every saved program, and your division? This cannot be "
-               + "undone.")) return;
+  if (!confirm("Delete your saved answers, exam progress, code, custom input, theme, language, "
+               + "and division from this browser? This cannot be undone.")) return;
   try {
     Object.keys(localStorage)
       .filter(function (k) { return k.indexOf("acsl:") === 0; })

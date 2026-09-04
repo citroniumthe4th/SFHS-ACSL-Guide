@@ -1,0 +1,107 @@
+<!doctype html>
+<!-- Standalone, like 404.html: no app.js and no data bundle, so it renders even if the rest
+     of the site does not. -->
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What is stored and what is sent | SFHS ACSL Guide</title>
+<meta name="description" content="What the SFHS ACSL Guide keeps in your browser, what leaves it when you run code, and who processes it.">
+<link rel="canonical" href="https://www.sfhsacsl.org/privacy">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128187;</text></svg>">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="brand-mark">&gt;_</span>
+    <span class="brand-name">SFHS ACSL Guide</span>
+  </a>
+</header>
+
+<div class="shell">
+  <main class="main" id="main">
+    <div class="wrap">
+      <div class="eyebrow">Privacy</div>
+      <h1>What is stored and what is sent</h1>
+      <p class="note">Last updated 4 September 2026.</p>
+
+      <p>This is a study site for the American Computer Science League. There are no accounts, no
+      sign in, and no advertising. Most of what it knows about you never leaves your own browser,
+      but one part of it does, and this page says exactly which part.</p>
+
+      <h2>Kept in your browser</h2>
+      <p>The following is written to <code>localStorage</code> on the device you are using. It stays
+      on that device, is not sent to us, and does not follow you to another browser or another
+      computer.</p>
+      <ul>
+        <li>Which division you are studying for, Junior or Senior</li>
+        <li>Your light or dark theme choice, and which programming language you last used</li>
+        <li>Whether you answered each practice question correctly, which is what fills the missed
+            questions list</li>
+        <li>Whether you have solved a programming problem or viewed its solution</li>
+        <li>The code you write for each problem in each language, and any custom test input</li>
+        <li>A mock exam in progress, including its questions, your answers so far, and its deadline</li>
+      </ul>
+      <p>The <strong>Clear my progress</strong> button in the footer deletes all of it. Clearing site
+      data in your browser does the same thing. Neither is recoverable, because there is no copy
+      anywhere else.</p>
+
+      <h2>No cookies</h2>
+      <p>The site sets no cookies and runs no analytics, tracking pixels, or third party scripts.
+      Its content security policy blocks scripts from anywhere other than this site, which you can
+      check in your browser's network tools.</p>
+
+      <h2>Sent when you run code</h2>
+      <p>Pressing <strong>Run</strong>, <strong>Submit</strong>, or <strong>Run with this input</strong>
+      sends three things to our endpoint at <code>/api/run</code>: the language you chose, the full
+      contents of the editor, and the test input for that run. Nothing else about you is attached.
+      Browsing the guides, answering practice questions, and taking mock exams send nothing.</p>
+
+      <p>We cannot compile or run anything ourselves, so that request is forwarded to
+      <a href="https://wandbox.org/">Wandbox</a>, a free public compiler service operated by a third
+      party. <strong>Your code is executed on their infrastructure, not ours</strong>, and their
+      handling of it is governed by their terms rather than this page. Treat anything you paste into
+      the editor as leaving your machine. Do not put personal information, passwords, or schoolwork
+      you are not free to share into it.</p>
+
+      <h2>Ordinary request information</h2>
+      <p>The site is hosted on Vercel. Like any web host, Vercel receives the normal information that
+      comes with an HTTP request, including your IP address, the address you asked for, your browser's
+      user agent string, and the time. That happens for every page you load, not only when you run
+      code, and it is outside our control. Vercel describes its own handling of this in its
+      <a href="https://vercel.com/legal/privacy-policy">privacy notice</a>.</p>
+
+      <p>Our code runner keeps a short lived count of requests per IP address, in memory only, so
+      that one visitor cannot exhaust the service for everyone else. It is not written to disk and
+      does not survive the process. We do not keep our own logs of submitted code or input.</p>
+
+      <h2>Age</h2>
+      <p>This site is built for high school students. It is not directed at children under 13 and
+      asks for no personal information from anyone. If you are a parent, teacher, or administrator
+      with a question about how it is used at your school, please get in touch before assigning it.</p>
+
+      <h2>Your practice scores are not an assessment</h2>
+      <p>Everything the site knows, including the answer key, the hidden test cases, and the reference
+      solutions, is downloaded to your browser so the site can work without a server. Anyone can read
+      it. Scores here are for your own practice and are not suitable for grading.</p>
+
+      <h2>Not affiliated with ACSL</h2>
+      <p>This is an independent study resource. It is not affiliated with, authorised by, or endorsed
+      by the American Computer Science League. Contest rules and formats change between seasons, so
+      check <a href="https://www.acsl.org/">acsl.org</a> for anything official.</p>
+
+      <h2>Contact and changes</h2>
+      <p>Questions, corrections, or a request to remove something can go to the site's operator
+      through the <a href="https://github.com/citroniumthe4th/SFHS-ACSL-Guide">project repository</a>.
+      If this page changes materially, the date at the top changes with it.</p>
+
+      <div class="btn-row"><a class="btn btn-primary" href="/">Back to the study guide</a></div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

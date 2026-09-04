@@ -101,7 +101,7 @@ def run_code(lang, code, stdin_text):
 # Mirrors the rewrites in vercel.json. Sections with prerendered pages serve the file for
 # that id and 404 when there is none, which is the honest answer for a guide that does not
 # exist. The two per person sections have nothing to prerender and always get the shell.
-APP_ROUTES = ("guide", "practice", "exam", "missed", "problems", "problem")
+APP_ROUTES = ("guide", "practice", "exam", "missed", "problems", "problem", "privacy")
 SHELL_ONLY = ("exam", "missed")
 
 

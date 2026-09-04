@@ -326,7 +326,7 @@ a.card:hover { border-color: var(--accent-dim); text-decoration: none; }
   padding: 14px 16px;
   margin-bottom: 18px;
 }
-.explain h4 { margin: 0 0 6px; color: var(--accent); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.explain h2 { margin: 0 0 6px; color: var(--accent); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
 .explain.wrong { border-left-color: var(--bad); }
 .explain.wrong h4 { color: var(--bad); }
 .explain p:last-child { margin-bottom: 0; }

@@ -31,7 +31,7 @@ def main():
                          % (len(topics), len(problems)))
 
     # The mock exam and the missed list are per person and hold nothing to index.
-    urls = ["/", "/guide", "/practice", "/problems"]
+    urls = ["/", "/guide", "/practice", "/problems", "/privacy"]
     urls += ["/guide/%s" % t for t in topics]
     urls += ["/practice/%s" % t for t in topics]
     urls += ["/problem/%s" % p for p in problems]

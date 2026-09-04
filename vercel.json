@@ -31,6 +31,10 @@
   ],
   "rewrites": [
     {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
       "source": "/guide",
       "destination": "/guide.html"
     },
