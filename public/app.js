@@ -114,15 +114,92 @@ function shuffle(a) {
 // ------------------------------------------------------------------ routing
 
 function route() {
-  var h = location.hash.replace(/^#\/?/, "");
-  var parts = h ? h.split("/") : [];
-  return { section: parts[0] || "guide", arg: parts[1] || null };
+  var parts = location.pathname.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
+  var arg = parts[1] || null;
+  if (arg) { try { arg = decodeURIComponent(arg); } catch (e) { /* leave it as typed */ } }
+  return { section: parts[0] || "guide", arg: arg };
 }
 
-function go(hash) { location.hash = hash; }
+function go(path) {
+  if (path !== location.pathname) history.pushState(null, "", path);
+  render();
+}
 
-window.addEventListener("hashchange", render);
+window.addEventListener("popstate", render);
+
+// Real paths mean the browser would fetch a whole new document on every click. Catch our
+// own links and route them in place, while leaving anything a person deliberately opens
+// in a new tab, or any outbound link, to the browser.
+document.addEventListener("click", function (e) {
+  if (e.defaultPrevented || e.button !== 0) return;
+  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  var a = e.target.closest ? e.target.closest("a") : null;
+  if (!a || a.target || a.hasAttribute("download")) return;
+  var href = a.getAttribute("href");
+  if (!href || href.charAt(0) !== "/") return;
+  e.preventDefault();
+  go(href);
+});
 window.addEventListener("resize", function () { if (cm) cm.refresh(); });
+
+// ------------------------------------------------------------------ page metadata
+
+var ORIGIN = "https://www.sfhsacsl.org";
+
+// Each route is now a real URL a search engine can reach, so each one has to say what it
+// is. Without this every page would inherit the site title and describe itself as the
+// front page, which is how a site with sixteen articles ends up indexed as one.
+function setMeta(title, desc, index) {
+  document.title = title;
+  var set = function (sel, attr, val) {
+    var n = document.head.querySelector(sel);
+    if (n) n.setAttribute(attr, val);
+  };
+  set('meta[name="description"]', "content", desc);
+  set('meta[property="og:title"]', "content", title);
+  set('meta[property="og:description"]', "content", desc);
+  set('meta[property="og:url"]', "content", ORIGIN + location.pathname);
+  set('link[rel="canonical"]', "href", ORIGIN + location.pathname);
+  set('meta[name="robots"]', "content", index ? "index,follow" : "noindex,follow");
+}
+
+function metaFor(r) {
+  var t = r.arg ? topicById(r.arg) : null;
+  var suffix = " | SFHS ACSL Guide";
+  if (r.section === "guide" && t) {
+    return [t.name + suffix, t.blurb + " Worked examples and the mistakes that cost points, "
+            + "written for ACSL " + (t.div === "both" ? "Junior and Senior" : t.div) + ".", true];
+  }
+  if (r.section === "practice" && t) {
+    return [t.name + " practice" + suffix,
+            "Short answer practice on " + t.name.toLowerCase() + ", with the reasoning for "
+            + "every answer.", true];
+  }
+  if (r.section === "problem") {
+    var p = problemById(r.arg);
+    if (p) return [p.title + suffix, p.blurb + " An ACSL style programming problem you can "
+                   + "solve in Python, Java, or C++ in the browser.", true];
+  }
+  var pages = {
+    guide:    ["Study guide" + suffix,
+               "Sixteen ACSL categories across four contests, from number systems to "
+               + "assembly, with worked examples throughout."],
+    practice: ["Practice" + suffix,
+               "Short answer practice across every ACSL category, with the reasoning shown "
+               + "for each question."],
+    exam:     ["Mock exam" + suffix,
+               "Sit a full ACSL contest paper under a thirty minute clock, then review "
+               + "every question."],
+    missed:   ["Missed questions" + suffix, "The questions you got wrong, waiting to be "
+               + "tried again."],
+    problems: ["Programming problems" + suffix,
+               "ACSL style programming problems with twelve test cases, solvable in Python, "
+               + "Java, or C++ in the browser."]
+  };
+  var m = pages[r.section];
+  return m ? [m[0], m[1], true]
+           : ["Not found" + suffix, "There is nothing at that address.", false];
+}
 
 // ------------------------------------------------------------------ chrome
 
@@ -135,11 +212,11 @@ el("division-switch").addEventListener("click", function (e) {
   // A topic that only exists in the other division cannot survive the switch.
   if (r.arg && (r.section === "guide" || r.section === "practice")) {
     var t = topicById(r.arg);
-    if (!t || (t.div !== "both" && t.div !== division)) return go("#/" + r.section);
+    if (!t || (t.div !== "both" && t.div !== division)) return go("/" + r.section);
   }
   if (r.section === "problem") {
     var p = problemById(r.arg);
-    if (p && p.division.toLowerCase() !== division) return go("#/problems");
+    if (p && p.division.toLowerCase() !== division) return go("/problems");
   }
   render();
 });
@@ -191,7 +268,7 @@ function renderSidebar(section, active) {
       var right = qs.filter(function (q) { return store("q:" + q.id, null) === true; }).length;
       if (right > 0) done = ' <span class="tick">' + right + "/" + qs.length + "</span>";
     }
-    html += '<a class="side-link' + (t.id === active ? " on" : "") + '" href="#/' +
+    html += '<a class="side-link' + (t.id === active ? " on" : "") + '" href="/' +
       section + "/" + t.id + '">' + esc(t.name) + done + "</a>";
   });
   side.innerHTML = html;
@@ -235,9 +312,9 @@ function guidePage(topicId) {
   }
   var qs = questionsFor(topicId, division);
   var foot = '<h2>Practice this</h2><div class="btn-row">' +
-    '<a class="btn btn-primary" href="#/practice/' + topicId + '">' + qs.length +
+    '<a class="btn btn-primary" href="/practice/' + topicId + '">' + qs.length +
     " short answer questions</a>" +
-    '<a class="btn" href="#/problems">Programming problems</a>' +
+    '<a class="btn" href="/problems">Programming problems</a>' +
     "</div>";
   el("main").innerHTML = '<div class="wrap">' +
     '<div class="eyebrow">' + CONTEST_NAMES[t.contest] + " &middot; " + division + " division</div>" +
@@ -253,7 +330,7 @@ function practiceIndex() {
     "once you answer, right or wrong.</p>";
   var missed = missedFor(division);
   if (missed.length) {
-    html += '<div class="grid"><a class="card" href="#/missed"><h3>Missed questions</h3>' +
+    html += '<div class="grid"><a class="card" href="/missed"><h3>Missed questions</h3>' +
       "<p>The ones you got wrong, waiting to be tried again. Getting one right takes it off " +
       'the list.</p><div class="card-foot"><span class="chip">' + missed.length +
       " waiting</span></div></a></div>";
@@ -262,7 +339,7 @@ function practiceIndex() {
   list.forEach(function (t) {
     var qs = questionsFor(t.id, division);
     var right = qs.filter(function (q) { return store("q:" + q.id, null) === true; }).length;
-    html += '<a class="card" href="#/practice/' + t.id + '"><h3>' + esc(t.name) + "</h3>" +
+    html += '<a class="card" href="/practice/' + t.id + '"><h3>' + esc(t.name) + "</h3>" +
       "<p>" + esc(t.blurb) + '</p><div class="card-foot">' +
       '<span class="chip">' + qs.length + " questions</span>" +
       (right ? '<span class="chip ok">' + right + " correct</span>" : "") +
@@ -273,7 +350,7 @@ function practiceIndex() {
   if (probs.length) {
     html += "<h2>Programming problems</h2><div class=\"grid\">";
     probs.forEach(function (p) {
-      html += '<a class="card" href="#/problem/' + p.id + '"><h3>' + esc(p.title) + "</h3>" +
+      html += '<a class="card" href="/problem/' + p.id + '"><h3>' + esc(p.title) + "</h3>" +
         "<p>" + esc(p.blurb) + '</p><div class="card-foot"><span class="chip">' +
         CONTEST_NAMES[p.contest] + "</span></div></a>";
     });
@@ -311,14 +388,14 @@ function drawQuestion() {
   var t = topicById(missedMode ? q.topic : quiz.topic);
   var heading = missedMode ? "Missed questions" : t.name;
   var crumb = missedMode
-    ? '<a href="#/practice">Practice</a> &middot; questions you got wrong'
-    : '<a href="#/practice">Practice</a> &middot; ' + CONTEST_NAMES[t.contest];
+    ? '<a href="/practice">Practice</a> &middot; questions you got wrong'
+    : '<a href="/practice">Practice</a> &middot; ' + CONTEST_NAMES[t.contest];
 
   var html = '<div class="wrap">' +
     '<div class="eyebrow">' + crumb + "</div><h1>" + esc(heading) + "</h1>" +
     '<div class="quiz-head"><span class="quiz-count">Question ' + (quiz.i + 1) + " of " +
     quiz.list.length + "</span>" +
-    '<a class="note" href="#/guide/' + t.id + '">' +
+    '<a class="note" href="/guide/' + t.id + '">' +
     (missedMode ? "Guide for " + esc(t.name) : "Read the guide for this category") + "</a>" +
     '<span class="quiz-score">' + quiz.right + " / " + quiz.seen + "</span></div>" +
     '<div class="qtext">' + q.q + "</div>" +
@@ -355,7 +432,7 @@ function paintAnswer() {
     '<div class="btn-row">' +
     (last ? '<button class="btn" id="restart">Start over</button>'
           : '<button class="btn btn-primary" id="next">Next question</button>') +
-    '<a class="btn btn-ghost" href="#/practice">All categories</a>' +
+    '<a class="btn btn-ghost" href="/practice">All categories</a>' +
     (quiz.topic === "__missed" && ok
       ? '<span class="note">Off the missed list.</span>' : "") +
     '<span class="note">Question id ' + q.id + "</span></div>";
@@ -478,14 +555,14 @@ function examIndex() {
   if (running && !running.submitted && running.division === division) {
     html += '<div class="banner">You have an exam in progress for Contest ' + running.contest +
       ". Starting a new one throws it away.</div>" +
-      '<div class="btn-row"><a class="btn btn-primary" href="#/exam/' + running.contest +
+      '<div class="btn-row"><a class="btn btn-primary" href="/exam/' + running.contest +
       '">Resume it</a></div>';
   }
 
   html += '<div class="grid">';
   contests.forEach(function (c) {
     var topics = topicsFor(division).filter(function (t) { return t.contest === c; });
-    html += '<a class="card" href="#/exam/' + c + '"><h3>Contest ' + c + "</h3><p>" +
+    html += '<a class="card" href="/exam/' + c + '"><h3>Contest ' + c + "</h3><p>" +
       esc(topics.map(function (t) { return t.name; }).join(", ")) + "</p>" +
       '<div class="card-foot"><span class="chip">2 per topic</span>' +
       '<span class="chip">30 minutes</span></div></a>';
@@ -520,7 +597,7 @@ function drawExamQuestion() {
   stopClock();
   var q = questionById(exam.ids[exam.at]);
   var html = '<div class="wrap">' +
-    '<div class="eyebrow"><a href="#/exam">Mock exam</a> &middot; ' + exam.division +
+    '<div class="eyebrow"><a href="/exam">Mock exam</a> &middot; ' + exam.division +
     " division</div><h1>Contest " + exam.contest + "</h1>" +
     '<div class="exam-bar">' +
       '<div><span class="clock-label">Time left</span>' +
@@ -607,13 +684,13 @@ function drawExamResults() {
   var tone = right >= 5 ? "ok" : right >= 3 ? "mid" : "no";
 
   var html = '<div class="wrap">' +
-    '<div class="eyebrow"><a href="#/exam">Mock exam</a> &middot; ' + exam.division +
+    '<div class="eyebrow"><a href="/exam">Mock exam</a> &middot; ' + exam.division +
     " division</div><h1>Contest " + exam.contest + " results</h1>" +
     '<div class="scoreline ' + tone + '">' + right + " / " + exam.ids.length + "</div>" +
     '<p class="note">Every question is below with the reasoning. The ones you missed have been ' +
-    'added to your <a href="#/missed">missed questions</a>.</p>' +
-    '<div class="btn-row"><a class="btn btn-primary" href="#/exam">Take another</a>' +
-    '<a class="btn" href="#/missed">Review missed questions</a></div>';
+    'added to your <a href="/missed">missed questions</a>.</p>' +
+    '<div class="btn-row"><a class="btn btn-primary" href="/exam">Take another</a>' +
+    '<a class="btn" href="/missed">Review missed questions</a></div>';
 
   exam.ids.forEach(function (id, i) {
     var q = questionById(id);
@@ -648,7 +725,7 @@ function missedPage() {
       '<p class="empty">Nothing here. Questions you get wrong in practice or on a mock exam ' +
       "land in this list, and they leave it once you get them right." +
       (elsewhere ? " You do have " + elsewhere + " missed in the other division." : "") +
-      '</p><div class="btn-row"><a class="btn" href="#/practice">Back to practice</a></div></div>';
+      '</p><div class="btn-row"><a class="btn" href="/practice">Back to practice</a></div></div>';
     return;
   }
   if (!quiz || quiz.topic !== "__missed" || quiz.division !== division) {
@@ -670,7 +747,7 @@ function problemsIndex() {
     '<div class="grid">';
   probs.forEach(function (p) {
     var st = store("frq:" + p.id, null);
-    html += '<a class="card" href="#/problem/' + p.id + '"><h3>' + esc(p.title) + "</h3><p>" +
+    html += '<a class="card" href="/problem/' + p.id + '"><h3>' + esc(p.title) + "</h3><p>" +
       esc(p.blurb) + '</p><div class="card-foot"><span class="chip">' +
       CONTEST_NAMES[p.contest] + '</span><span class="chip">' + esc(p.fname) + "</span>" +
       (st === "solved" ? '<span class="chip ok">solved</span>' : "") +
@@ -838,7 +915,7 @@ function drawStatement() {
   var hidden = p.tests.slice(6);
 
   var html =
-    '<div class="eyebrow"><a href="#/problems">Programming problems</a> &middot; ' +
+    '<div class="eyebrow"><a href="/problems">Programming problems</a> &middot; ' +
       CONTEST_NAMES[p.contest] + " &middot; " + p.division + " division</div>" +
     "<h1>" + esc(p.title) + "</h1>" +
 
@@ -1057,11 +1134,12 @@ var SECTIONS = ["guide", "practice", "exam", "missed", "problems", "problem"];
 // Every dead link used to land on the guide index without a word, which reads as though
 // the site lost your place rather than as though the address was wrong.
 function notFound(detail) {
+  setMeta("Not found | SFHS ACSL Guide", "There is nothing at that address.", false);
   el("main").innerHTML = '<div class="wrap lost">' +
     '<div class="eyebrow">Error 404</div>' +
     "<h1>There is nothing at that address</h1>" +
     "<p>" + esc(detail) + "</p>" +
-    '<div class="btn-row"><a class="btn btn-primary" href="#/guide">Back to the study guide</a>' +
+    '<div class="btn-row"><a class="btn btn-primary" href="/guide">Back to the study guide</a>' +
     "</div></div>";
 }
 
@@ -1070,6 +1148,8 @@ function notFound(detail) {
 function render() {
   var r = route();
   if (SECTIONS.indexOf(r.section) < 0) r.section = "404";
+  var m = metaFor(r);
+  setMeta(m[0], m[1], m[2]);
   stopClock();
   if (r.section !== "exam") exam = null;
   el("main").classList.remove("flush");
@@ -1109,6 +1189,14 @@ document.getElementById("wipe").addEventListener("click", function () {
   } catch (e) {}
   location.reload();
 });
+
+// Anything shared while the site was hash routed points at #/guide/x. The fragment never
+// reaches the server, so only this can rescue those links.
+if (/^#\/?./.test(location.hash)) {
+  history.replaceState(null, "", "/" + location.hash.replace(/^#\/?/, ""));
+} else if (location.hash === "#" || location.hash === "#/") {
+  history.replaceState(null, "", "/");
+}
 
 render();
 

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /exam
+Disallow: /missed
+
+Sitemap: https://www.sfhsacsl.org/sitemap.xml

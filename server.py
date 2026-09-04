@@ -98,9 +98,20 @@ def run_code(lang, code, stdin_text):
         shutil.rmtree(d, ignore_errors=True)
 
 
+# The app's own sections, which serve the shell and are routed in the browser. Mirrors the
+# rewrites in vercel.json; anything outside this list is a real 404 in both places.
+APP_ROUTES = ("guide", "practice", "exam", "missed", "problems", "problem")
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=ROOT, **kw)
+
+    def translate_path(self, path):
+        parts = path.split("?")[0].strip("/").split("/")
+        if parts and parts[0] in APP_ROUTES and len(parts) <= 2:
+            return os.path.join(ROOT, "index.html")
+        return super().translate_path(path)
 
     def log_message(self, *a):
         pass
