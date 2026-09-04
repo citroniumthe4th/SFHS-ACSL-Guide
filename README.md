@@ -106,7 +106,9 @@ is worse than none: a student will trust it over their own arithmetic.
 ```bash
 python3 content/build.py     # rewrites public/data/frq.js
 python3 content/verify.py    # rechecks every computable multiple choice answer
-python3 content/stamp.py     # rewrites the ?v= cache keys in index.html
+python3 content/checkgen.py  # rechecks the generated questions
+python3 content/sitemap.py   # rewrites sitemap.xml and robots.txt
+python3 content/stamp.py     # rewrites the ?v= cache keys in the HTML
 ```
 
 `verify.py` re-derives 200 of the 219 answers using `content/solvers.py`, which holds its own
@@ -114,7 +116,30 @@ implementations of everything the bank asks about. The remaining 19 are definiti
 computation to check. Checks run under a five second alarm and a memory cap, because a question
 is data and a runaway expression in one should fail loudly rather than take the machine down.
 
-Run all three after editing anything under `content/` or `public/`.
+Run all five after editing anything under `content/` or `public/`.
+
+## Generated questions
+
+Six categories are pure mechanics, with one right answer and a procedure that always finds it:
+number systems, bit-string flicking, prefix and postfix, boolean algebra, digital electronics,
+and graph theory. Those do not need a hand written bank so much as a machine, and
+`public/data/gen.js` is that machine. Practice on any of the six offers an Endless mode that
+builds a question from a seed, complete with worked steps derived from the same structure that
+produced the question. Across four thousand seeds each category yields between 3,100 and 4,000
+distinct questions, so in practice it does not repeat.
+
+A generator that writes both the question and the answer key is exactly the arrangement in which
+a bug stays invisible, since one mistake produces both halves. So every generated question also
+carries a `check`, a Python expression in the same form the hand written bank uses, and
+`content/checkgen.py` runs four hundred seeds per category through it against the independent
+implementations in `solvers.py`. Where it can, the generator computes over the expression tree it
+built and leaves the parsing of the rendered string to the Python side, so a precedence bug in
+the renderer surfaces as a disagreement rather than as a question that is quietly wrong in both
+places. It caught two real bugs the first time it ran.
+
+Generated answers are deliberately not recorded. They would fill localStorage with thousands of
+keys for questions nobody will see twice, and the missed list is only meaningful over a fixed
+bank.
 
 ## Layout
 

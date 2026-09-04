@@ -666,3 +666,21 @@ details.reveal > div { padding: 0 14px 14px; }
 .lost h1 { margin-bottom: 14px; }
 .lost p { color: var(--text-dim); max-width: 60ch; }
 .lost .btn-row { margin-top: 26px; }
+
+/* Worked steps inside a generated explanation. It is a <pre>, so the frame and the
+   horizontal scroll come from there; only the rhythm differs. */
+.steps { margin: 12px 0; }
+.steps code { line-height: 1.65; }
+
+/* Question bank / Endless switch. */
+.modes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 18px; }
+.modes button {
+  cursor: pointer; padding: 5px 12px; border-radius: 999px; font: inherit; font-size: 13px;
+  border: 1px solid var(--line); background: transparent; color: var(--text-dim);
+}
+.modes button:hover { color: var(--text); }
+.modes button.on {
+  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
+  font-weight: 600;
+}
+.modes .note { flex: 1 1 260px; min-width: 0; }

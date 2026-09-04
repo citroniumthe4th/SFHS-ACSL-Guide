@@ -6,6 +6,7 @@
 "use strict";
 
 var TOPICS = window.TOPICS, GUIDE = window.GUIDE, MCQ = window.MCQ, FRQ = window.FRQ;
+var GEN = window.GEN;
 
 var LANGS = [
   { id: "python", label: "Python 3.11", mode: "python" },
@@ -335,6 +336,8 @@ function practiceIndex() {
       'the list.</p><div class="card-foot"><span class="chip">' + missed.length +
       " waiting</span></div></a></div>";
   }
+  html += '<p class="note">Six of these categories can also generate questions on demand, '
+        + "marked endless below. Those are built fresh each time and never repeat.</p>";
   html += '<div class="grid">';
   list.forEach(function (t) {
     var qs = questionsFor(t.id, division);
@@ -342,6 +345,7 @@ function practiceIndex() {
     html += '<a class="card" href="/practice/' + t.id + '"><h3>' + esc(t.name) + "</h3>" +
       "<p>" + esc(t.blurb) + '</p><div class="card-foot">' +
       '<span class="chip">' + qs.length + " questions</span>" +
+      (GEN.has(t.id) ? '<span class="chip">endless</span>' : "") +
       (right ? '<span class="chip ok">' + right + " correct</span>" : "") +
       "</div></a>";
   });
@@ -377,13 +381,30 @@ function practicePage(topicId) {
   }
   if (!quiz || quiz.topic !== topicId || quiz.division !== division) {
     quiz = { topic: topicId, division: division, list: shuffle(qs.slice()), i: 0,
-             picked: null, right: 0, seen: 0 };
+             picked: null, right: 0, seen: 0, endless: false };
   }
+  drawQuestion();
+}
+
+// In endless mode the list is built as you walk off the end of it, so there is always a
+// next question and never a last one.
+function fillAhead() {
+  if (!quiz.endless) return;
+  while (quiz.list.length <= quiz.i) {
+    quiz.list.push(GEN.make(quiz.topic, (Math.random() * 4294967296) >>> 0));
+  }
+}
+
+function setMode(endless) {
+  quiz.endless = endless;
+  quiz.i = 0; quiz.picked = null; quiz.right = 0; quiz.seen = 0;
+  quiz.list = endless ? [] : shuffle(questionsFor(quiz.topic, quiz.division).slice());
   drawQuestion();
 }
 
 function drawQuestion() {
   var missedMode = quiz.topic === "__missed";
+  fillAhead();
   var q = quiz.list[quiz.i];
   var t = topicById(missedMode ? q.topic : quiz.topic);
   var heading = missedMode ? "Missed questions" : t.name;
@@ -393,15 +414,34 @@ function drawQuestion() {
 
   var html = '<div class="wrap">' +
     '<div class="eyebrow">' + crumb + "</div><h1>" + esc(heading) + "</h1>" +
-    '<div class="quiz-head"><span class="quiz-count">Question ' + (quiz.i + 1) + " of " +
-    quiz.list.length + "</span>" +
+    '<div class="quiz-head"><span class="quiz-count">Question ' + (quiz.i + 1) +
+    (quiz.endless ? "" : " of " + quiz.list.length) + "</span>" +
     '<a class="note" href="/guide/' + t.id + '">' +
     (missedMode ? "Guide for " + esc(t.name) : "Read the guide for this category") + "</a>" +
     '<span class="quiz-score">' + quiz.right + " / " + quiz.seen + "</span></div>" +
+    (!missedMode && GEN.has(quiz.topic)
+      ? '<div class="modes" id="modes">' +
+          '<button class="' + (quiz.endless ? "" : "on") + '" data-endless="0">Question bank' +
+          "</button>" +
+          '<button class="' + (quiz.endless ? "on" : "") + '" data-endless="1">Endless</button>' +
+          '<span class="note">' + (quiz.endless
+            ? "Freshly generated every time, so it never repeats. These do not go in your "
+              + "missed list."
+            : "Written by hand. " + questionsFor(quiz.topic, quiz.division).length
+              + " of them, and your score is kept.") + "</span></div>"
+      : "") +
     '<div class="qtext">' + q.q + "</div>" +
     '<div class="choices" id="choices"></div>' +
     '<div id="after"></div></div>';
   el("main").innerHTML = html;
+
+  var modes = el("modes");
+  if (modes) {
+    modes.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-endless]");
+      if (b) setMode(b.getAttribute("data-endless") === "1");
+    });
+  }
 
   var box = el("choices");
   q.choices.forEach(function (c, idx) {
@@ -424,7 +464,7 @@ function paintAnswer() {
     else if (i === quiz.picked) btns[i].classList.add("wrong");
   }
   var ok = quiz.picked === q.ans;
-  var last = quiz.i === quiz.list.length - 1;
+  var last = !quiz.endless && quiz.i === quiz.list.length - 1;
   el("after").innerHTML =
     '<div class="explain' + (ok ? "" : " wrong") + '"><h4><span class="verdict '
     + (ok ? "ok" : "no") + '">' +
@@ -455,7 +495,7 @@ function answer(idx) {
   quiz.picked = idx;
   quiz.seen++;
   if (idx === q.ans) quiz.right++;
-  save("q:" + q.id, idx === q.ans);
+  if (!q.generated) save("q:" + q.id, idx === q.ans);
   paintAnswer();
 }
 
