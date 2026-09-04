@@ -242,6 +242,19 @@ def _split_top(body):
     return out
 
 
+def _num(t):
+    """A LISP numeric literal, integer or not."""
+    f = float(t)
+    return int(f) if f.is_integer() else f
+
+
+def _numstr(v):
+    """Prints 12 rather than 12.0, and 12.5 as itself."""
+    if isinstance(v, float) and v.is_integer():
+        v = int(v)
+    return repr(v) if isinstance(v, float) else str(v)
+
+
 def lisp(expr):
     def elems(lst):
         return _split_top(lst[1:-1].strip())
@@ -258,12 +271,21 @@ def lisp(expr):
         parts = _split_top(e[1:-1].strip())
         fn, args = parts[0], [ev(a) for a in parts[1:]]
         if fn in ("ADD", "SUB", "MULT", "DIV"):
-            acc = int(args[0])
+            # ACSL's arities are not uniform. ADD and MULT are written (ADD x1 x2 ...) and take
+            # any number; SUB and DIV are written (SUB a b) and (DIV a b) and take exactly two.
+            # Accepting three here would let a question ask something the language cannot
+            # express and then agree with itself about the answer.
+            if fn in ("SUB", "DIV") and len(args) != 2:
+                raise ValueError("%s takes exactly two arguments, got %d" % (fn, len(args)))
+            if not args:
+                raise ValueError("%s needs arguments" % fn)
+            acc = _num(args[0])
             for a in args[1:]:
-                v = int(a)
+                v = _num(a)
+                # DIV is ordinary division and keeps the fraction. It is not integer division.
                 acc = (acc + v if fn == "ADD" else acc - v if fn == "SUB"
-                       else acc * v if fn == "MULT" else _idiv(acc, v))
-            return str(acc)
+                       else acc * v if fn == "MULT" else acc / v)
+            return _numstr(acc)
         if fn == "CAR":
             return elems(args[0])[0]
         if fn == "CDR":
@@ -551,6 +573,14 @@ def machine(prog):
     def val(a):
         return int(a[1:]) if a[0] == "=" else mem.get(a, 0)
 
+    # READ, ADD, SUB and MULT are all modulo 1,000,000 in the ACSL reference; DIV is not, and
+    # stores the signed integer part of the quotient. The reference does not spell out what the
+    # modulus does to a negative, and a plain Python % would map every negative to a positive,
+    # which would leave BL unable to ever fire. Wrapping the magnitude and keeping the sign is
+    # the only reading consistent with a signed accumulator.
+    def wrap(x):
+        return -(abs(x) % 1000000) if x < 0 else x % 1000000
+
     acc, pc, out, steps = 0, 0, [], 0
     while pc < len(code) and steps < 100000:
         steps += 1
@@ -565,15 +595,15 @@ def machine(prog):
         elif op == "STORE":
             mem[arg] = acc
         elif op == "ADD":
-            acc += val(arg)
+            acc = wrap(acc + val(arg))
         elif op == "SUB":
-            acc -= val(arg)
+            acc = wrap(acc - val(arg))
         elif op == "MULT":
-            acc *= val(arg)
+            acc = wrap(acc * val(arg))
         elif op == "DIV":
             acc = _idiv(acc, val(arg))
         elif op == "READ":
-            mem[arg] = int(data[di])
+            mem[arg] = wrap(int(data[di]))
             di += 1
         elif op == "PRINT":
             out.append(str(mem.get(arg, 0)))
@@ -581,3 +611,53 @@ def machine(prog):
                 or (op == "BL" and acc < 0):
             pc = labels[arg]
     return " ".join(out) if out else "NONE"
+
+
+# ------------------------------------------------------------------ self check
+
+def _selfcheck():
+    """The ACSL conventions that differ from the obvious reading, pinned to the official pages.
+
+    Every one of these was wrong here at some point, and each was wrong in a way that still
+    produced a confident answer, so they are worth a check that fails out loud.
+    Run with: python3 content/solvers.py
+    """
+    # Substrings: one bound is a count, two bounds are inclusive positions.
+    S = "ACSL WDTPD"
+    assert substr(S, None, 3) == "ACS", substr(S, None, 3)
+    assert substr(S, 4, None) == "DTPD", substr(S, 4, None)
+    assert substr(S, 2, 6) == "SL WD", substr(S, 2, 6)
+
+    # Binary search trees: duplicates go left, and a two child deletion promotes the left
+    # child. Checked against the tree the official page builds from A M E R I C A N.
+    ops = ["+%d" % ord(c) for c in "AMERICAN"]
+    letters = lambda r: " ".join(chr(int(x)) for x in r.split())
+    assert letters(trav(ops, "in")) == "A A C E I M N R", trav(ops, "in")
+    assert letters(trav(ops, "pre")) == "A A M E C I R N", trav(ops, "pre")
+    assert letters(trav(ops, "post")) == "A C I E N R M A", trav(ops, "post")
+    assert trav(ops, "height") == 3
+    assert trav(ops, "ipl") == 15
+    assert letters(trav(ops + ["-%d" % ord("M")], "in")) == "A A C E I N R"
+
+    # LISP: DIV is ordinary division, and SUB and DIV take exactly two arguments.
+    assert lisp("(DIV 100 8)") == "12.5"
+    assert lisp("(DIV 6 (SUB 2 5))") == "-2"
+    assert lisp("(ADD 1 2 3 4)") == "10"
+    for bad in ("(SUB 20 5 3)", "(DIV 100 3 3)"):
+        try:
+            lisp(bad)
+            raise AssertionError("%s should have been rejected" % bad)
+        except ValueError:
+            pass
+
+    # Assembly: READ, ADD, SUB and MULT wrap modulo 1,000,000, keeping the sign; DIV does not.
+    assert machine("READ X; LOAD X; ADD =2; STORE X; PRINT X; END # 999999") == "1"
+    assert machine("LOAD =999999; MULT =999999; STORE X; PRINT X; END #") == "1"
+    assert machine("READ X; LOAD X; SUB =5; STORE X; PRINT X; END # -999998") == "-3"
+    assert machine("LOAD =7; DIV =2; STORE X; PRINT X; END #") == "3"
+
+    print("solvers self check: all ACSL conventions hold")
+
+
+if __name__ == "__main__":
+    _selfcheck()

@@ -17,7 +17,8 @@ no 5s, and four 1s, which comes to 375 + 50 + 0 + 4, or 429 in decimal.</p>
 <p>ACSL works in four bases, and you should be equally comfortable in all of them. Base 2 uses
 only 0 and 1, base 8 uses 0 through 7, base 10 is the one you grew up with, and base 16 runs 0
 through 9 and then borrows the letters A through F to stand for ten through fifteen. The letters
-are the only genuinely new notation here, and marks in this category are rarely lost them on the concept.</p>
+are the only genuinely new notation here, and they are usually the easy part. Most marks in this
+category go on the conversion or the arithmetic, not on the notation.</p>
 
 <h3>What to have memorized</h3>
 <p>Thirty minutes for six problems does not leave room to derive things you could have known. Come

@@ -6,8 +6,9 @@ window.MCQ = (window.MCQ || []).concat([
   check:`lisp('(MULT (ADD 6 5 0) (MULT 5 1 2 2) (DIV 6 (SUB 2 5)))')`,
   why:`Reduce the innermost complete brackets first and work outward. ADD 6 5 0 is 11, the inner
 MULT 5 1 2 2 is 20, SUB 2 5 is -3, and dividing 6 by -3 gives -2. The outer MULT is then 11 times 20
-times -2, or -440. All four arithmetic functions fold from the left, which makes no difference to ADD
-and MULT but decides the answer for SUB and DIV.` },
+times -2, or -440. Note the two shapes in play here: ADD and MULT are written (ADD x1 x2 ...) and take
+as many arguments as you give them, while SUB and DIV are written (SUB a b) and (DIV a b) and take
+exactly two.` },
 
 { id:"lp-02", topic:"lisp", level:"s",
   q:`Evaluate (CDR '((2 (3)) (4 (5 6) 7))).`,
@@ -45,13 +46,13 @@ which would return the element itself, and answering (7) overlooks that anything
 all.` },
 
 { id:"lp-06", topic:"lisp", level:"s",
-  q:`Evaluate (SUB (ADD 1 2 3 4) (MULT 2 2 2) (DIV -9 2)).`,
-  choices:["6","2","-6","10","None of the above"], ans:0,
-  check:`lisp('(SUB (ADD 1 2 3 4) (MULT 2 2 2) (DIV -9 2))')`,
-  why:`ADD gives 10 and MULT gives 8, and then DIV of -9 by 2 keeps the integer part rounding
-toward zero, which is -4 rather than -5. SUB folds from the left, so 10 minus 8 is 2 and 2 minus -4 is
-6. The rounding direction on that negative quotient carries the whole question, since flooring instead
-would give -5 and a different final answer.` },
+  q:`Evaluate (SUB (ADD 1 2 3 4) (DIV -9 2)).`,
+  choices:["14.5","5.5","10","-14.5","None of the above"], ans:0,
+  check:`lisp('(SUB (ADD 1 2 3 4) (DIV -9 2))')`,
+  why:`ADD takes as many arguments as you give it, so (ADD 1 2 3 4) is 10. DIV takes exactly two and
+performs ordinary division, so (DIV -9 2) is -4.5 and not -4: nothing is truncated unless a problem
+says so. Subtracting a negative adds, so 10 minus -4.5 is 14.5. Reading DIV as integer division gives
+-4 and a final answer of 14, which is the assumption most students bring in from other languages.` },
 
 { id:"lp-07", topic:"lisp", level:"s",
   q:`Evaluate (REVERSE '(1 (2 3) (4 (5)))).`,
@@ -80,13 +81,13 @@ the same way.` },
 CDR has already removed the 1 before CONS ever sees the list.` },
 
 { id:"lp-10", topic:"lisp", level:"s",
-  q:`Evaluate (DIV 100 3 3).`,
-  choices:["11","12","10","33","None of the above"], ans:0,
-  check:`lisp('(DIV 100 3 3)')`,
-  why:`DIV folds from the left and keeps the integer part at every step, so 100 divided by 3 is
-33 and 33 divided by 3 is 11. The habit of folding rather than combining matters most on SUB, where
-(SUB 20 5 3) is 12 rather than 18, and on any DIV whose running value goes negative, since the
-truncation is applied at each step rather than once at the end.` },
+  q:`Evaluate (DIV 100 8).`,
+  choices:["12.5","12","13","800","None of the above"], ans:0,
+  check:`lisp('(DIV 100 8)')`,
+  why:`DIV is ordinary division and keeps the fraction, so (DIV 100 8) is 12.5. Every language most
+students have written in returns 12 for integer operands, which is why 12 sits in the choices, but
+ACSL only gives you a whole number when the division happens to come out even. DIV also takes exactly
+two arguments, so if you ever want 100 divided by 4 and then by 2, nest it as (DIV (DIV 100 4) 2).` },
 
 { id:"lp-11", topic:"lisp", level:"s",
   q:`Evaluate (REVERSE (CONS '(1 2) '(3 4))).`,
@@ -114,13 +115,19 @@ CAR, so they inherit the same uncertainty.` },
 10 minus 1 divided by 4, plus one, which comes to the same three.` },
 
 { id:"wl-02", topic:"wdtpd-looping", level:"j",
-  q:`After for i = 1 to 5 finishes, what value does i hold?`,
-  choices:["6","5","1","0","None of the above"], ans:0,
-  check:`str(5+1)`,
-  why:`The counter is incremented and then tested, so the loop exits holding the first value that
-failed the test rather than the last one that passed, and that value is 6. Problems that print the
-counter after the loop has ended exist specifically to check this, and answering 5 is the most common
-mistake in the whole category.` },
+  q:`For i = 1 to 20 step 4, what is the last value i takes inside the loop body?`,
+  choices:["17","20","21","19","None of the above"], ans:0,
+  check:`
+vals = list(range(1, 21, 4))
+RESULT = str(vals[-1])`,
+  why:`Write the values out: i takes 1, 5, 9, 13 and 17. The next would be 21, which is past the
+limit of 20, so the body never runs with it and 17 is the last value used. A counted loop stops at
+the largest value the step actually reaches, which need not be the limit itself, and here 20 is
+skipped entirely because the step does not land on it.
+
+Note the question asks what i holds <em>inside</em> the body. What the counter holds after the loop
+has ended is a separate matter, and one the ACSL reference does not define, so no question here will
+ask you for it.` },
 
 { id:"wl-03", topic:"wdtpd-looping", level:"j",
   q:`<pre><code>S = 0

@@ -73,7 +73,8 @@ to that square. A blocked square gets 0, and any other square gets <code>ways[r 
 <code>ways[r][c - 1]</code>, treating anything off the grid as 0, since arriving from directly above
 or directly to the left are the only two possibilities. Seed <code>ways[0][0]</code> with 1 when the
 start is open and 0 when it is blocked, fill the table row by row from the top, and the answer is the
-bottom right entry. That is 289 additions rather than 300 million branches.</p>
+bottom right entry. The table fills at most 289 cells, one addition each, whatever the number of
+routes turns out to be.</p>
 
 <p>The first row and first column are worth a moment's thought. A blocked square anywhere along the
 top row makes every square to its right in that row unreachable, and the table produces that
@@ -84,8 +85,10 @@ special case the borders at all, only to guard the index.</p>
 <code>split(";")</code>, and C++ wants <code>getline</code> on an <code>istringstream</code> with a
 semicolon delimiter.</p>
 
-<p>Counts on a fully open 17 by 17 grid reach roughly 10 billion, which overflows a 32 bit integer, so
-keep the table in 64 bit values.</p>
+<p>A fully open 17 by 17 grid has C(32, 16) routes, which is 601,080,390: sixteen moves right and
+sixteen moves down in any order. That is the largest count the stated limits can produce and it fits
+in a signed 32 bit integer, so ordinary <code>int</code> is enough here. Reach for 64 bit storage only
+if you widen the grid, since the count grows quickly once you do.</p>
 """,
     sol=dict(
         python="""

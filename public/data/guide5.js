@@ -15,7 +15,8 @@ circled plus and XNOR a circled dot.</p>
 <p>Precedence runs NOT first, then AND, then OR, which is why AB + C means (A AND B) OR C. The
 notation is chosen so that AND looks like multiplication and OR like addition, and a surprising
 amount of ordinary algebra carries over unchanged. The place the analogy breaks is that A + AB
-simplifies to A, which has no arithmetic counterpart at all, and and that is the identity easiest to forget you are allowed to use.</p>
+simplifies to A, an identity with no arithmetic counterpart and the one easiest to forget you are
+allowed to use.</p>
 
 <h3>The laws</h3>
 <table class="tbl">

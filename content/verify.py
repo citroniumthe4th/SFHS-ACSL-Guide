@@ -108,6 +108,10 @@ def main():
         pass
     sys.setrecursionlimit(3000)
 
+    # The conventions the whole bank is checked against get checked themselves first. A wrong
+    # solver agrees with a wrong question, and both look verified.
+    solvers._selfcheck()
+
     bank = load_bank()
     seen, bad, checked = set(), [], 0
     for q in bank:
