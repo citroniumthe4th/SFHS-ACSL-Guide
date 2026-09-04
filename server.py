@@ -98,9 +98,11 @@ def run_code(lang, code, stdin_text):
         shutil.rmtree(d, ignore_errors=True)
 
 
-# The app's own sections, which serve the shell and are routed in the browser. Mirrors the
-# rewrites in vercel.json; anything outside this list is a real 404 in both places.
+# Mirrors the rewrites in vercel.json. Sections with prerendered pages serve the file for
+# that id and 404 when there is none, which is the honest answer for a guide that does not
+# exist. The two per person sections have nothing to prerender and always get the shell.
 APP_ROUTES = ("guide", "practice", "exam", "missed", "problems", "problem")
+SHELL_ONLY = ("exam", "missed")
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -111,11 +113,12 @@ class Handler(SimpleHTTPRequestHandler):
         parts = path.split("?")[0].strip("/").split("/")
         if not parts or parts[0] not in APP_ROUTES or len(parts) > 2:
             return super().translate_path(path)
-        # Vercel has cleanUrls on, so /guide/lisp serves guide/lisp.html when content/
-        # prerender.py has written one. Ids with no file fall back to the shell, which is
-        # how an unknown one still reaches the app's own not found page.
         page = os.path.join(ROOT, *parts) + ".html"
-        return page if os.path.isfile(page) else os.path.join(ROOT, "index.html")
+        if os.path.isfile(page):
+            return page
+        if parts[0] in SHELL_ONLY:
+            return os.path.join(ROOT, "index.html")
+        return page  # missing, so the 404 handler takes it
 
     def log_message(self, *a):
         pass
