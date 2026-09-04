@@ -167,6 +167,11 @@ document.addEventListener("click", function (e) {
   if (!a || a.target || a.hasAttribute("download")) return;
   var href = a.getAttribute("href");
   if (!href || href.charAt(0) !== "/") return;
+  // Only intercept the paths this router actually renders. /privacy is a real document
+  // served by the server, and swallowing it here handed it to a router that has never
+  // heard of it, which drew the in-app not-found page over a page that exists.
+  var first = href.slice(1).split(/[/?#]/)[0];
+  if (first !== "" && SECTIONS.indexOf(first) < 0) return;
   e.preventDefault();
   go(href);
 });
@@ -327,7 +332,7 @@ function guideIndex() {
     var g = el("main").querySelector('.grid[data-c="' + t.contest + '"]');
     var a = document.createElement("a");
     a.className = "card";
-    a.href = "#/guide/" + t.id;
+    a.href = "/guide/" + t.id;
     a.innerHTML = "<h3>" + esc(t.name) + "</h3><p>" + esc(t.blurb) + "</p>";
     g.appendChild(a);
   });
