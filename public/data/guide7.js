@@ -11,10 +11,14 @@ vocabulary exactly, and whether you can count paths using powers of an adjacency
 each edge points one way. The degree of a vertex is the number of edges touching it, and in a
 digraph that splits into indegree for arrows coming in and outdegree for arrows going out.</p>
 
-<p>A walk is any sequence of edges laid end to end, with vertices and edges free to repeat. A path
-is a walk that never repeats a vertex, and a cycle is a path that returns to where it started. That
-distinction between a walk and a path is not pedantry, and the section on matrix powers below is
-where it starts to matter.</p>
+<p>A walk is any sequence of edges laid end to end, with vertices and edges free to repeat. A simple
+path is a walk that repeats no vertex at all. A cycle begins and ends at the same vertex and repeats
+no other vertex along the way.</p>
+
+<p>Those last two are worth stating separately rather than defining one in terms of the other,
+because a cycle does repeat a vertex, its first, which is exactly what a simple path is not allowed
+to do. The distinction between a walk and a path is not pedantry either, and the section on matrix
+powers below is where it starts to matter.</p>
 
 <p>A graph is connected when some path joins every pair of vertices, and a connected component is a
 maximal piece that is connected. A tree is a connected graph with no cycles, and a tree on N

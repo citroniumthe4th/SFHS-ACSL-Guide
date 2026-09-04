@@ -57,8 +57,9 @@ not.` },
 the value of f("python")?
 <div class="cases"><div class="fn">f(s) =</div><div class="rows">
 <div><span>s</span><span>if len(s) &le; 1</span></div>
-<div><span>f(s[2:]) + s[1] + s[0]</span><span>otherwise</span></div>
-</div></div>`,
+<div><span>f(s&prime;) + s[1] + s[0]</span><span>otherwise</span></div>
+</div></div>
+<p class="note">Here s&prime; means s with its first two characters removed.</p>`,
   choices:["nohtyp","python","pnyoth","npoyht","None of the above"], ans:0,
   check:`
 def f(s):
@@ -260,8 +261,9 @@ than instead, f(1) would have returned 1 and the answer would have been 5.` },
   q:`Find f("ACSL"), given:
 <div class="cases"><div class="fn">f(s) =</div><div class="rows">
 <div><span>""</span><span>if len(s) = 0</span></div>
-<div><span>f(s[1:]) + f(s[1:]) + s[0]</span><span>otherwise</span></div>
+<div><span>f(s&prime;) + f(s&prime;) + s[0]</span><span>otherwise</span></div>
 </div></div>
+<p class="note">Here s&prime; means s with its first character removed.</p>
 <p class="note">What is the length of the result?</p>`,
   choices:["11","15","8","4","None of the above"], ans:1,
   check:`

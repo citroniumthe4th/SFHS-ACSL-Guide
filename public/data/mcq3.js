@@ -131,14 +131,12 @@ array would have come out differently.` },
   q:`<pre><code>S = "ABCDEFG"
 T = S[2:5] + S[:2]
 output T</code></pre>What is printed?`,
-  choices:["CDEAB","CDEFAB","BCDAB","CDAB","None of the above"], ans:0,
-  check:`
-S = "ABCDEFG"
-RESULT = S[2:5] + S[:2]`,
-  why:`A slice runs from its first index up to but not including its second, so S[2:5] takes
-indices 2, 3, and 4, which is CDE, and S[:2] takes indices 0 and 1, which is AB. Concatenating them
-in that order gives CDEAB. Reading the second bound as inclusive produces CDEFAB, which is sitting
-in the choices for exactly that reason.` },
+  choices:["CDEAB","CDEFAB","BCDAB","CDAB","None of the above"], ans:1,
+  check:`substr("ABCDEFG", 2, 5) + substr("ABCDEFG", None, 2)`,
+  why:`Both bounds are written, so they are positions and the second is included: S[2:5] collects
+positions 2, 3, 4 and 5, which is CDEF. S[:2] has one bound, so it is a count, the first two
+characters, AB. Joining them gives CDEFAB. CDEAB is what you get by stopping before position 5, which
+is how Python reads the same notation and is not the rule ACSL uses.` },
 
 { id:"wd-08", topic:"wdtpd", level:"s",
   q:`<pre><code>N = 1234

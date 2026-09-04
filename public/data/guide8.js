@@ -36,11 +36,17 @@ itself.</p>
 <tr><td>END</td><td>stop</td></tr>
 </table>
 
-<p>Three details decide most answers. The accumulator is always the left operand, so SUB X means the
-accumulator minus X rather than the other way round. DIV truncates toward zero rather than flooring,
-which matters as soon as anything goes negative. And the branch instructions test the accumulator
-against zero and nothing else, so comparing two values means subtracting one from the other first
-and reading the sign of the result.</p>
+<p>Four details decide most answers. The accumulator is always the left operand, so SUB X means the
+accumulator minus X rather than the other way round. DIV stores the signed integer part of the
+quotient, so it truncates toward zero rather than flooring, which matters as soon as anything goes
+negative. The branch instructions test the accumulator against zero and nothing else, so comparing
+two values means subtracting one from the other first and reading the sign of the result.</p>
+
+<p>The fourth is easy to miss because nothing on screen announces it: <strong>READ, ADD, SUB and
+MULT all work modulo 1,000,000</strong>. A sum that would reach 1,000,000 wraps to 0, and a value
+read in is reduced the same way. DIV is the exception, taking the integer part of the quotient with
+no wrap. Reduce after every arithmetic instruction rather than at the end, since the wrap changes
+what a later comparison sees.</p>
 
 <h3>How to trace one</h3>
 <p>Number the lines before you start, then keep a table with a column for the accumulator and one
@@ -95,16 +101,31 @@ rounding a negative quotient the wrong way, since -7 divided by 2 is -3 under th
 <p class="lead">Contest 4 for Junior. Strings in ACSL pseudocode index from zero and support
 slicing, and almost all of the difficulty in this category is index arithmetic rather than logic.</p>
 
-<h3>Indexing and slicing</h3>
-<p>For s equal to "PROGRAM", the characters sit at indices 0 through 6, so s[0] is P and s[6] is M,
-and there is no index 7. A slice s[a:b] takes the characters from index a up to but not including
-index b, which makes s[2:5] equal to OGR. The length of a slice is always the second bound minus the
-first, which is the quickest way to check one you are unsure about.</p>
+<h3>Indexing and substrings</h3>
+<p>Positions start at 0. For S equal to "PROGRAM" the characters sit at positions 0 through 6, so
+S[0] is P and S[6] is M, and there is no position 7. Reading a single character is the easy half.</p>
 
-<p>Leaving out one side of a slice means run to that end of the string, so s[:3] is PRO and s[4:] is
-RAM, and leaving out both gives the whole string. A slice where the first bound is not less than the
-second comes out empty, and that is not an error, which matters when a loop pushes a bound past the
-point where it still makes sense.</p>
+<p>The bracket notation for substrings is the half worth slowing down for, because ACSL defines it
+differently from the languages you have probably written in. Here are the three forms, using the
+string from the official topic page, S = "ACSL WDTPD", which has length 10.</p>
+
+<table class="ex">
+<tr><th>Written</th><th>Means</th><th>Result</th></tr>
+<tr><td><code>S[:3]</code></td><td>the first 3 characters</td><td><code>ACS</code></td></tr>
+<tr><td><code>S[4:]</code></td><td>the last 4 characters</td><td><code>DTPD</code></td></tr>
+<tr><td><code>S[2:6]</code></td><td>positions 2 through 6, both ends included</td><td><code>SL WD</code></td></tr>
+<tr><td><code>S[0]</code></td><td>the character at position 0</td><td><code>A</code></td></tr>
+</table>
+
+<p>Two things there will catch you if you read them at speed. When only one bound is written it is a
+<em>count</em> of characters, not a position, and it counts from whichever end the colon leans
+towards: S[4:] is the last four characters, not everything from position 4 onward. When both bounds
+are written they are <em>positions</em>, and the second one is included, so S[2:6] is five characters
+rather than four.</p>
+
+<p>If you have written Python, note that only the first of those forms means the same thing in both.
+Python reads S[4:] as everything from index 4 and S[2:6] as stopping before index 6. Work an example
+before you rely on a habit: for S = "PROGRAM", S[2:5] is positions 2, 3, 4 and 5, which is OGRA.</p>
 
 <h3>The operations you will meet</h3>
 <p>Concatenation uses a plus sign, so "AB" + "CD" is "ABCD". Length is written len(s) or LEN(s)
@@ -147,11 +168,16 @@ is a loop with step 2, where the starting index decides which half you get. And 
 converts a character to a number, adds a shift, wraps with a modulo, and converts back, so check
 whether the wrap uses 26 and where the alphabet is taken to start.</p>
 
-<h3>The minus one</h3>
-<p>Treating the second slice bound as inclusive. Indexing from 1 out of habit. Using len(s) rather
-than len(s) - 1 as the last valid index. Appending where the program prepends. And forgetting that
-the loop counter sits one past the limit once the loop has ended, which matters whenever the program
-prints it afterwards.</p>
+<h3>Where the answers actually go wrong</h3>
+<p>Before you write anything down, run these four checks on your work. Did you count positions from
+0 rather than 1? Did you use len(s) - 1 as the last valid position rather than len(s)? For a
+two-bound substring, did you include the character at the second position? And did you read the
+order of the concatenation, since t = t + s[i] appends while t = s[i] + t prepends and reverses?</p>
+
+<p>One more, about loop counters. If a program prints the counter after its loop has finished, do
+not assume a value for it. The ACSL reference does not define what a FOR counter holds once the loop
+ends, so read what the problem itself tells you and, if it tells you nothing, take the counter as
+undefined rather than guessing at one past the limit.</p>
 `
 
 });

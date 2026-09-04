@@ -12,16 +12,19 @@ so anyone who has written a loop in any language can read it. Assignment uses a 
 and comparison uses a double one, with != for not equal alongside the usual four inequalities.
 Arithmetic runs on + - * / and %, with ^ for exponentiation. Logic uses &amp;&amp; for and, || for
 or, and ! for not. Three functions appear regularly: abs for absolute value, sqrt for square root,
-and int, which discards the fractional part rather than rounding.</p>
+and int, which the ACSL reference defines as the greatest integer less than or equal to its
+argument. That is a floor, not a truncation, and the two part company on negatives: int(3.8) is 3,
+which either reading gives, but int(-3.8) is -4 rather than -3.</p>
 
 <p>Control flow is if, then, and else for branching, while for conditional loops, and for with an
 optional step for counted ones. Arrays take one or two subscripts, and strings index from zero and
-support slicing with a colon.</p>
+take substrings with a colon, under the rules set out below rather than Python's.</p>
 
-<p>Division is the one place where the dialect can bite you. Unless the problem says otherwise,
-treat a slash as ordinary real division and rely on int wherever truncation is wanted. If a
-program computes 7 / 2 and then uses the result as a subscript, look for an int nearby, because
-the author almost certainly put one there and you may have skimmed past it.</p>
+<p>Division needs the same care. Unless the problem says otherwise, treat a slash as ordinary real
+division and rely on int wherever a whole number is wanted. If a program computes 7 / 2 and then
+uses the result as a subscript, look for an int nearby, because the author almost certainly put one
+there and you may have skimmed past it. Remember while you are checking that int floors, so a
+negative intermediate value lands one lower than truncation would put it.</p>
 
 <h3>Trace on paper, not in your head</h3>
 <p>This is the single habit that separates people who score well in this category from people who
@@ -77,10 +80,14 @@ exchange twice and therefore leaves the matrix exactly as it was, which is a fav
 looks like a bug in your own working rather than the point of the question.</p>
 
 <h3>Strings</h3>
-<p>Strings index from zero, so for s = "PROGRAM" the first character is s[0] and the last is s[6].
-A slice s[a:b] runs from index a up to but not including index b, which makes s[0:3] equal to PRO,
-and leaving out either side means run to that end, so s[:3] is PRO and s[4:] is RAM. The length of
-a slice is always the second bound minus the first, which is the quickest way to check one.</p>
+<p>Strings index from zero, so for S = "PROGRAM" the first character is S[0] and the last is S[6].
+The substring notation is where ACSL differs from the languages you have written in, and it differs
+in two ways. A single bound is a count of characters taken from the end the colon leans towards, so
+S[:3] is the first three characters, PRO, and S[4:] is the last four, GRAM. Two bounds are positions
+and the second is included, so S[2:5] is positions 2 through 5, which is OGRA rather than OGR.</p>
+
+<p>The official page states it with S = "ACSL WDTPD": S[:3] is ACS, S[4:] is DTPD, and S[2:6] is
+SL WD. Check any substring you are unsure about against those three before you commit to it.</p>
 
 <p>Concatenation uses a plus sign, and the pattern worth watching for is a loop that builds a
 string one character at a time. Writing t = t + s[i] appends and preserves the order, while

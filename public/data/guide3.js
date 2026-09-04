@@ -4,8 +4,9 @@ window.GUIDE = Object.assign(window.GUIDE || {}, {
 <p class="lead">The same expression can be written three ways, and only one of them needs
 parentheses. Infix puts each operator between its operands and therefore has to carry precedence
 rules and brackets to say what groups with what. Prefix puts the operator in front and postfix puts
-it behind, and both of those are unambiguous on their own, which is why a compiler converts your
-arithmetic into one of them before evaluating it.</p>
+it behind, and both of those are unambiguous on their own, with no precedence rules and no brackets
+needed. That is what makes them worth knowing: each one maps directly onto an expression tree, and
+postfix in particular can be evaluated by a stack in a single left to right pass.</p>
 
 <table class="tbl">
 <tr><th>Infix</th><th>Prefix</th><th>Postfix</th></tr>

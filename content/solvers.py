@@ -22,6 +22,30 @@ def from_base(s, b):
     return int(str(s), b)
 
 
+# ------------------------------------------------------------------ ACSL substrings
+
+def substr(s, a=None, b=None):
+    """ACSL substring notation, which is not Python slicing and does not read like it.
+
+    From the official topic page, with S = "ACSL WDTPD":
+
+        S[:3]  = "ACS"    the first 3 characters
+        S[4:]  = "DTPD"   the last 4 characters
+        S[2:6] = "SL WD"  positions 2 through 6, both ends included
+
+    So the one sided forms count characters and the two sided form names positions, and the
+    second position is included. Python agrees on the first of those three and disagrees on
+    the other two, which is what makes it worth a solver of its own rather than a slice.
+    """
+    if a is None and b is None:
+        return s
+    if a is None:
+        return s[:b]
+    if b is None:
+        return s[len(s) - a:] if a else ""
+    return s[a:b + 1]
+
+
 # ------------------------------------------------------------- prefix/infix/postfix
 
 PREC = {"^": 3, "*": 2, "/": 2, "+": 1, "-": 1}
@@ -306,33 +330,40 @@ def same(a, b):
 # ---------------------------------------------------------------- data structures
 
 def trav(ops, kind):
+    # ACSL's convention, and it is not the usual one: a key equal to the node it is being
+    # compared against goes left, so duplicates are kept rather than dropped. The official
+    # page is explicit that some textbooks and libraries send them right instead.
     def ins(t, v):
         if t is None:
             return [v, None, None]
-        if v < t[0]:
+        if v <= t[0]:
             t[1] = ins(t[1], v)
-        elif v > t[0]:
+        else:
             t[2] = ins(t[2], v)
         return t
 
+    # Also ACSL's own, and also not the usual one. Where most texts copy the predecessor or
+    # successor into the doomed node, ACSL promotes the left child into its place and then
+    # sticks the whole right subtree onto that tree, which lands at its rightmost point.
     def dele(t, v):
         if t is None:
             return None
         if v < t[0]:
             t[1] = dele(t[1], v)
-        elif v > t[0]:
+            return t
+        if v > t[0]:
             t[2] = dele(t[2], v)
-        else:
-            if t[1] is None:
-                return t[2]
-            if t[2] is None:
-                return t[1]
-            m = t[1]
-            while m[2] is not None:
-                m = m[2]
-            t[0] = m[0]
-            t[1] = dele(t[1], m[0])
-        return t
+            return t
+        l, r = t[1], t[2]
+        if l is None:
+            return r
+        if r is None:
+            return l
+        m = l
+        while m[2] is not None:
+            m = m[2]
+        m[2] = r
+        return l
 
     def walk(t, out):
         if t is None:

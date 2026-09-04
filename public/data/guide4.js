@@ -18,10 +18,15 @@ other lists, so '(2 (3 4) 5) is a list of three things whose middle element happ
 two.</p>
 
 <h3>Arithmetic</h3>
-<p>ADD, SUB, MULT, and DIV take two or more arguments and fold across them from left to right, so
-(SUB 20 5 3) means 20 minus 5, then minus 3, which is 12, and (DIV 100 5 2) is 100 over 5 and then
-over 2, which is 10. Division keeps the integer part. SQUARE takes one argument, and EXP takes a
-base and an exponent, so (EXP 2 5) is 32.</p>
+<p>ADD and MULT take any number of arguments and fold across them from left to right, so
+(ADD 1 2 3 4) is 10. SUB and DIV take exactly two, written (SUB a b) and (DIV a b), so reach for
+nesting rather than a third argument when you need to subtract twice: 20 minus 5 minus 3 is
+(SUB (SUB 20 5) 3).</p>
+
+<p>DIV is ordinary division and keeps the fractional part. (DIV 7 2) is 3.5, not 3. This is the
+single most common place to lose a LISP question, because every language most students have written
+in gives 3 for integer operands. If a problem wants the integer part it will say so. SQUARE takes one
+argument, and EXP takes a base and an exponent, so (EXP 2 5) is 32.</p>
 
 <p>Working inside out is not optional advice, it is how the language is defined, and the fastest
 way to do it on paper is to find the innermost complete pair of parentheses, replace the whole

@@ -104,9 +104,17 @@ survive them is to draw two clearly separated columns and update both after ever
 them up costs the whole question rather than a single step.</p>
 
 <h3>Binary search trees</h3>
-<p>Every node holds a value, and everything in its left subtree is smaller while everything in its
-right subtree is larger. To insert, start at the root and go left when the new value is smaller and
-right when it is larger, until you run off the bottom of the tree, and hang the new value there.</p>
+<p>Every node holds a value. The key at a node is greater than or equal to everything in its left
+subtree and strictly less than everything in its right subtree. To insert, start at the root and go
+left when the new value is less than or equal to the node you are standing on, right when it is
+greater, until you run off the bottom of the tree, and hang the new value there.</p>
+
+<p>Read that comparison again, because equality is where ACSL parts company with most of what you
+have seen elsewhere. A duplicate key goes <em>left</em>, treated as though it were smaller than the
+key it matches. Many textbooks and most standard libraries send it right instead, so a habit picked
+up from either will put the tree together wrong here, and every traversal after that is wrong with
+it. Insert A, M, E, R, I, C, A, N in that order and the second A hangs off the left of the first,
+giving eight nodes and an inorder walk of A A C E I M N R.</p>
 
 <p>Insert 50, 30, 70, 20, 40, 60, and 80 into an empty tree in that order and you get a tidy,
 balanced tree with 50 at the root, 30 and 70 below it, and the other four as leaves. Insert those
@@ -129,14 +137,17 @@ for inorder, and on the right for postorder. The tree above gives 50 30 20 40 70
 and 20 40 30 60 80 70 50 in postorder.</p>
 
 <h4>Deletion</h4>
-<p>There are three cases. A leaf simply disappears. A node with one child is replaced by that child.
-A node with two children keeps its position but takes on either the largest value in its left
-subtree or the smallest in its right, and that donor node is then deleted by the same rules.</p>
+<p>There are three cases, and the third is another place ACSL does its own thing. A leaf simply
+disappears. A node with one child is replaced by that child. A node with two children is replaced by
+its <em>left</em> child, and its entire right subtree is then reattached to that left child's tree,
+which lands it at the rightmost position, since every key in it is larger than every key already
+there.</p>
 
-<p>Both choices of donor are legitimate and they produce different trees, so a problem that asks for
-a traversal after a deletion has to tell you which convention it wants. Read that sentence before
-you start, because picking the wrong one fails every question involving a two child deletion while
-leaving the easy cases looking fine.</p>
+<p>The version taught almost everywhere else keeps the doomed node in place and moves a single value
+into it, either the largest in its left subtree or the smallest in its right. That is a different
+algorithm producing a different tree, so if you have met deletion before, this is the one thing to
+unlearn before a contest. Delete M from the tree above and E moves up into its place, carrying C and
+I along with it, and R hangs off the right of I.</p>
 
 <h4>Path lengths</h4>
 <p>The internal path length is the sum of the depths of every node, counting the root as depth 0. In

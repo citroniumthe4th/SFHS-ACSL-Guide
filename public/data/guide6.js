@@ -48,10 +48,17 @@ can repeat, which gives 01*(001*)*. Test it on a few short strings: 0 and 01 and
 accepted, while 00 and 010 are not, since both of those leave you sitting on S.</p>
 
 <h3>Deciding whether two descriptions agree</h3>
-<p>The reliable move is to test short strings rather than to reason abstractly. Write down the five
-or six shortest strings each description accepts, in order of length, and compare the lists. If they
-agree up to length four they almost always agree everywhere, and if they disagree you have found the
-counterexample the question was fishing for.</p>
+<p>Start by testing short strings rather than reasoning abstractly. Write down the five or six
+shortest strings each description accepts, in order of length, and compare the lists. A disagreement
+anywhere in that list is a counterexample, and one counterexample settles the question: the two
+descriptions are not equivalent, and you are done.</p>
+
+<p>Agreement is the case to be careful with. Matching on every string up to length four tells you
+that you have not yet found a difference, which is not the same as there being none, and no finite
+number of examples ever proves two languages equal. Under contest time the short tests are still the
+right first move, because a difference usually shows up early. If they all match and you need to be
+sure, argue about structure instead: put both descriptions in the same form, or say directly what
+each one accepts and check the two descriptions say the same thing.</p>
 
 <p>Always test the empty string. It is the single most common difference between two otherwise
 identical expressions, since a* accepts it and a+ does not, and it costs about two seconds to

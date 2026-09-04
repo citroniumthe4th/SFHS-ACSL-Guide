@@ -190,12 +190,13 @@ overshoots, since it stops one subtraction after the remainder appears, and it n
 
 { id:"ws-01", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "PROGRAM", what is S[2:5]?`,
-  choices:["OGR","ROG","OGRA","RO","None of the above"], ans:0,
-  check:`"PROGRAM"[2:5]`,
-  why:`Indexing starts at 0, so the characters sit as P at 0, R at 1, O at 2, G at 3, R at 4, A
-at 5, and M at 6. The slice takes indices 2, 3, and 4 and stops before index 5, giving OGR. The length
-of a slice is always the second bound minus the first, which is the quickest check available when you
-are unsure.` },
+  choices:["OGR","ROG","OGRA","RO","None of the above"], ans:2,
+  check:`substr("PROGRAM", 2, 5)`,
+  why:`Positions start at 0, so the characters sit as P at 0, R at 1, O at 2, G at 3, R at 4, A at
+5, and M at 6. When a substring is written with both bounds they are positions and the second one is
+included, so S[2:5] collects positions 2, 3, 4 and 5, which is OGRA. Four characters, not three: if
+you counted 5 minus 2 you were using the Python rule, where the second bound stops the substring
+rather than joining it. OGR is what that rule would give.` },
 
 { id:"ws-02", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "ACSL", what does this print?
@@ -216,13 +217,15 @@ lines look nearly identical on the page and produce opposite answers, which is w
 reading deliberately every single time.` },
 
 { id:"ws-03", topic:"wdtpd-strings", level:"j",
-  q:`For S equal to "COMPUTER", what is S[:3] + S[5:]?`,
-  choices:["COMTER","COMPTER","COMUTER","COMPUTER","None of the above"], ans:0,
-  check:`"COMPUTER"[:3] + "COMPUTER"[5:]`,
-  why:`Leaving out one bound of a slice means run to that end of the string. So s[:3] takes
-indices 0, 1, and 2, which is COM, and s[5:] takes index 5 onward, which is TER since T sits at index
-5. Concatenating those gives COMTER, with the characters at indices 3 and 4, P and U, dropped
-entirely.` },
+  q:`For S equal to "COMPUTER", what is S[:3] + S[4:]?`,
+  choices:["COMTER","COMPTER","COMUTER","COMPUTER","None of the above"], ans:2,
+  check:`substr("COMPUTER", None, 3) + substr("COMPUTER", 4, None)`,
+  why:`A substring written with one bound is a count of characters, taken from whichever end the
+colon leans towards. So S[:3] is the first three characters, COM, and S[4:] is the last four, UTER,
+since COMPUTER has eight characters and the last four begin at position 4. Joining them gives
+COMUTER, with P at position 3 the only character dropped. Reading S[4:] as everything from position 4
+onward is the Python rule and would give the same answer here only by coincidence of length, so check
+it by counting from the right instead.` },
 
 { id:"ws-04", topic:"wdtpd-strings", level:"j",
   q:`For a string S of length N, what is the index of its last character?`,
@@ -278,23 +281,24 @@ preserved.` },
 
 { id:"ws-08", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "HELLO", what is S[1:1]?`,
-  choices:["the empty string","E","H","EL","None of the above"], ans:0,
-  check:`CHOICES[0] if "HELLO"[1:1] == "" else "unverified"`,
-  why:`A slice runs up to but not including its second bound, so when the two bounds are equal
-the slice has length 0. That is not an error but simply an empty string, which matters whenever a loop
-drives a slice bound to a point where it no longer describes anything. Any slice whose first bound is
-not less than its second comes out empty.` },
+  choices:["the empty string","E","H","EL","None of the above"], ans:1,
+  check:`substr("HELLO", 1, 1)`,
+  why:`Both bounds are positions and both ends are included, so S[1:1] runs from position 1 to
+position 1 and collects the single character sitting there, which is E. A substring with equal bounds
+has length 1 rather than length 0. The empty string is the answer under the Python rule, where the
+second bound stops the substring before it starts, and that is the reason it appears here.` },
 
 { id:"ws-09", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "STRING", what does this print?
 <pre><code>T = S[3:] + S[:3]
 output T</code></pre>`,
   choices:["INGSTR","STRING","GNIRTS","INGRTS","None of the above"], ans:0,
-  check:`"STRING"[3:] + "STRING"[:3]`,
-  why:`s[3:] takes index 3 onward, which is ING, and s[:3] takes indices 0 through 2, which is
-STR, so concatenating them in that order rotates the string. If that operation feels familiar it
-should, since it is exactly the circulate from Bit-String Flicking applied to letters rather than
-bits.` },
+  check:`substr("STRING", 3, None) + substr("STRING", None, 3)`,
+  why:`S[3:] is the last three characters, ING, and S[:3] is the first three, STR, so joining them
+in that order rotates the string to INGSTR. If that operation feels familiar it should, since it is
+the circulate from Bit-String Flicking applied to letters rather than bits. Worth noticing that the
+Python reading of S[3:], everything from position 3 onward, happens to give ING as well here, because
+STRING has exactly six characters. Change the length and the two readings part company.` },
 
 { id:"ws-10", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "AABBA", what does this print?
