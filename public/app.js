@@ -171,7 +171,7 @@ function paintChrome(section) {
 function renderSidebar(section, active) {
   var side = el("sidebar");
   if (section === "problem" || section === "problems" || section === "exam"
-      || section === "missed") {
+      || section === "missed" || section === "404") {
     side.classList.add("hidden");
     return;
   }
@@ -228,7 +228,11 @@ function guideIndex() {
 
 function guidePage(topicId) {
   var t = topicById(topicId);
-  if (!t || !GUIDE[topicId]) return guideIndex();
+  if (!t || !GUIDE[topicId]) {
+    return notFound("There is no study guide for \u201c" + topicId + "\u201d. Categories differ "
+                    + "between the two divisions, so a link shared by someone in the other one "
+                    + "may not exist in yours.");
+  }
   var qs = questionsFor(topicId, division);
   var foot = '<h2>Practice this</h2><div class="btn-row">' +
     '<a class="btn btn-primary" href="#/practice/' + topicId + '">' + qs.length +
@@ -282,7 +286,11 @@ var quiz = null;
 
 function practicePage(topicId) {
   var t = topicById(topicId);
-  if (!t) return practiceIndex();
+  if (!t) {
+    return notFound("There are no practice questions under \u201c" + topicId + "\u201d. Categories "
+                    + "differ between the two divisions, so a link shared by someone in the other "
+                    + "one may not exist in yours.");
+  }
   var qs = questionsFor(topicId, division);
   if (!qs.length) {
     el("main").innerHTML = '<div class="wrap"><h1>' + esc(t.name) +
@@ -678,7 +686,7 @@ function codeKey(pid, lang) { return "code:" + pid + ":" + lang; }
 
 function problemPage(pid) {
   var p = problemById(pid);
-  if (!p) return problemsIndex();
+  if (!p) return notFound("There is no programming problem called \u201c" + pid + "\u201d.");
   // Opening a problem from a shared link should put you in that problem's division,
   // otherwise the back link lands on a list that does not contain it.
   if (p.division.toLowerCase() !== division) {
@@ -1042,10 +1050,26 @@ function report(res, cases, full) {
   }
 }
 
+// ------------------------------------------------------------------ not found
+
+var SECTIONS = ["guide", "practice", "exam", "missed", "problems", "problem"];
+
+// Every dead link used to land on the guide index without a word, which reads as though
+// the site lost your place rather than as though the address was wrong.
+function notFound(detail) {
+  el("main").innerHTML = '<div class="wrap lost">' +
+    '<div class="eyebrow">Error 404</div>' +
+    "<h1>There is nothing at that address</h1>" +
+    "<p>" + esc(detail) + "</p>" +
+    '<div class="btn-row"><a class="btn btn-primary" href="#/guide">Back to the study guide</a>' +
+    "</div></div>";
+}
+
 // ------------------------------------------------------------------ render
 
 function render() {
   var r = route();
+  if (SECTIONS.indexOf(r.section) < 0) r.section = "404";
   stopClock();
   if (r.section !== "exam") exam = null;
   el("main").classList.remove("flush");
@@ -1058,7 +1082,9 @@ function render() {
   // The problem workspace is a full height split, so a footer under it would fight the layout.
   el("footer").classList.toggle("hidden", r.section === "problem");
 
-  if (r.section === "practice") {
+  if (r.section === "404") {
+    notFound("The link that brought you here points at a page this site does not have.");
+  } else if (r.section === "practice") {
     if (r.arg) practicePage(r.arg); else practiceIndex();
   } else if (r.section === "exam") {
     if (r.arg) examPage(r.arg); else examIndex();

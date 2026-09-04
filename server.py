@@ -134,6 +134,20 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json({"status": "error", "message": "Bad request: %s" % e}, 400)
         self._json(run_code(lang, code, stdin_text))
 
+    def send_error(self, code, message=None, explain=None):
+        # Vercel serves public/404.html for anything it cannot match. Do the same here so a
+        # missing path looks the same locally as it will once deployed.
+        page = os.path.join(ROOT, "404.html")
+        if code != 404 or not os.path.exists(page):
+            return super().send_error(code, message, explain)
+        body = open(page, "rb").read()
+        self.send_response(404, message)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(body)
+
     def end_headers(self):
         for k, v in HEADERS:
             self.send_header(k, v)

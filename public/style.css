@@ -660,3 +660,9 @@ details.reveal > div { padding: 0 14px 14px; }
   border: 1px solid rgba(255, 255, 255, .55);
   background: transparent; color: #fff; font: inherit;
 }
+
+/* The not found page, both the static one and the view the router shows for a dead hash. */
+.lost { padding-top: 40px; }
+.lost h1 { margin-bottom: 14px; }
+.lost p { color: var(--text-dim); max-width: 60ch; }
+.lost .btn-row { margin-top: 26px; }

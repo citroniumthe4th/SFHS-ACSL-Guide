@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rewrites the ?v= query on every local asset in index.html to its content hash.
+"""Rewrites the ?v= query on every local asset in the site's HTML to its content hash.
 
 Browsers, and the preview pane in particular, will happily serve a stale app.js after an
 edit. Hashing the URL makes a changed file a different URL, so that cannot happen.
@@ -11,16 +11,16 @@ import re
 import sys
 
 PUBLIC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "public")
-INDEX = os.path.join(PUBLIC, "index.html")
+PAGES = ("index.html", "404.html")
 
 
 def main():
-    html = open(INDEX).read()
     changed = []
 
     def fix(m):
         path = m.group(2).split("?")[0]
-        full = os.path.join(PUBLIC, path)
+        # 404.html has to use root relative hrefs, since it is served for nested paths too.
+        full = os.path.join(PUBLIC, path.lstrip("/"))
         if not os.path.exists(full):
             print("missing asset: %s" % path)
             sys.exit(1)
@@ -30,9 +30,12 @@ def main():
             changed.append(path)
         return new
 
-    html = re.sub(r'(<script src=)"([^"]+)"', fix, html)
-    html = re.sub(r'(<link rel="stylesheet" href=)"([^"]+)"', fix, html)
-    open(INDEX, "w").write(html)
+    for page in PAGES:
+        path = os.path.join(PUBLIC, page)
+        html = open(path).read()
+        html = re.sub(r'(<script src=)"([^"]+)"', fix, html)
+        html = re.sub(r'(<link rel="stylesheet" href=)"([^"]+)"', fix, html)
+        open(path, "w").write(html)
     print("stamped %d asset(s)%s" % (len(changed),
                                      (": " + ", ".join(changed)) if changed else ""))
 
