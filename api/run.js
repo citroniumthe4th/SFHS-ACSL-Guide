@@ -63,9 +63,10 @@ module.exports = async (req, res) => {
 
   const who = String(req.headers["x-forwarded-for"] || "unknown").split(",")[0].trim();
   if (throttled(who)) {
+    res.setHeader("Retry-After", "60");
     return res.status(429).json({
       status: "error",
-      message: "That is a lot of runs in one minute. Wait a moment and try again.",
+      message: "That is a lot of runs in one minute. Wait about a minute and try again.",
     });
   }
 
@@ -98,8 +99,12 @@ module.exports = async (req, res) => {
     "compiler-option-raw": spec.raw || "",
   };
 
+  // Twelve seconds. A correct submission on these problems finishes in about two, so anything
+  // still running is almost always an infinite loop, and making a student wait 45 seconds to be
+  // told that is its own bug. Giving up on the request does not stop the work already running at
+  // Wandbox; it only stops us waiting for it.
   const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), 45000);
+  const timer = setTimeout(() => ctl.abort(), 12000);
   let data;
   try {
     const r = await fetch(WANDBOX, {
@@ -109,20 +114,24 @@ module.exports = async (req, res) => {
       signal: ctl.signal,
     });
     if (!r.ok) {
-      const text = await r.text();
+      // The upstream body can carry its own diagnostics, which are not this student's business
+      // and are not useful to them either. Keep it in the log and say something stable.
+      console.error("wandbox %d: %s", r.status, (await r.text()).slice(0, 500));
       return res.status(200).json({
         status: "error",
-        message: `Compile service returned ${r.status}. ${text.slice(0, 300)}`,
+        message: "The compile service is not answering properly right now. Try again in a moment.",
       });
     }
     data = await r.json();
   } catch (e) {
+    if (e.name !== "AbortError") console.error("runner fetch failed:", e);
     return res.status(200).json({
       status: "error",
       message:
         e.name === "AbortError"
-          ? "The compile service did not answer in time. Try running again."
-          : `Could not reach the compile service: ${e.message}`,
+          ? "That took longer than twelve seconds, so it was cut off. Usually that means a loop "
+            + "that never ends. Check your stopping condition and run it again."
+          : "Could not reach the compile service. Check your connection and try again.",
     });
   } finally {
     clearTimeout(timer);
@@ -135,19 +144,31 @@ const rename = (t) =>
     .replace(/\bprog\.(cc|cpp)\b/g, "solution.cpp")
     .replace(/\bprog\.py\b/g, "solution.py");
 
+// A program that prints in a loop can return megabytes, which then has to travel to the browser
+// and be escaped into the page. Keep each stream to something a person could actually read, and
+// say so rather than silently ending mid-line.
+const MAX_STREAM = 64 * 1024;
+const cap = (t) => {
+  const s = String(t || "");
+  if (s.length <= MAX_STREAM) return s;
+  return s.slice(0, MAX_STREAM)
+    + "\n\n[... truncated. The program produced more than 64 KB here, which usually means it is "
+    + "printing inside a loop that does not stop.]";
+};
+
 const compileErr = (data.compiler_error || "").trim();
   if (compileErr && !data.program_output && !data.program_error && data.status !== "0") {
     return res.status(200).json({
       status: "compile_error",
-      message: rename(compileErr),
+      message: cap(rename(compileErr)),
     });
   }
 
   const exit = parseInt(data.status, 10);
   return res.status(200).json({
     status: exit === 0 ? "ok" : "runtime_error",
-    stdout: data.program_output || "",
-    stderr: rename(data.program_error),
+    stdout: cap(data.program_output),
+    stderr: cap(rename(data.program_error)),
     exit: Number.isNaN(exit) ? 1 : exit,
   });
 };

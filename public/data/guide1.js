@@ -9,7 +9,7 @@ by a power of the base, and which power depends on how far left the digit sits.<
 leaving a base, is an application of it, so if a question stops making sense, expand the number that
 way and work from there.</p>
 
-<h3>Place value</h3>
+<h2>Place value</h2>
 <p>In base b, a digit sitting k places to the left of the point is worth that digit multiplied by
 b raised to the k. Nothing else is going on. The number 3204 in base 5 means three 125s, two 25s,
 no 5s, and four 1s, which comes to 375 + 50 + 0 + 4, or 429 in decimal.</p>
@@ -20,7 +20,7 @@ through 9 and then borrows the letters A through F to stand for ten through fift
 are the only genuinely new notation here, and they are usually the easy part. Most marks in this
 category go on the conversion or the arithmetic, not on the notation.</p>
 
-<h3>What to have memorized</h3>
+<h2>What to have memorized</h2>
 <p>Thirty minutes for six problems does not leave room to derive things you could have known. Come
 in knowing the powers of 2 at least as far as 4096, and preferably to 65536, along with the powers
 of 8 and 16 over the same range. Know the six hex letters in both directions without pausing. Most
@@ -39,7 +39,7 @@ four, because that single fact is what makes the conversions fast.</p>
 <tr><td>7</td><td>0111</td><td>7</td><td>F</td><td>1111</td><td>15</td></tr>
 </table>
 
-<h3>Moving between binary, octal, and hexadecimal</h3>
+<h2>Moving between binary, octal, and hexadecimal</h2>
 <p>Because 8 is 2 cubed and 16 is 2 to the fourth, binary sits underneath both of the other two,
 and you can pass through it mechanically. To turn binary into octal, group the bits into threes
 starting from the right, padding the leftmost group with zeros if it comes up short, and read each
@@ -55,7 +55,7 @@ about what the number actually is.</p>
 three times as long and gives arithmetic three separate chances to go wrong. Decimal is a detour
 whenever both bases are powers of two.</p>
 
-<h3>Decimal in and decimal out</h3>
+<h2>Decimal in and decimal out</h2>
 <p>When decimal genuinely is one of the two bases, you have no shortcut and you fall back on
 division. Divide by the target base repeatedly, writing down each remainder, and then read the
 remainders from the bottom upward, since they come out least significant first.</p>
@@ -69,7 +69,7 @@ faster and much harder to botch. Start with the leading digit, then repeatedly m
 base and add the next digit. For 3E8 that is 3, then 3 times 16 plus 14 is 62, then 62 times 16
 plus 8 is 1000. You never write down a power and you never lose your place.</p>
 
-<h3>Arithmetic without leaving the base</h3>
+<h2>Arithmetic without leaving the base</h2>
 <p>Addition and subtraction behave exactly as they do in decimal, except that you carry when a
 column reaches the base rather than when it reaches ten, and a borrow brings over the base rather
 than ten. Working F5AD minus 69EB in hexadecimal, column by column from the right: D minus B is 2.
@@ -81,7 +81,7 @@ Finally E minus 6 is 8, so the answer is 8BC2. If you have time, checking in dec
 <p>One quick sanity check catches most slips. The last digit of a sum or difference depends only
 on the last digits of the operands, taken modulo the base, so if your final digit is wrong the mistake is arithmetic and not a misread of the problem.</p>
 
-<h3>Digits after the point</h3>
+<h2>Digits after the point</h2>
 <p>Positions to the right of the point are worth negative powers of the base, which means 0.101 in
 binary is one half plus one eighth, or 0.625. Converting a fraction the other way is repeated
 multiplication instead of repeated division: multiply the fractional part by the base, write down
@@ -93,7 +93,7 @@ gives 1.0 so the last bit is 1, producing 0.101.</p>
 one third in decimal is 0.333 forever, so a problem asking for a fixed number of places will say
 how many.</p>
 
-<h3>What the questions actually look like</h3>
+<h2>What the questions actually look like</h2>
 <p>Straight conversions are the most common, and they are almost always between two bases that are
 both powers of two, which is the setter telling you to use the grouping shortcut. After those come
 arithmetic problems, usually hexadecimal subtraction with borrows, since that is where the letters
@@ -115,7 +115,7 @@ answers itself, then substitute the results back in, one line at a time.</p>
 <p>There is no code to write and nothing hidden to spot. What decides the answer is whether your
 paper stays legible enough to substitute back without dropping a term.</p>
 
-<h3>Reading the definition</h3>
+<h2>Reading the definition</h2>
 <p>ACSL writes a recursive function as a set of rules with a condition attached to each one, like
 this:</p>
 <pre><code>f(x) = f(x - 3) + 2      if x &gt; 0
@@ -126,7 +126,7 @@ could apply the earlier line wins. Before computing anything, look hard at the i
 because whether a rule says greater than or greater than or equal to decides where the whole chain
 stops.</p>
 
-<h3>Unwinding and winding back</h3>
+<h2>Unwinding and winding back</h2>
 <p>Write the chain of calls downward, one per line, until you reach a value the definition answers
 outright, and only then start filling values in on the way back up. The discipline of writing every
 line is what stops you from losing a term, and it costs you perhaps twenty seconds.</p>
@@ -149,7 +149,7 @@ first is not fussiness.</p>
 it once at the end is the single most common way to get these wrong, and it happens because the
 constant looks like part of the definition and not part of each step.</p>
 
-<h3>Two arguments instead of one</h3>
+<h2>Two arguments instead of one</h2>
 <p>Nothing changes when a second variable appears except that you now have two numbers to keep
 straight. Take:</p>
 <pre><code>f(x, y) = f(x - y, y - 1) + 2    if x &gt; y
@@ -160,7 +160,7 @@ with 5, and winding back up gives 7 and then 9. Write both arguments on every si
 when one of them does not move, because the moment you start carrying one of them in your head is
 the moment it goes wrong.</p>
 
-<h3>When the definition calls itself twice</h3>
+<h2>When the definition calls itself twice</h2>
 <p>A rule that refers to the function more than once turns the chain into a tree, and the tree
 grows faster than you can draw it. The Fibonacci shape is the usual example:</p>
 <pre><code>g(n) = g(n - 1) + g(n - 2)   if n &gt; 1
@@ -175,7 +175,7 @@ g(n - 1) and g(n - 3), keep those three columns and read across. What you are do
 exactly what a programmer means by memoisation, and it is worth recognising that connection,
 because the same problem shows up in the programming half of the contest.</p>
 
-<h3>Definitions disguised as pictures</h3>
+<h2>Definitions disguised as pictures</h2>
 <p>Some problems in this category describe a process instead of writing a formula. A square gets
 divided into smaller squares, some of them get painted, and the rule is applied again to the ones
 that were not. A segment gets split and a piece thrown away. A pattern of dots grows by a stated
@@ -190,7 +190,7 @@ states. Once it is a formula it is the same unwinding as everything else in this
 below 1 or when it reaches 1 changes the answer by an entire level, and because the levels grow
 geometrically, that last level is often where most of the quantity being asked about lives.</p>
 
-<h3>A note on when to stop tracing</h3>
+<h2>A note on when to stop tracing</h2>
 <p>If a problem asks for a value that would take more than about fifteen lines to unwind, that is
 a deliberate signal that you are meant to find a pattern instead. Compute the first four or five
 values, look for a closed form, then test the form against a value you already worked out by hand.

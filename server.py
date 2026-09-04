@@ -32,6 +32,9 @@ HEADERS = [
     ("X-Content-Type-Options", "nosniff"),
     ("Referrer-Policy", "no-referrer"),
     ("X-Frame-Options", "DENY"),
+    ("Permissions-Policy",
+     "accelerometer=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), "
+     "magnetometer=(), microphone=(), midi=(), payment=(), usb=(), xr-spatial-tracking=()"),
 ]
 
 # (compile argv or None, run argv, source filename). {d} is the temp dir.

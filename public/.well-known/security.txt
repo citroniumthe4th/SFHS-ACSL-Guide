@@ -1,0 +1,14 @@
+# Security contact for sfhsacsl.org
+# A study site for the American Computer Science League. Static content plus one
+# endpoint, /api/run, which proxies submitted code to a third party compiler.
+
+Contact: https://github.com/citroniumthe4th/SFHS-ACSL-Guide/security/advisories/new
+Contact: https://github.com/citroniumthe4th/SFHS-ACSL-Guide/issues
+Expires: 2027-09-04T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://www.sfhsacsl.org/.well-known/security.txt
+Policy: https://www.sfhsacsl.org/privacy
+
+# In scope: this site and /api/run.
+# Out of scope: wandbox.org and vercel.com, which are operated by other people.
+# Please do not run denial of service or high volume traffic against the runner.

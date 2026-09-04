@@ -74,14 +74,20 @@ usually finish in a few seconds, so the 10 second default is workable.
 Worth knowing before you point a class at it.
 
 `api/run.js` compiles whatever it is handed, so it is the only part of this that a stranger can
-make do work. Three things stand between it and abuse: cross site posts are refused outright,
-the input and source sizes are capped, and each address gets 120 runs a minute. That last one is
-best effort. Vercel keeps a function instance warm between requests, so the counter catches a
-flood from one address, but it resets on a cold start and a second instance counts separately.
-The ceiling is set high on purpose, because a school NAT puts a whole lab behind one address and
-a limit tuned to one student would lock out the class. If the Vercel usage graph ever looks
-wrong, `MAX_PER_WINDOW` in `api/run.js` is the dial, and a shared counter in Vercel KV is the
-real fix.
+make do work. Standing between it and abuse: cross site posts are refused, the source and input
+sizes are capped, each returned stream is truncated at 64 KB, the upstream request is abandoned
+after twelve seconds, and each address gets 120 runs a minute with a `Retry-After` on the 429.
+
+The rate limit is the one to be honest about. It is an in-memory counter, so it catches a flood
+from one address while an instance stays warm and resets on a cold start, and a second instance
+counts separately. It cannot enforce a site-wide limit. The ceiling is set high on purpose,
+because a school NAT puts a whole lab behind one address and a limit tuned to one student would
+lock out the class. `MAX_PER_WINDOW` in `api/run.js` is the dial. **The real fix is a Vercel WAF
+rate-limit rule**, which is configured in the Vercel dashboard rather than in this repo, and is
+worth adding before the site is promoted anywhere public.
+
+Errors from the compile service are logged with `console.error` and reported to the browser as a
+short stable message, so an upstream stack trace never reaches a student.
 
 Everything the site knows ships to the browser in `public/data/`. The hidden test inputs, the
 answer keys, and the reference solutions are all in there, and the give up gate is drawn in

@@ -25,11 +25,19 @@
         {
           "key": "X-Frame-Options",
           "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "accelerometer=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=(), xr-spatial-tracking=()"
         }
       ]
     }
   ],
   "rewrites": [
+    {
+      "source": "/.well-known/security.txt",
+      "destination": "/.well-known/security.txt"
+    },
     {
       "source": "/privacy",
       "destination": "/privacy.html"

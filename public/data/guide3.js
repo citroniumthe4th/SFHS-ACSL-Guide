@@ -21,7 +21,7 @@ appear in that order in all three forms. Only the operators travel, which is the
 observation in this category, because it rules out roughly half of every set of answer choices at a
 glance.</p>
 
-<h3>Precedence and associativity</h3>
+<h2>Precedence and associativity</h2>
 <p>You need these before you can even read the infix form, let alone convert it. Exponentiation
 binds tightest and groups from the right, so A ^ B ^ C means A ^ (B ^ C). Multiplication and
 division come next and group from the left, making A / B * C mean (A / B) * C. Addition and
@@ -32,7 +32,7 @@ uses a unary minus, it binds tighter than multiplication.</p>
 five here. In postfix, A ^ B ^ C comes out as A B C ^ ^ and not as A B ^ C ^, and both of those
 will be sitting in the answer choices waiting for you.</p>
 
-<h3>The hand method</h3>
+<h2>The hand method</h2>
 <p>Fully parenthesise the infix expression so that every operator has a pair of brackets of its own,
 following precedence and associativity as you go. Then move each operator to the position of its
 own closing parenthesis for postfix, or its own opening parenthesis for prefix, and rub the
@@ -43,7 +43,7 @@ expressions you think you can see through.</p>
 where the inner grouping on the right comes from the exponent associating rightward. Moving each
 operator out to its closing bracket and dropping the brackets leaves A B + C * D E F ^ ^ -.</p>
 
-<h3>The algorithm, for when you would rather run one</h3>
+<h2>The algorithm, for when you would rather run one</h2>
 <p>This is Dijkstra's shunting yard, and it is also what you would write if the programming problem
 asked for a converter. Scan the infix expression from left to right, keeping an output list and a
 stack of operators. An operand goes straight to the output. A left parenthesis is pushed. A right
@@ -57,7 +57,7 @@ That single clause is the only place where the exponent is treated differently f
 else, and it is what produces A B C ^ ^ and not A B ^ C ^. When the scan ends, pop whatever
 remains on the stack into the output.</p>
 
-<h3>Reading the notations backwards</h3>
+<h2>Reading the notations backwards</h2>
 <p>To turn postfix back into infix, scan from the left for the first operator that has two operands
 sitting immediately to its left, replace those three tokens with a parenthesised infix expression,
 and carry on scanning from the left again. In A B C * + D -, the first such operator is the star
@@ -68,7 +68,7 @@ with B and C, so that becomes (B * C). The plus now has A and that group in fron
 operator. Scanning prefix from the right is often quicker, because the last operator you meet is
 always the outermost one.</p>
 
-<h3>Evaluating without converting</h3>
+<h2>Evaluating without converting</h2>
 <p>Postfix evaluates with a stack and a single pass. Push operands, and when an operator arrives,
 pop two values, combine them, and push the result. The value popped first is the right operand,
 which matters for subtraction and division and not at all for addition and multiplication. That
@@ -78,7 +78,7 @@ failures look random until you notice they are all minus signs and slashes.</p>
 <p>Prefix evaluates the same way with the scan running right to left, and there the first value
 popped is the left operand instead.</p>
 
-<h3>Read the question again, then check three things</h3>
+<h2>Read the question again, then check three things</h2>
 <p>Start with the question itself: read it again and confirm which notation it asked for. Answering
 in prefix when it wanted postfix throws away work you have already done correctly, and it is the one
 item on this list you can rule out before you begin.</p>
@@ -102,7 +102,7 @@ a set of flags in a single variable instead of an array of booleans, to represen
 set, and to multiply or divide by powers of two, so the topic connects directly to assembly
 language, digital electronics, and anything close to hardware.</p>
 
-<h3>The operators</h3>
+<h2>The operators</h2>
 <p>NOT, written with a tilde, is unary and flips every bit, turning each 0 into a 1 and each 1 into
 a 0.</p>
 
@@ -127,7 +127,7 @@ the wrong length can be discarded without further thought.</p>
 <tr><td>RCIRC-2</td><td>10101</td><td>the trailing 10 wraps round to the front</td></tr>
 </table>
 
-<h3>Precedence</h3>
+<h2>Precedence</h2>
 <p>From tightest to loosest: the unary operators first, meaning the tilde and all four movers, then
 AND, then XOR, then OR. Operators at the same level go left to right, except the unary ones, which
 associate right to left because they stack up in front of their operand. Parentheses override
@@ -137,7 +137,7 @@ everything, as usual.</p>
 then gives 11110. Reading the line strictly left to right instead produces 11111, and that wrong
 answer is among the choices every single time this question is asked, because it is where hurrying lands you.</p>
 
-<h3>Shortcuts worth knowing</h3>
+<h2>Shortcuts worth knowing</h2>
 <p>On a string of length L, LCIRC-n and RCIRC-(L minus n) are the same operation, so circulating a
 five bit string left by 3 is identical to circulating it right by 2, and you should always do
 whichever is shorter. Before doing either, reduce the count modulo the length, since RCIRC-9 on a
@@ -150,7 +150,7 @@ against a solid row of ones can simply be read as a tilde. Similarly X AND with 
 is all zeros, X OR with the complement of X is all ones, and a double complement can be crossed out
 the moment you see it.</p>
 
-<h3>Working through an expression</h3>
+<h2>Working through an expression</h2>
 <p>Evaluate (RCIRC-3 (LSHIFT-1 01101)) ^ (~01010 &amp; 11011) by taking it in pieces. Shifting
 01101 left by one drops the leading zero and pads a zero on the right, giving 11010. Circulating
 that right by three brings the trailing 010 round to the front, giving 01011. On the other side,
@@ -161,7 +161,7 @@ is 11010.</p>
 columns. It takes about five seconds and it removes an entire category of mistake, which is a very
 good trade when six questions have to fit into thirty minutes.</p>
 
-<h3>Solving for the unknown string</h3>
+<h2>Solving for the unknown string</h2>
 <p>The harder problems in this category give you an equation and ask how many bit strings satisfy
 it. The method is to work position by position and count the choices available at each one, then
 multiply.</p>
@@ -176,7 +176,7 @@ in the result where the mask already holds a 1 leaves X free. XOR never leaves a
 all, because each position determines X exactly, so an XOR equation has either one solution or
 none.</p>
 
-<h3>Precedence first, then the two confusions</h3>
+<h2>Precedence first, then the two confusions</h2>
 <p>Evaluate the precedence explicitly before you touch a bit. Write the expression out with
 brackets around every operation in the order it happens, then work outward from the innermost. Going
 left to right instead is the single largest source of wrong answers here, and bracketing first is

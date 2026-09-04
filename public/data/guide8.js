@@ -6,7 +6,7 @@ will never run it on anything, and you are never asked to write a program in it.
 program and say what it prints or what a memory word holds when it stops, which makes this a tracing
 category with an unfamiliar vocabulary rather than a programming one.</p>
 
-<h3>The machine</h3>
+<h2>The machine</h2>
 <p>There is one register, called the accumulator, and as many named memory words as the program
 mentions. Everything starts at zero. Execution runs top to bottom unless a branch sends it
 elsewhere.</p>
@@ -17,7 +17,7 @@ branch can jump to it. An operand is either the name of a memory word or an imme
 with a leading equals sign, so LOAD X reads the word X while LOAD =7 loads the number seven
 itself.</p>
 
-<h3>The instruction set</h3>
+<h2>The instruction set</h2>
 <table class="tbl">
 <tr><th>Opcode</th><th>Effect</th></tr>
 <tr><td>LOAD LOC</td><td>copy LOC into the accumulator</td></tr>
@@ -48,7 +48,7 @@ read in is reduced the same way. DIV is the exception, taking the integer part o
 no wrap. Reduce after every arithmetic instruction rather than at the end, since the wrap changes
 what a later comparison sees.</p>
 
-<h3>How to trace one</h3>
+<h2>How to trace one</h2>
 <p>Number the lines before you start, then keep a table with a column for the accumulator and one
 for each memory word, adding a row for every instruction that changes something. Do not skip rows to
 save time. These programs loop, and a loop with an untracked variable becomes unreadable after four
@@ -78,7 +78,7 @@ which point the BE fires and the program prints 24.</p>
 to assume the loop runs while N is greater than zero and to stop one pass early, and the only
 defence is to trace the reload rather than the intent.</p>
 
-<h3>Idioms worth recognising on sight</h3>
+<h2>Idioms worth recognising on sight</h2>
 <p>Comparing two values is LOAD A, SUB B, then BG or BL, since the sign of the difference is the
 comparison. A count down loop is LOAD counter, BE exit, do the work, then LOAD counter, SUB =1,
 STORE counter, BU top. A running total is LOAD sum, ADD item, STORE sum. Absolute value is LOAD X,
@@ -88,7 +88,7 @@ BG done, MULT =-1, then store.</p>
 relying on the truncating divide. And a swap needs a third memory word, because there is only one
 accumulator to hold a value in transit.</p>
 
-<h3>What the trace table is for</h3>
+<h2>What the trace table is for</h2>
 <p>With the trace table beside you, check these six. On every SUB and DIV, is the accumulator the
 left operand? Before each branch, does the accumulator still hold the value you meant to test, or has
 an instruction since then overwritten it? Does the loop run the number of passes your table shows
@@ -103,7 +103,7 @@ before carrying the value forward?</p>
 substrings with a bracket notation of their own, which is not the one Python uses. Almost all of
 the difficulty in this category is index arithmetic, so the work is in writing the positions down.</p>
 
-<h3>Indexing and substrings</h3>
+<h2>Indexing and substrings</h2>
 <p>Positions start at 0. For S equal to "PROGRAM" the characters sit at positions 0 through 6, so
 S[0] is P and S[6] is M, and there is no position 7. Reading a single character is the easy half.</p>
 
@@ -129,7 +129,7 @@ rather than four.</p>
 Python reads S[4:] as everything from index 4 and S[2:6] as stopping before index 6. Work an example
 before you rely on a habit: for S = "PROGRAM", S[2:5] is positions 2, 3, 4 and 5, which is OGRA.</p>
 
-<h3>The operations you will meet</h3>
+<h2>The operations you will meet</h2>
 <p>Concatenation uses a plus sign, so "AB" + "CD" is "ABCD". Length is written len(s) or LEN(s)
 depending on the problem. Searching is a loop comparing s[i] against a character and either counting
 or recording the index. Replacing is done by building a new string, since a single character cannot
@@ -140,7 +140,7 @@ lines behave oppositely. Writing t = t + s[i] appends and preserves the order, w
 prepends and reverses it. On a printed page those look the same at a glance, so read the order
 deliberately every time.</p>
 
-<h3>Trace with the indices written down</h3>
+<h2>Trace with the indices written down</h2>
 <p>Write the string once across the page and put the index under each character before you start.
 Every question about s[i] or s[i:j] then becomes a matter of pointing at the paper instead of
 counting in your head.</p>
@@ -161,7 +161,7 @@ output t</code></pre>
 character moved and the whole answer flipped, which is the entire lesson of this category compressed
 into two lines.</p>
 
-<h3>Program shapes that keep coming back</h3>
+<h2>Program shapes that keep coming back</h2>
 <p>A reversal either builds backwards by prepending, or loops from the last index down to 0 and
 appends. A palindrome check compares s[i] with s[len - 1 - i] as i runs to the middle, and the minus
 1 is there because indexing starts at 0, so dropping it is the most common error in the whole
@@ -170,7 +170,7 @@ is a loop with step 2, where the starting index decides which half you get. And 
 converts a character to a number, adds a shift, wraps with a modulo, and converts back, so check
 whether the wrap uses 26 and where the alphabet is taken to start.</p>
 
-<h3>Before you write the substring down</h3>
+<h2>Before you write the substring down</h2>
 <p>Before you write anything down, run these four checks on your work. Did you count positions from
 0 rather than 1? Did you use len(s) - 1 as the last valid position rather than len(s)? For a
 two-bound substring, did you include the character at the second position? And did you read the

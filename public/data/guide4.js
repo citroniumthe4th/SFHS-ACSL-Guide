@@ -6,7 +6,7 @@ idea is that a program and the data it works on have exactly the same shape: a p
 ACSL uses a small dialect of it, and you are never asked to write a program. You are given one
 expression and asked what it evaluates to.</p>
 
-<h3>Everything is a list</h3>
+<h2>Everything is a list</h2>
 <p>An expression is a list whose first element names a function and whose remaining elements are
 the arguments to it. Evaluation works from the inside out, so you reduce every nested call to a
 value before applying the function that contains it.</p>
@@ -17,7 +17,7 @@ parentheses would be read as a call to a function named 1. Elements may be numbe
 other lists, so '(2 (3 4) 5) is a list of three things whose middle element happens to be a list of
 two.</p>
 
-<h3>Arithmetic</h3>
+<h2>Arithmetic</h2>
 <p>ADD and MULT take any number of arguments and fold across them from left to right, so
 (ADD 1 2 3 4) is 10. SUB and DIV take exactly two, written (SUB a b) and (DIV a b), so nest instead of reaching for a third argument when you need to subtract twice: 20 minus 5 minus 3 is
 (SUB (SUB 20 5) 3).</p>
@@ -33,7 +33,7 @@ thing with its value, and repeat. Take (MULT (ADD 6 5 0) (MULT 5 1 2 2) (DIV 6 (
 ADD gives 11, the inner MULT gives 20, the SUB gives -3, and dividing 6 by -3 gives -2. The outer
 MULT is then 11 times 20 times -2, or -440.</p>
 
-<h3>Taking lists apart and putting them together</h3>
+<h2>Taking lists apart and putting them together</h2>
 <p>CAR returns the first element of a list and CDR returns the list with its first element removed.
 The names are historical, from the machine registers on the IBM 704 where LISP was first
 implemented, and there is no point trying to derive them.</p>
@@ -52,7 +52,7 @@ which leaves a list of one element, and that element is (4 (5 6) 7). So the answ
 ((4 (5 6) 7)), with two layers of brackets. Count the brackets in your answer against the structure
 you actually computed, because losing a layer is far easier than it sounds.</p>
 
-<h3>The shorthand chains</h3>
+<h2>The shorthand chains</h2>
 <p>CAR and CDR combine into single names, and the letters between the C and the R are read from
 right to left. CADR is therefore CAR of CDR, which picks out the second element, and CADDR is CAR
 of CDR of CDR, which picks the third. A chain like CAADDAR looks alarming and means nothing more
@@ -61,7 +61,7 @@ than applying the operations from the rightmost letter inward.</p>
 <p>Write the chain out before you evaluate it. For CADR of '(A B C), the CDR gives (B C) and the
 CAR of that gives B. Trying to do it in one leap is how people end up one element off.</p>
 
-<h3>Variables and definitions</h3>
+<h2>Variables and definitions</h2>
 <p>SETQ binds a name to a value, as in (SETQ x '(a b c)), after which x stands for that list
 wherever it appears. SET does the same with its first argument evaluated first. ATOM asks whether
 something is a single item and not a list, and EQ tests equality.</p>
@@ -71,7 +71,7 @@ something is a single item and not a list, and EQ tests equality.</p>
 value, at which point you are back in the Recursive Functions category and should unwind it the
 same way.</p>
 
-<h3>Counting your brackets</h3>
+<h2>Counting your brackets</h2>
 <p>Losing or gaining a layer of parentheses is the most common error, and it is worth a deliberate
 check, since ((4 5)) and (4 5) are different answers. Next comes returning an element where a list
 was wanted or the reverse, which is the CAR and CDR trap in a different costume. After those:
@@ -84,7 +84,7 @@ or DIV from the right instead of the left, and reading a CADDR chain left to rig
 difficulty moved into how many times a loop body runs and what the variables look like at the
 moment it stops. Almost every wrong answer in this category is off by exactly one pass.</p>
 
-<h3>Counted loops</h3>
+<h2>Counted loops</h2>
 <pre><code>for i = 1 to 5
     statements
 next i</code></pre>
@@ -111,7 +111,7 @@ ends with i at 6, but that is a property of those languages and not a rule ACSL 
 tells you nothing, say so in your working instead of assuming a value: a question that depends on
 this will define it.</p>
 
-<h3>Conditional loops</h3>
+<h2>Conditional loops</h2>
 <pre><code>while condition
     statements
 end while</code></pre>
@@ -122,7 +122,7 @@ looks like the starting value, that is the first thing to check.</p>
 <p>The other thing to watch is that the condition reads the current values, which the body has just
 changed. Give the condition its own column in your trace table instead of evaluating it in your head between rows.</p>
 
-<h3>Nested loops</h3>
+<h2>Nested loops</h2>
 <p>The inner loop runs to completion for every single pass of the outer one, so two loops of four
 and three passes execute the inner body twelve times. That much is a plain product.</p>
 
@@ -136,7 +136,7 @@ next i</code></pre>
 <p>The inner loop runs 4 times when i is 1, then 3, then 2, then 1, so c ends at 10. Whenever you
 see the outer counter appear in the inner bound, expect a triangular count like this and not a rectangle, and add the row lengths rather than multiplying.</p>
 
-<h3>Recognising what a loop is for</h3>
+<h2>Recognising what a loop is for</h2>
 <p>Most of these programs are doing one of a handful of things, and naming the pattern tells you
 roughly what answer to expect before you have finished tracing, which is a useful check on your own
 arithmetic. A running sum or product starts at 0 or 1 and combines something in on each pass. A
@@ -144,7 +144,7 @@ counter advances only when a condition inside the loop holds. A running maximum 
 either at the first element or at an extreme value. And a variable that halves or doubles each pass
 means the loop count is logarithmic, so the trace is far shorter than the numbers suggest.</p>
 
-<h3>Counting the passes</h3>
+<h2>Counting the passes</h2>
 <p>Count the iterations on paper instead of in your head, then check five things. Is the upper
 bound inclusive, and did you count that last pass? For a while loop, was the condition true on entry
 at all, or does the body run zero times? Did you carry the loop through its final pass, including one

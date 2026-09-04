@@ -57,8 +57,10 @@
       <h2>Sent when you run code</h2>
       <p>Pressing <strong>Run</strong>, <strong>Submit</strong>, or <strong>Run with this input</strong>
       sends three things to our endpoint at <code>/api/run</code>: the language you chose, the full
-      contents of the editor, and the test input for that run. Nothing else about you is attached.
-      Browsing the guides, answering practice questions, and taking mock exams send nothing.</p>
+      contents of the editor, and the test input for that run. That is the whole request body. The
+      request also carries the ordinary HTTP metadata described in the next section, as every web
+      request does. Browsing the guides, answering practice questions, and taking mock exams send
+      nothing at all.</p>
 
       <p>We cannot compile or run anything ourselves, so that request is forwarded to
       <a href="https://wandbox.org/">Wandbox</a>, a free public compiler service operated by a third
@@ -71,7 +73,8 @@
       <p>The site is hosted on Vercel. Like any web host, Vercel receives the normal information that
       comes with an HTTP request, including your IP address, the address you asked for, your browser's
       user agent string, and the time. That happens for every page you load, not only when you run
-      code, and it is outside our control. Vercel describes its own handling of this in its
+      code. Vercel processes this as the site's hosting provider, chosen and configured by us, and
+      controls its own infrastructure and retention. It describes its handling of this in its
       <a href="https://vercel.com/legal/privacy-policy">privacy notice</a>.</p>
 
       <p>Our code runner keeps a short lived count of requests per IP address, in memory only, so
@@ -84,9 +87,10 @@
       with a question about how it is used at your school, please get in touch before assigning it.</p>
 
       <h2>Your practice scores are not an assessment</h2>
-      <p>Everything the site knows, including the answer key, the hidden test cases, and the reference
-      solutions, is downloaded to your browser so the site can work without a server. Anyone can read
-      it. Scores here are for your own practice and are not suitable for grading.</p>
+      <p>The study content, the answer key, the hidden test cases, and the reference solutions are all
+      downloaded to your browser, and anyone can read them. Running code is the one thing that still
+      needs the site's own endpoint and Wandbox. Scores here are for your own practice and are not
+      suitable for grading.</p>
 
       <h2>Not affiliated with ACSL</h2>
       <p>This is an independent study resource. It is not affiliated with, authorised by, or endorsed
@@ -94,9 +98,14 @@
       check <a href="https://www.acsl.org/">acsl.org</a> for anything official.</p>
 
       <h2>Contact and changes</h2>
-      <p>Questions, corrections, or a request to remove something can go to the site's operator
-      through the <a href="https://github.com/citroniumthe4th/SFHS-ACSL-Guide">project repository</a>.
-      If this page changes materially, the date at the top changes with it.</p>
+      <p>Questions, corrections, a request to remove something, or a security report can go to the
+      site's operator through the
+      <a href="https://github.com/citroniumthe4th/SFHS-ACSL-Guide/issues">project repository</a>, or
+      privately through a
+      <a href="https://github.com/citroniumthe4th/SFHS-ACSL-Guide/security/advisories/new">security
+      advisory</a>. Both need a GitHub account; if you would rather write to a person directly, ask
+      your teacher for the site operator's address. If this page changes materially, the date at the
+      top changes with it.</p>
 
       <div class="btn-row"><a class="btn btn-primary" href="/">Back to the study guide</a></div>
     </div>

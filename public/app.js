@@ -256,10 +256,19 @@ el("division-switch").addEventListener("click", function (e) {
   render();
 });
 
+function paintThemeButton() {
+  var b = el("theme-btn");
+  var to = theme === "dark" ? "light" : "dark";
+  b.setAttribute("aria-label", "Switch to " + to + " theme");
+  b.title = "Switch to " + to + " theme";
+}
+paintThemeButton();
+
 el("theme-btn").addEventListener("click", function () {
   theme = theme === "dark" ? "light" : "dark";
   save("theme", theme);
   document.documentElement.setAttribute("data-theme", theme);
+  paintThemeButton();
   if (window.__cm) window.__cm.setOption("theme", theme === "dark" ? "material-darker" : "default");
 });
 
@@ -271,6 +280,8 @@ function paintChrome(section) {
       || (section === "problem" && s === "problems")
       || (section === "missed" && s === "practice");
     links[i].classList.toggle("on", on);
+    if (on) links[i].setAttribute("aria-current", "page");
+    else links[i].removeAttribute("aria-current");
     // On a phone the four sections sit in a strip that can scroll, and the one you are in is
     // not always the one on screen.
     if (on && links[i].scrollIntoView) {
@@ -279,7 +290,9 @@ function paintChrome(section) {
   }
   var btns = el("division-switch").querySelectorAll("button");
   for (var j = 0; j < btns.length; j++) {
-    btns[j].classList.toggle("on", btns[j].getAttribute("data-div") === division);
+    var picked = btns[j].getAttribute("data-div") === division;
+    btns[j].classList.toggle("on", picked);
+    btns[j].setAttribute("aria-pressed", picked ? "true" : "false");
   }
 }
 
@@ -338,7 +351,8 @@ function renderSidebar(section, active) {
       var right = qs.filter(function (q) { return store("q:" + q.id, null) === true; }).length;
       if (right > 0) done = ' <span class="tick">' + right + "/" + qs.length + "</span>";
     }
-    html += '<a class="side-link' + (t.id === active ? " on" : "") + '" href="/' +
+    html += '<a class="side-link' + (t.id === active ? " on" : "") + '"' +
+      (t.id === active ? ' aria-current="page"' : "") + ' href="/' +
       section + "/" + t.id + '">' + esc(t.name) + done + "</a>";
   });
   side.innerHTML = html;
@@ -433,7 +447,7 @@ function practiceIndex() {
       " waiting</span></div></a></div>";
   }
   html += '<p class="note">Six of these categories can also generate questions on demand, '
-        + "marked endless below. Those are built fresh each time and never repeat.</p>";
+        + "marked endless below. Those are built fresh each time from a random seed.</p>";
   html += '<div class="grid">';
   list.forEach(function (t) {
     var qs = questionsFor(t.id, division);
@@ -524,8 +538,8 @@ function drawQuestion() {
           "</button>" +
           '<button class="' + (quiz.endless ? "on" : "") + '" data-endless="1">Endless</button>' +
           '<span class="note">' + (quiz.endless
-            ? "Freshly generated every time, so it never repeats. These do not go in your "
-              + "missed list."
+            ? "Generated fresh each time, so you are very unlikely to see the same one twice. "
+              + "These do not go in your missed list."
             : "Written by hand. " + questionsFor(quiz.topic, quiz.division).length
               + " of them, and your score is kept.") + "</span></div>"
       : "") +
@@ -568,6 +582,7 @@ function paintAnswer() {
   // without this the score still reads 0 / 0 underneath the word Correct.
   var score = el("quiz-score");
   if (score) score.textContent = quiz.right + " / " + quiz.seen;
+  el("after").setAttribute("aria-live", "polite");
   el("after").innerHTML =
     '<div class="explain' + (ok ? "" : " wrong") + '"><h2><span class="verdict '
     + (ok ? "ok" : "no") + '">' +
@@ -949,6 +964,7 @@ function problemPage(pid) {
       '<div class="ws-left" id="ws-left"></div>' +
       '<div class="ws-right">' +
         '<div class="ws-bar">' +
+          '<label for="lang" class="ws-label">Language</label>' +
           '<select id="lang"></select>' +
           '<button class="btn btn-ghost" id="reset">Reset code</button>' +
           '<span class="spacer"></span>' +
@@ -1095,33 +1111,33 @@ function drawStatement() {
       CONTEST_NAMES[p.contest] + " &middot; " + p.division + " division</div>" +
     "<h1>" + esc(p.title) + "</h1>" +
 
-    '<h3 class="sec">Problem</h3>' + p.statement +
-    '<h3 class="sec">Example</h3>' + p.example +
-    '<h3 class="sec">Input</h3><p>' + p.input_spec + "</p>" +
-    '<h3 class="sec">Output</h3><p>' + p.output_spec + "</p>" +
+    '<h2 class="sec">Problem</h2>' + p.statement +
+    '<h2 class="sec">Example</h2>' + p.example +
+    '<h2 class="sec">Input</h2><p>' + p.input_spec + "</p>" +
+    '<h2 class="sec">Output</h2><p>' + p.output_spec + "</p>" +
 
-    '<h3 class="sec">Sample input and output</h3>' +
+    '<h2 class="sec">Sample input and output</h2>' +
     dataList(p.samples, null, 1) +
 
-    '<h3 class="sec">Test data 1 to 6</h3>' +
+    '<h2 class="sec">Test data 1 to 6</h2>' +
     '<p class="note">Shown to you, the same way ACSL shows the first half.</p>' +
     dataList(visible, null, 1) +
 
-    '<h3 class="sec">Test data 7 to 12</h3>' +
+    '<h2 class="sec">Test data 7 to 12</h2>' +
     '<p class="note">Six more cases, hidden in this interface the way ACSL hides the second half. ' +
     "Submitting tells you which ones pass, and showing the solution reveals them. They are hidden " +
     "rather than secret: this site is one static bundle, so anyone reading the page source can " +
     "find them. Treat your score here as practice rather than as a result.</p>" +
     dataList(hidden, gaveUp ? null : 0, 7) +
 
-    '<h3 class="sec">Task</h3>' +
+    '<h2 class="sec">Task</h2>' +
     "<p>Complete the function <code>" + esc(p.fname) + "</code>.</p>" + p.task +
     "<p>You may create additional functions that are called from <code>" + esc(p.fname) +
     "</code> if needed in solving the problem.</p>" +
 
-    '<h3 class="sec">Constraints</h3><p>' + p.constraints + "</p>" +
+    '<h2 class="sec">Constraints</h2><p>' + p.constraints + "</p>" +
 
-    '<h3 class="sec">Data provided</h3>' +
+    '<h2 class="sec">Data provided</h2>' +
     "<p>There are 3 sets of sample data for debugging and 12 sets of test data for scoring. " +
     "The last 6 are hidden. The test cases vary in difficulty, and you should make up sample " +
     "data of your own to test your program properly.</p>" +
@@ -1176,6 +1192,8 @@ function collapseResults(want) {
 
 function showResults(summary, detail) {
   el("results").hidden = false;
+  // Compiling happens out of sight, so the outcome has to announce itself.
+  el("results-summary").setAttribute("aria-live", "polite");
   el("results-summary").innerHTML = summary;
   el("console").innerHTML = detail || "";
   collapseResults(false);

@@ -6,7 +6,7 @@ same thing, namely a set of strings, and the fact that they are equivalent is on
 deep results in computer science. ACSL asks you to translate between them, or to decide which
 strings a given description accepts.</p>
 
-<h3>The operators</h3>
+<h2>The operators</h2>
 <p>Writing two patterns next to each other concatenates them, so ab means an a followed by a b. A
 vertical bar between two patterns means either one will do. A star means zero or more copies of the
 pattern immediately in front of it, a plus means one or more, and a question mark means zero or one.
@@ -21,7 +21,7 @@ of c characters.</p>
 <p>The star binds only to the token directly in front of it, which is the detail to check in both directions. In ab*, the star applies to the b alone, so the pattern matches a, ab, abb, and
 so on. To repeat the pair you have to write (ab)*.</p>
 
-<h3>Reading a machine</h3>
+<h2>Reading a machine</h2>
 <p>A finite state automaton is drawn as circles for states, an arrow from nowhere marking the start
 state, double circles for accepting states, and labelled arrows for transitions. You feed a string
 in one character at a time, follow the arrow that matches, and accept if you are standing on a
@@ -32,7 +32,7 @@ character, or can the machine get stuck partway through a string? And is the sta
 accepting? If it is, the machine accepts the empty string, and any regular expression you write for
 it has to accept the empty string too, which usually means a star somewhere at the top level.</p>
 
-<h3>Turning a machine into an expression</h3>
+<h2>Turning a machine into an expression</h2>
 <p>For the small machines ACSL uses, the most reliable approach is to describe the paths from the
 start state to each accepting state and then account for the loops along the way. Find the shortest
 route to an accepting state and write down its labels as a skeleton, then for every loop hanging off
@@ -46,7 +46,7 @@ also leave on 0 and come straight back on another 0, picking up more 1s, and tha
 can repeat, which gives 01*(001*)*. Test it on a few short strings: 0 and 01 and 0100 are all
 accepted, while 00 and 010 are not, since both of those leave you sitting on S.</p>
 
-<h3>Deciding whether two descriptions agree</h3>
+<h2>Deciding whether two descriptions agree</h2>
 <p>Start by testing short strings rather than reasoning abstractly. Write down the five or six
 shortest strings each description accepts, in order of length, and compare the lists. A disagreement
 anywhere in that list is a counterexample, and one counterexample settles the question: the two
@@ -63,14 +63,14 @@ each one accepts and check the two descriptions say the same thing.</p>
 identical expressions, since a* accepts it and a+ does not, and it costs about two seconds to
 check.</p>
 
-<h3>Simplifying expressions</h3>
+<h2>Simplifying expressions</h2>
 <p>A handful of identities cover most contest simplifications: (a*)* is a*, a*a* is a*, a|a is a,
 and a+ is the same as aa* and as a*a. Two plausible-looking equalities are false and appear as wrong
 answers constantly. The pattern (a|b)* is not a*b*, because the first accepts abab and the second
 insists that every a come before every b. For the same reason (ab)* is not a*b*. Both are worth
 memorising specifically as false.</p>
 
-<h3>Counting matches</h3>
+<h2>Counting matches</h2>
 <p>Some problems ask how many strings of a given length a pattern accepts, and the method is to
 multiply the choices position by position. Where a pattern has several starred parts, you have to
 split by how many characters each part takes and add the products for each split, which is fiddly
@@ -89,7 +89,7 @@ finish on as accepting when it is drawn with a single circle.</p>
 nearly every question in this category turns on knowing precisely which slot you are reading and
 which one you are writing.</p>
 
-<h3>One dimensional arrays</h3>
+<h2>One dimensional arrays</h2>
 <p>An array is a numbered row of boxes, and a(3) or a[3] refers to the box at index 3. Read the
 problem to find out whether the indexing starts at 0 or at 1, because ACSL uses both and the
 statement always makes it clear, usually in the declaration or in the bounds of the first loop.</p>
@@ -99,7 +99,7 @@ anything, and update values by crossing out rather than erasing so you can retra
 numbers in your head across ten passes of a loop does not work, and the people who score well in
 this category are the ones who stopped trying.</p>
 
-<h3>The patterns that keep coming back</h3>
+<h2>The patterns that keep coming back</h2>
 <p>A fill loop writes a(i) for every i, usually from a formula in i, and sometimes from a formula
 involving a(i - 1), which quietly makes it a running total instead. A scan loop reads every element
 and maintains a sum, count, maximum, or minimum. A swap exchanges two elements using a temporary
@@ -119,7 +119,7 @@ performs every exchange twice, once from each end, so the array comes back exact
 correct reversal loops only to the middle, and a problem whose answer is the original array is
 usually testing whether you noticed.</p>
 
-<h3>Two dimensional arrays</h3>
+<h2>Two dimensional arrays</h2>
 <p>The notation a(i, j) means row i and column j. Draw the grid, label the rows down the side and
 the columns across the top, and fill cells in as they are assigned.</p>
 
@@ -131,7 +131,7 @@ start at 0 or 1. Transposing swaps a(i, j) with a(j, i), and looping over the wh
 twice and therefore changes nothing, so a genuine transpose only visits the cells where j is greater
 than i.</p>
 
-<h3>Off by one, and the three places it hides</h3>
+<h2>Off by one, and the three places it hides</h2>
 <p>It hides in the loop bound, where for i = 1 to n touches n elements while for i = 1 to n - 1
 touches one fewer, which is exactly right for a loop comparing a(i) with a(i + 1). It hides in the
 subscript arithmetic, where a(i + 1) on the final pass has to still be inside the array. And it

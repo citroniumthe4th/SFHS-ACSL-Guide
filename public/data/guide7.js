@@ -6,7 +6,7 @@ almost aggressively simple as definitions go, and yet it models road networks, d
 tasks, friendships, and the structure of a program. ACSL tests two things here: whether you know the
 vocabulary exactly, and whether you can count paths using powers of an adjacency matrix.</p>
 
-<h3>Vocabulary, stated precisely</h3>
+<h2>Vocabulary, stated precisely</h2>
 <p>In an undirected graph an edge works in both directions, while in a directed graph, or digraph,
 each edge points one way. The degree of a vertex is the number of edges touching it, and in a
 digraph that splits into indegree for arrows coming in and outdegree for arrows going out.</p>
@@ -33,7 +33,7 @@ of edges, because each edge contributes one to the degree of each of its two end
 observation answers a large share of the counting questions in this category in one line, and it
 also tells you that the number of vertices of odd degree is always even.</p>
 
-<h3>Adjacency matrices</h3>
+<h2>Adjacency matrices</h2>
 <p>Label the vertices A, B, C, and so on, and build an N by N grid with a 1 in row i, column j
 whenever an edge runs from vertex i to vertex j, and a 0 otherwise. An undirected graph gives a
 symmetric matrix, and a graph with no loops has zeros down the main diagonal.</p>
@@ -42,7 +42,7 @@ symmetric matrix, and a graph with no loops has zeros down the main diagonal.</p
 and the column sum is the indegree. Those two agree only when the matrix is symmetric, which is
 another way of saying the graph is undirected.</p>
 
-<h3>Powers of the matrix count walks</h3>
+<h2>Powers of the matrix count walks</h2>
 <p>This is the one real technique in the category. If M is the adjacency matrix, then the entry in
 row i, column j of M raised to the power p is the number of walks of length exactly p from vertex i
 to vertex j.</p>
@@ -66,14 +66,14 @@ at all. Those problems are always small enough to enumerate by hand, and the set
 whole matrix. Compute M squared once, then take the dot product of row i of M squared with column j
 of M, which is one row against one column instead of a full multiplication.</p>
 
-<h3>Counting cycles</h3>
+<h2>Counting cycles</h2>
 <p>Questions that ask for the number of cycles almost always mean distinct cycles as sets of edges,
 so going round a triangle clockwise and anticlockwise counts once, and starting from a different
 vertex of the same triangle also counts once. Read the problem in case it says otherwise, then
 enumerate by length, taking all the triangles first, then the four cycles, and so on. Counting them
 all at once is how duplicates creep in.</p>
 
-<h3>Walks, paths, and other things worth rereading</h3>
+<h2>Walks, paths, and other things worth rereading</h2>
 <p>Confusing walks with paths, since matrix powers count walks. Reading a matrix as directed when
 the problem says undirected or the reverse, which its symmetry will tell you. Counting the same
 cycle several times because it was traced from different starting points. Forgetting that a tree on
@@ -87,7 +87,7 @@ entry a second way.</p>
 expression written in a different notation, and once you have written it back out as an expression,
 everything from the Boolean Algebra category applies unchanged.</p>
 
-<h3>The eight gates</h3>
+<h2>The eight gates</h2>
 <table class="tbl">
 <tr><th>Gate</th><th>Expression</th><th>Output is 1 when</th></tr>
 <tr><td>BUFFER</td><td>A</td><td>the input is 1</td></tr>
@@ -107,7 +107,7 @@ circle drawn on an input means that signal is inverted before it enters the gate
 them. Tying both inputs of a NAND together gives a NOT, and once you have a NOT you can build an AND
 from a NAND, and so on up. That fact occasionally appears as a question in its own right.</p>
 
-<h3>Reading a circuit</h3>
+<h2>Reading a circuit</h2>
 <p>Work left to right and label every wire as you go, writing the Boolean expression for each gate
 output directly onto the diagram. By the time you reach the right hand edge you have the expression
 for the whole circuit, and you never had to hold anything in your head.</p>
@@ -117,7 +117,7 @@ OR gate along with C. Label the AND output AB, label the NOT output (AB)', and t
 (AB)' + C. DeMorgan turns that into A' + B' + C, which is 1 unless A and B are both 1 while C is 0.
 That is one row out of eight, so seven of the eight input combinations drive the output high.</p>
 
-<h3>The three kinds of question</h3>
+<h2>The three kinds of question</h2>
 <p>The first kind gives you a required output and asks which inputs produce it. Work backwards from
 the output gate, because each step is forced: if the final gate is an AND and the output must be 1,
 then both of its inputs must be 1, and you now have two smaller versions of the same question. If it
@@ -133,7 +133,7 @@ from the simplified form instead.</p>
 DeMorgan and the absorption laws, and reporting the result either as an expression with the fewest
 operators or as a redrawn circuit with the fewest gates.</p>
 
-<h3>Counting shortcuts</h3>
+<h2>Counting shortcuts</h2>
 <p>An expression that is a single OR of several terms is 1 unless every term is 0, so counting the
 zeros is often one short calculation rather than sixteen rows. A chain of XOR gates over n inputs is
 1 on exactly half the rows, namely the ones with an odd number of inputs high. And when a variable

@@ -6,7 +6,7 @@ values, true and false, written 1 and 0. It underlies every conditional you have
 every circuit in the Digital Electronics category, and ACSL asks two things of you here: simplify an
 expression to the fewest operators, or find which inputs make it true.</p>
 
-<h3>Notation</h3>
+<h2>Notation</h2>
 <p>AND is written by writing two things next to each other, so AB means A AND B, and it may also
 appear with a dot between them. OR is written with a plus sign. NOT is a bar drawn over the thing
 being negated, or an apostrophe after it when the problem has to be typed in plain text. XOR uses a
@@ -18,7 +18,7 @@ amount of ordinary algebra carries over unchanged. The place the analogy breaks 
 simplifies to A, an identity with no arithmetic counterpart and the one easiest to forget you are
 allowed to use.</p>
 
-<h3>The laws</h3>
+<h2>The laws</h2>
 <table class="tbl">
 <tr><th>Name</th><th>Statement</th></tr>
 <tr><td>Commutative</td><td>A + B = B + A and AB = BA</td></tr>
@@ -41,7 +41,7 @@ of A, B and C.</p>
 <p>Once you trust it, use it as a factoring rule. An expression of the form A + BC can be turned
 into a product, which is often the step a simplification problem is built around.</p>
 
-<h3>Simplifying</h3>
+<h2>Simplifying</h2>
 <p>A workable order of attack is to push every NOT inward with DeMorgan until the bars sit only on
 single variables, cancel any double negations that appear, then multiply out or factor depending on
 which direction moves you toward common terms. After that, look specifically for absorption, which
@@ -60,7 +60,7 @@ Looking at the four terms again with that answer in hand, notice that every one 
 and that between them the four AB combinations are all present, so the expression is true exactly
 when C is true and nothing else matters.</p>
 
-<h3>Truth tables</h3>
+<h2>Truth tables</h2>
 <p>When a question asks which inputs make an expression true, or when simplification stalls, build
 the table. With n variables there are 2 to the n rows, so three variables means eight rows and about
 a minute of work.</p>
@@ -70,12 +70,12 @@ its own column instead of trying to evaluate the whole line in a single step. A 
 settles any argument about whether a simplification is right, since two expressions are equal
 exactly when their columns agree on every row.</p>
 
-<h3>XOR and XNOR</h3>
+<h2>XOR and XNOR</h2>
 <p>XOR is true when the inputs differ and equals AB' + A'B. XNOR is true when they agree and equals
 AB + A'B'. Two facts about XOR are worth carrying: it is associative, so a chain of them is true
 exactly when an odd number of the inputs are true, and A XOR A is 0 while A XOR 0 is A.</p>
 
-<h3>The half-applied DeMorgan</h3>
+<h2>The half-applied DeMorgan</h2>
 <p>Applying DeMorgan to only half the expression is the biggest single loss, and it happens because
 people remember to move the bar and forget that the operator flips with it: (AB)' is A' + B', not
 A'B'. After that comes treating A + AB as something that needs distributing when absorption kills it
@@ -89,7 +89,7 @@ nothing.</p>
 item comes out next. Get that rule right and the problems reduce to careful bookkeeping, which is
 why the useful preparation here is drawing rather than reading.</p>
 
-<h3>Stacks</h3>
+<h2>Stacks</h2>
 <p>A stack is last in, first out. PUSH puts an item on the top and POP takes the top item off and
 returns it, and popping an empty stack returns NIL. Push 3, 1, and 4 in that order and pop twice,
 and you get the 4 followed by the 1, leaving the 3 behind. Draw a stack as a vertical column with
@@ -99,7 +99,7 @@ the top at the top of the page and none of this needs remembering.</p>
 parentheses balance is a stack, and the chain of pending calls inside a recursive function is a
 stack, which is why a runaway recursion is said to overflow one.</p>
 
-<h3>Queues</h3>
+<h2>Queues</h2>
 <p>A queue is first in, first out. Items join at the back and leave from the front, so the same
 three items added in the order 3, 1, 4 and removed twice give the 3 and then the 1.</p>
 
@@ -107,7 +107,7 @@ three items added in the order 3, 1, 4 and removed twice give the 3 and then the
 survive them is to draw two clearly separated columns and update both after every command. Mixing
 them up costs the whole question rather than a single step.</p>
 
-<h3>Binary search trees</h3>
+<h2>Binary search trees</h2>
 <p>Every node holds a value. The key at a node is greater than or equal to everything in its left
 subtree and strictly less than everything in its right subtree. To insert, start at the root and go
 left when the new value is less than or equal to the node you are standing on, right when it is
@@ -125,7 +125,7 @@ balanced tree with 50 at the root, 30 and 70 below it, and the other four as lea
 same seven values in sorted order and you get a chain seven nodes deep. The shape depends entirely
 on the order the values arrive in, which is why you must never sort the input before building.</p>
 
-<h4>Traversals</h4>
+<h3>Traversals</h3>
 <p>Inorder visits the left subtree, then the root, then the right, and on a binary search tree it
 always comes out sorted. That makes it useless for telling two trees apart and extremely useful as a
 check that you built the tree correctly, since an inorder walk that is not in order means you went
@@ -140,7 +140,7 @@ write each node down as you pass it on the appropriate side: on the left for pre
 for inorder, and on the right for postorder. The tree above gives 50 30 20 40 70 60 80 in preorder
 and 20 40 30 60 80 70 50 in postorder.</p>
 
-<h4>Deletion</h4>
+<h3>Deletion</h3>
 <p>There are three cases, and the third is another place ACSL does its own thing. A leaf simply
 disappears. A node with one child is replaced by that child. A node with two children is replaced by
 its <em>left</em> child, and its entire right subtree is then reattached to that left child's tree,
@@ -153,14 +153,14 @@ algorithm producing a different tree, so if you have met deletion before, this i
 unlearn before a contest. Delete M from the tree above and E moves up into its place, carrying C and
 I along with it, and R hangs off the right of I.</p>
 
-<h4>Path lengths</h4>
+<h3>Path lengths</h3>
 <p>The internal path length is the sum of the depths of every node, counting the root as depth 0. In
 the balanced seven node tree above, the root contributes 0, the two nodes below it contribute 1
 each, and the four leaves contribute 2 each, for a total of 10. The external path length counts the
 depths of the empty positions where a new node would attach, and for a tree of N nodes it always
 equals the internal path length plus 2N, which is a quick check on your arithmetic.</p>
 
-<h3>Priority queues and heaps</h3>
+<h2>Priority queues and heaps</h2>
 <p>A priority queue lets you insert anything but only ever remove the smallest item. The usual
 implementation is a min heap, a nearly complete binary tree in which every parent is smaller than
 both of its children.</p>
@@ -180,7 +180,7 @@ at 2i and 2i + 1 and the parent of index i sits at i over 2 with the fraction dr
 hands you an array and asks whether it is a heap, check that relation at every index rather than
 trying to picture the tree.</p>
 
-<h3>Checking a tree you have drawn</h3>
+<h2>Checking a tree you have drawn</h2>
 <p>Check the tree first. If the keys arrived sorted, does your drawing show the chain that produces
 rather than a balanced tree? Did every duplicate key go left? For a two child deletion, did you
 promote the left child and reattach the right subtree, which is ACSL's rule and not the donor swap

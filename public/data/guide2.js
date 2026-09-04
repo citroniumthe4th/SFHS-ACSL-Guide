@@ -6,7 +6,7 @@ when it stops. Nothing has to be written and nothing has to be debugged, so the 
 tracing accurately while a clock runs, which is a narrower and more mechanical talent than it
 first appears.</p>
 
-<h3>The dialect</h3>
+<h2>The dialect</h2>
 <p>ACSL pseudocode is deliberately close to Python, Java, and C without committing to any of them,
 so anyone who has written a loop in any language can read it. Assignment uses a single equals sign
 and comparison uses a double one, with != for not equal alongside the usual four inequalities.
@@ -26,7 +26,7 @@ uses the result as a subscript, look for an int nearby, because the author almos
 there and you may have skimmed past it. Remember while you are checking that int floors, so a
 negative intermediate value lands one lower than truncation would put it.</p>
 
-<h3>Trace on paper, not in your head</h3>
+<h2>Trace on paper, not in your head</h2>
 <p>This is the single habit that separates people who score well in this category from people who
 know exactly as much and score badly. Draw a column for every variable the program touches, add a
 row for each pass, and fill it in. It feels slow for the first two rows and is faster than any
@@ -52,7 +52,7 @@ the last value that still looks like it belongs, and the pass that drives A nega
 should not have happened. Giving the condition its own column is what makes that pass impossible
 to skip.</p>
 
-<h3>Loop mechanics that decide answers</h3>
+<h2>Loop mechanics that decide answers</h2>
 <p>A loop written for i = 1 to 5 runs with i equal to 1, 2, 3, 4, and 5, since both bounds are
 inclusive. Add a step and the counter moves by that amount, stopping as soon as the next value
 would pass the limit, so for i = 10 to 1 step -3 gives 10, 7, 4, and 1. A limit the step never
@@ -72,7 +72,7 @@ passes and leaves every variable untouched. Whenever the answer to a while quest
 suspiciously like the starting value, check whether the loop ever ran at all before assuming you
 made an arithmetic error.</p>
 
-<h3>Arrays</h3>
+<h2>Arrays</h2>
 <p>Read the problem to find out where the indexing starts, because ACSL uses both conventions and
 always tells you which one applies, usually in the declaration or in the bounds of the first
 loop.</p>
@@ -83,7 +83,7 @@ decide whether it does each swap once or twice. Swapping across the entire squar
 exchange twice and therefore leaves the matrix exactly as it was, which is a favourite trick and
 looks like a bug in your own working, when it is the point of the question.</p>
 
-<h3>Strings</h3>
+<h2>Strings</h2>
 <p>Strings index from zero, so for S = "PROGRAM" the first character is S[0] and the last is S[6].
 The substring notation is where ACSL differs from the languages you have written in, and it differs
 in two ways. A single bound is a count of characters taken from the end the colon leans towards, so
@@ -99,7 +99,7 @@ t = s[i] + t prepends and reverses it. Those two lines look nearly identical on 
 produce opposite answers, so read the order every time and write out the value of t after each
 pass.</p>
 
-<h3>Working one under time pressure</h3>
+<h2>Working one under time pressure</h2>
 <p>Read the whole program before computing anything, and try to work out what it is meant to do,
 because knowing the intent catches your own arithmetic slips before they reach the answer line.
 Then write down the initial values, build the trace table with a column for the loop condition,
@@ -116,7 +116,7 @@ sequence, a doubling, or a value that settles into a short cycle after three or 
 in the conditions and in which branch actually runs. Get the conditions right and the arithmetic
 takes care of itself.</p>
 
-<h3>The shape of a branch</h3>
+<h2>The shape of a branch</h2>
 <pre><code>if condition then
     statements
 else
@@ -126,7 +126,7 @@ end if</code></pre>
 happens and the program simply continues after end if, which sounds obvious until it is buried
 three levels deep in a nested structure.</p>
 
-<h3>Conditions</h3>
+<h2>Conditions</h2>
 <p>A condition compares two values with one of &lt;, &gt;, &lt;=, &gt;=, ==, or !=, and note that
 the comparison is a double equals sign while a single one assigns. Conditions combine with
 &amp;&amp; for and, || for or, and ! for not.</p>
@@ -136,7 +136,7 @@ a &gt; 5 || b &lt; 2 &amp;&amp; c == 0 means a greater than 5, or else both of t
 once. When a problem mixes and with or and leaves out the parentheses, that grouping is the entire
 point of the question, and evaluating strictly left to right will land you on the wrong branch.</p>
 
-<h3>Nesting, and which else belongs to which if</h3>
+<h2>Nesting, and which else belongs to which if</h2>
 <p>An if inside an if is how these problems get their difficulty. Indentation is your friend, and
 if the problem is printed with sloppy indentation, redraw it before you trace it.</p>
 <pre><code>if x &gt; 10 then
@@ -157,7 +157,7 @@ you attached that inner else to the outer if.</p>
 statements. In the chain at most one branch ever runs. In a run of separate ifs several can run
 one after another, and an earlier one can change the very value a later one is about to test.</p>
 
-<h3>Order of assignment and test</h3>
+<h2>Order of assignment and test</h2>
 <p>That last distinction matters more than it sounds, so it is worth seeing:</p>
 <pre><code>a = 5
 if a &gt; 3 then
@@ -173,7 +173,7 @@ Rewrite those two blocks as an if and an else if and the answer here happens to 
 reverse the order of the blocks and it will not, which is the sort of thing the setter is
 checking.</p>
 
-<h3>How to trace one</h3>
+<h2>How to trace one</h2>
 <p>Write the variables in a row and update them line by line, crossing old values out instead of erasing them so that you can retrace your steps when the answer looks wrong. When you reach a
 condition, write it out with the current numbers substituted in, decide true or false, and note
 which branch you took. Inside a nested structure, note which if you are currently inside as well,
@@ -182,7 +182,7 @@ since that is the piece most often dropped.</p>
 <p>Then answer the question that was asked. Some of these programs produce output inside a branch,
 so a branch that never runs means nothing is printed at all, and the answer is that there is no output, not a number.</p>
 
-<h3>Before you commit to a trace</h3>
+<h2>Before you commit to a trace</h2>
 <p>Run these four over your trace before you commit to it. Read every condition and confirm you
 have a comparison and not an assignment. Draw a line from each else to the if it belongs to. Check
 that each condition was evaluated against the value the variable held at that moment, not the one it
