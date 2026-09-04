@@ -3,7 +3,7 @@
   "outputDirectory": "public",
   "functions": {
     "api/run.js": {
-      "maxDuration": 60
+      "maxDuration": 20
     }
   },
   "headers": [

@@ -66,8 +66,10 @@ sandbox instead. It defaults to [Wandbox](https://wandbox.org), which needs no A
 would rather not lean on a free community service, run your own
 [Piston](https://github.com/engineer-man/piston) instance and set `RUNNER_URL` to its endpoint.
 
-If the deploy rejects `maxDuration`, drop the `functions` block from `vercel.json`. Compiles
-usually finish in a few seconds, so the 10 second default is workable.
+`vercel.json` caps the function at 20 seconds. The proxy itself gives up on Wandbox after 12, so
+20 is a backstop rather than the working timeout: it is what bounds an invocation that wedges
+somewhere the abort cannot reach. If a deploy ever rejects `maxDuration`, dropping the `functions`
+block is safe, since Hobby's 10 second default still clears a normal compile.
 
 ## What the site does and does not protect
 

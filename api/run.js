@@ -103,6 +103,10 @@ module.exports = async (req, res) => {
   // still running is almost always an infinite loop, and making a student wait 45 seconds to be
   // told that is its own bug. Giving up on the request does not stop the work already running at
   // Wandbox; it only stops us waiting for it.
+  //
+  // vercel.json caps the function itself at 20s. That is deliberately a little above this abort
+  // rather than equal to it: this timer is the normal way a slow run ends, and the platform cap
+  // is the backstop for an invocation that wedges somewhere this timer cannot reach.
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), 12000);
   let data;
