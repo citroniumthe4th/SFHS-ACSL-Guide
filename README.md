@@ -82,9 +82,20 @@ The rate limit is the one to be honest about. It is an in-memory counter, so it 
 from one address while an instance stays warm and resets on a cold start, and a second instance
 counts separately. It cannot enforce a site-wide limit. The ceiling is set high on purpose,
 because a school NAT puts a whole lab behind one address and a limit tuned to one student would
-lock out the class. `MAX_PER_WINDOW` in `api/run.js` is the dial. **The real fix is a Vercel WAF
-rate-limit rule**, which is configured in the Vercel dashboard rather than in this repo, and is
-worth adding before the site is promoted anywhere public.
+lock out the class. `MAX_PER_WINDOW` in `api/run.js` is the dial.
+
+The durable limit lives in the Vercel dashboard rather than in this repo, because it runs at the
+edge before a request ever reaches the function. To add it: **Project → Firewall → Configure →
++ New Rule**, condition **Request Path** *starts with* `/api/run`, action **Rate Limit**, fixed
+window, 60s, 120 requests, keyed by **IP address**, action **Deny (429)**. Set the action to
+**Log** for a day first and watch the Firewall overview, since a school NAT puts a whole lab
+behind one address and the log tells you whether 120 is the right ceiling before it starts
+refusing anyone. Then **Review Changes → Publish**.
+
+Rate limiting is included on Hobby, capped at one rule per project, which is all this needs.
+Counters are per region, so a distributed flood can still exceed the configured number in total.
+Keep the in-function counter as well: it costs nothing, it covers `server.py` in local
+development, and it is the fallback if the rule is ever removed.
 
 Errors from the compile service are logged with `console.error` and reported to the browser as a
 short stable message, so an upstream stack trace never reaches a student.
