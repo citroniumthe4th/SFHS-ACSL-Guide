@@ -158,3 +158,43 @@ test('a late answer cannot be saved while the exam timer callback is delayed', a
     return { submitted: e.submitted, answers: e.answers };
   })).toEqual({ submitted: true, answers: [null, null, null, null, null, null] });
 });
+
+test('driver notice follows edits and canceling reset preserves saved work', async ({ page }) => {
+  await page.goto('/problem/digit-chain');
+  const starter = await page.evaluate(() => window.__cm.getValue());
+  const edited = starter.replace('Incomplete test case:', 'Old input driver:');
+  await page.evaluate(code => window.__cm.setValue(code), edited);
+  await expect(page.locator('#driver-notice')).toBeVisible();
+  page.once('dialog', dialog => dialog.dismiss());
+  await page.locator('#driver-reset').click();
+  expect(await page.evaluate(() => window.__cm.getValue())).toBe(edited);
+  await page.reload();
+  await expect(page.locator('#driver-notice')).toBeVisible();
+  await page.evaluate(code => window.__cm.setValue(code), starter);
+  await expect(page.locator('#driver-notice')).toBeHidden();
+  await page.reload();
+  await expect(page.locator('#driver-notice')).toBeHidden();
+});
+
+test('correcting a generated question removes its missed record but preserves its bookmark', async ({ page }) => {
+  await page.goto('/guide');
+  await page.evaluate(() => {
+    localStorage.setItem('acsl:q:gen:graph-theory:123', 'false');
+    localStorage.setItem('acsl:bookmark:gen:graph-theory:123', 'true');
+  });
+  await page.goto('/missed');
+  const correct = await page.evaluate(() => {
+    const q = window.GEN.make('graph-theory', 123);
+    return String(q.choices[q.ans]);
+  });
+  const buttons = page.locator('#choices .choice');
+  for (let i = 0; i < await buttons.count(); i++) {
+    if (await buttons.nth(i).locator('.val').innerText() === correct) {
+      await buttons.nth(i).click();
+      break;
+    }
+  }
+  expect(await page.evaluate(() => localStorage.getItem('acsl:q:gen:graph-theory:123'))).toBeNull();
+  await page.locator('#section-tabs a[href="/bookmarks"]').click();
+  await expect(page.getByRole('link', { name: 'Link to this question', exact: true })).toHaveAttribute('href', /gen%3Agraph-theory%3A123/);
+});

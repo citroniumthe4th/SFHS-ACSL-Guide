@@ -1164,8 +1164,8 @@ function problemPage(pid) {
             + '-Shift-Enter">Submit</button>' +
         "</div>" +
         '<p class="editor-hint" id="editor-hint">Tab indents code. Escape moves focus to the toolbar.</p>' +
-        '<div class="driver-notice" id="driver-notice" hidden>' +
-          '<span>The driver below your function is older than the one the reference solutions ' +
+        '<div class="driver-notice" id="driver-notice" role="status" hidden>' +
+          '<span>The driver below your function differs from the one the reference solutions ' +
           'use, so your own test input can behave differently here than it does anywhere else. ' +
           'Copy your work somewhere safe and reset the editor as soon as you can.</span>' +
           '<button class="linkish" id="driver-reset">Reset code</button>' +
@@ -1287,7 +1287,7 @@ function problemPage(pid) {
   applyFontSize();
   wireFontSize();
   wireSplit();
-  cm.on("change", function () { stash(); });
+  cm.on("change", function () { stash(); showDriverNotice(); });
   loadCode();
   // The editor is inside a flex column, so its height is only final after layout. Capture the
   // instance rather than reading `cm`, which is null again if the user has already navigated on.
@@ -1382,8 +1382,8 @@ function stash() {
 // The driver ships inside the editable template, so it becomes part of whatever a student
 // saves. Change it and they keep the old one until they reset, which is the right trade but
 // leaves the two disagreeing quietly. The difference only shows in Run with this input, where
-// it looks like a bug in their own code. The notice stays put until the reset happens, since
-// the mismatch does too, and a student who dismissed it would have no way to find it again.
+// it looks like a bug in their own code. Recheck edits too: copying the current driver should
+// clear the notice without requiring a reset of the student's function.
 var DRIVER_BANNER = "----- driver code: leave this alone -----";
 
 function driverOf(text) {
@@ -1393,9 +1393,8 @@ function driverOf(text) {
 
 function showDriverNotice() {
   var box = el("driver-notice");
-  if (!box || !curProblem) return;
-  var saved = store(codeKey(curProblem.id, curLang), null);
-  var mine = typeof saved === "string" ? driverOf(saved) : null;
+  if (!box || !curProblem || !cm) return;
+  var mine = driverOf(cm.getValue());
   var current = driverOf(curProblem.starter[curLang]);
   box.hidden = !(mine && current && mine !== current);
 }

@@ -1,3 +1,20 @@
+# Fourth sanity check: compiler fallbacks
+
+Branch: `experimental/guide-audit-fixes`
+Base: `51e5723` on `main`
+Date: September 5, 2026
+
+- Invalid Wandbox responses now reach a backup instead of becoming student runtime errors. Numeric zero exit statuses no longer turn compiler warnings into compilation failures.
+- Compiler Explorer network failures and results that did not execute reach the next service. Timeout and truncation flags stop grading, including when the remaining output happens to match the expected answer.
+- Judge0 queued, processing, and internal-error responses are treated as service failures. Its time-limit verdict produces a timeout. Compilation failures without diagnostic text still produce a compilation error.
+- Judge0 receives the same explicit C++17 and optimization flags as the other runners.
+- The driver notice follows edits immediately and clears after a manual repair. Canceling reset preserves saved code. The notice says the driver differs, since edited drivers are not necessarily older.
+- Added regressions for these cases and for correcting a generated question while retaining its bookmark. All 20 desktop/mobile browser tests passed.
+- Passed the full local verification chain: 210 machine-checked answers, seven verifier tests, 2,400 generated questions, runtime/proxy regressions, and all 24 programming references in three languages with 41 independent boundary cases. Generated files are current.
+- Live smoke tests through the updated proxy passed for Python, Java, and C++ on both backups using newly written test programs. Wandbox still returned HTTP 500 during the check; its success and error response handling was tested with fixtures.
+
+Runner status handling follows [Judge0's status definitions](https://ce.judge0.com/#statuses-and-languages-status) and [Compiler Explorer's result fields](https://github.com/compiler-explorer/compiler-explorer/blob/main/types/compilation/compilation.interfaces.ts).
+
 # Third sanity check
 
 Branch: `experimental/guide-audit-fixes`

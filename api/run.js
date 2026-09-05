@@ -84,14 +84,19 @@ const BACKENDS = [
           throw new Error("Invalid runner stream");
         }
       }
-      const exit = parseInt(d.status, 10);
+      const hasExit = (typeof d.status === "string" && /^\d+$/.test(d.status))
+        || (Number.isInteger(d.status) && d.status >= 0);
+      if (!hasExit && !(typeof d.signal === "string" && d.signal)) {
+        throw new Error("Invalid runner status");
+      }
+      const exit = hasExit ? Number(d.status) : 1;
       return {
         compileErr: d.compiler_error || "",
         stdout: d.program_output || "",
         stderr: d.program_error || "",
         // Wandbox reports a failed build as a non-zero status with no program streams.
-        built: !(d.compiler_error && !d.program_output && !d.program_error && d.status !== "0"),
-        exit: Number.isNaN(exit) ? 1 : exit,
+        built: !(d.compiler_error && !d.program_output && !d.program_error && exit !== 0),
+        exit,
       };
     },
   },
@@ -115,13 +120,24 @@ const BACKENDS = [
       const joined = (rows) => {
         if (rows === undefined || rows === null) return "";
         if (!Array.isArray(rows)) throw new Error("Invalid runner stream");
-        return rows.map((r) => String((r && r.text) || "")).join("\n");
+        return rows.map((r) => {
+          if (!r || typeof r.text !== "string") throw new Error("Invalid runner line");
+          return r.text;
+        }).join("\n");
       };
       if (typeof d.code !== "number" || !Array.isArray(d.stdout)) {
         throw new Error("Invalid runner stream");
       }
       const build = d.buildResult || {};
+      if (d.networkError || build.networkError) throw new Error("Runner network failure");
+      if (d.truncated || build.truncated) {
+        throw Object.assign(new Error("Runner output was truncated"), { code: "OUTPUT_LIMIT" });
+      }
+      if (d.timedOut || build.timedOut) {
+        throw Object.assign(new Error("Runner time limit exceeded"), { code: "TIME_LIMIT" });
+      }
       const built = build.code === undefined || build.code === 0;
+      if (built && d.didExecute === false) throw new Error("Runner did not execute the program");
       return {
         compileErr: built ? "" : joined(build.stderr),
         stdout: joined(d.stdout),
@@ -137,6 +153,7 @@ const BACKENDS = [
     body: (spec, lang, code, stdin) => ({
       source_code: lang === "java" ? wrapJava(code, "Main") : code,
       language_id: spec.judge0,
+      compiler_options: spec.args || "",
       stdin,
     }),
     read: (d) => {
@@ -145,8 +162,14 @@ const BACKENDS = [
           throw new Error("Invalid runner stream");
         }
       }
-      const status = (d.status && d.status.id) || 0;
-      if (!status) throw new Error("Invalid runner stream");
+      const status = d.status && d.status.id;
+      // Queued/processing and internal failures are not verdicts about the student's code.
+      if (!Number.isInteger(status) || status < 3 || status > 12) {
+        throw new Error("Runner did not return a program result");
+      }
+      if (status === 5) {
+        throw Object.assign(new Error("Program time limit exceeded"), { code: "TIME_LIMIT" });
+      }
       const built = status !== 6; // 6 is Judge0's compilation error
       return {
         compileErr: built ? "" : d.compile_output || "",
@@ -290,7 +313,7 @@ module.exports = async (req, res) => {
       failure = e;
       // A program that prints megabytes will do it again on the next host, and a program
       // that never finishes will hang there too. Neither is the runner's fault.
-      if (e.code === "OUTPUT_LIMIT" || e.name === "AbortError") break;
+      if (e.code === "OUTPUT_LIMIT" || e.code === "TIME_LIMIT" || e.name === "AbortError") break;
       console.error("runner %s failed: %s", BACKENDS[i].name, e.code || e.name);
     }
   }
@@ -300,6 +323,12 @@ module.exports = async (req, res) => {
   }
 
   if (!data) {
+    if (failure && failure.code === "TIME_LIMIT") {
+      return res.status(200).json({
+        status: "timeout",
+        message: "The compiler or program exceeded the service's time limit. Check your loops and try again.",
+      });
+    }
     if (failure && failure.name === "AbortError") {
       return res.status(200).json({
         status: "timeout",
@@ -354,10 +383,10 @@ module.exports = async (req, res) => {
   };
 
   const compileErr = (data.compileErr || "").trim();
-  if (compileErr && !data.built) {
+  if (!data.built) {
     return res.status(200).json({
       status: "compile_error",
-      message: cap(rename(compileErr)),
+      message: cap(rename(compileErr)) || "Compilation failed, but the service returned no diagnostics.",
     });
   }
 

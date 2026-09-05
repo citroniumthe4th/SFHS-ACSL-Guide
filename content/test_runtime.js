@@ -184,6 +184,10 @@ async function main() {
   assert.equal((await call()).data.status, "runtime_error");
   api.fetch = async () => Response.json({ status: "1", compiler_error: "bad code" });
   assert.equal((await call()).data.status, "compile_error");
+  api.fetch = async () => Response.json({ status: 0, compiler_error: "warning: unused variable" });
+  assert.equal((await call()).data.status, "ok", "numeric zero with warnings is still a successful build");
+  api.fetch = async () => Response.json({ signal: "Segmentation fault", program_output: "partial" });
+  assert.equal((await call()).data.status, "runtime_error", "a signal is a valid program failure");
   let canceled = false;
   api.fetch = async () => new Response(new ReadableStream({
     start(controller) { controller.enqueue(new Uint8Array(1024 * 1024 + 1)); },
@@ -312,6 +316,45 @@ async function main() {
   r = await call();
   assert.equal(r.data.stderr, 'File "solution.py", line 1', "escapes stripped, file renamed");
   assert.equal(r.data.stderr.indexOf(esc), -1, "no escape codes reach the page");
+
+  // Service failures must never be graded as student runtime errors (or successful output).
+  for (const invalid of [{}, { status: "0junk" }, { status: null }]) {
+    asked.length = 0;
+    api.fetch = route({ wandbox: () => Response.json(invalid), godbolt: godboltOk });
+    assert.equal((await call()).data.status, "ok", "invalid Wandbox response must fall back");
+    assert.deepEqual(asked, ["wandbox", "godbolt"]);
+  }
+  for (const [response, status] of [
+    [{ code: 0, stdout: [{ text: "4" }], truncated: true }, "error"],
+    [{ code: 0, stdout: [{ text: "4" }], timedOut: true }, "timeout"],
+    [{ code: 1, stdout: [], buildResult: { code: 1, stderr: [] } }, "compile_error"],
+  ]) {
+    asked.length = 0;
+    api.fetch = route({ wandbox: dead(500), godbolt: () => Response.json(response) });
+    assert.equal((await call()).data.status, status);
+    assert.deepEqual(asked, ["wandbox", "godbolt"], "program failures stop fallback");
+  }
+  for (const response of [
+    { code: 0, stdout: [], networkError: true },
+    { code: 0, stdout: [], didExecute: false },
+    { code: 0, stdout: [{ unexpected: "4" }] },
+  ]) {
+    api.fetch = route({ wandbox: dead(500), godbolt: () => Response.json(response),
+      judge0: () => Response.json({ status: { id: 3 }, stdout: "4" }) });
+    assert.equal((await call()).data.stdout, "4", "invalid or unexecuted CE result must fall back");
+  }
+  for (const [id, expected] of [[1, "error"], [2, "error"], [13, "error"], [14, "error"], [99, "error"],
+                                [5, "timeout"], [6, "compile_error"], [11, "runtime_error"]]) {
+    api.fetch = route({ wandbox: dead(500), godbolt: dead(503),
+      judge0: () => Response.json({ status: { id }, stdout: null, stderr: null }) });
+    assert.equal((await call()).data.status, expected, "Judge0 status " + id);
+  }
+  api.fetch = async (url, options) => {
+    if (hostOf(url) !== "judge0") return dead(500)();
+    assert.equal(JSON.parse(options.body).compiler_options, "-std=c++17 -O2");
+    return Response.json({ status: { id: 3 }, stdout: "201703" });
+  };
+  assert.equal((await call({ lang: "cpp", code: "int main() {}" })).data.status, "ok");
 
   console.log("Grading, progress migration, backups, generated links, 160 mock exams, and proxy checks passed.");
 }
