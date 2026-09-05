@@ -100,7 +100,14 @@ def build(only=None):
         boundaries = CASES[p["id"]]
         blocks = samples + tests + [case for case, _ in boundaries]
         expected = run_all("python", refs["python"], blocks)
-        assert expected[len(samples) + len(tests):] == [out for _, out in boundaries], (p["id"], "independent boundary expectations failed", expected[len(samples) + len(tests):])
+        # Everything else in this file fails through SystemExit, and an assert would go away
+        # under python -O, which is not something a correctness gate should depend on.
+        got = expected[len(samples) + len(tests):]
+        want = [out for _, out in boundaries]
+        if got != want:
+            wrong = [(case, w, g) for (case, w), g in zip(boundaries, got) if w != g]
+            raise SystemExit("%s: %d boundary case(s) disagree with the statement:\n%s"
+                             % (p["id"], len(wrong), "\n".join(map(str, wrong))))
         for L in ("java", "cpp"):
             got = run_all(L, refs[L], blocks)
             if got != expected:

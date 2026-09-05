@@ -72,8 +72,16 @@ item on this list you can rule out before you begin.</p>
 
 <p>Then three checks on the work. Confirm you grouped the exponent from the right, since that is the
 one operator here that does not associate leftward. Check the operand order on every minus and
-divide: in postfix, the first value popped is the right operand. In prefix scanned right to left, it is the left operand. And confirm the operator stack is
-empty, since anything still on it when the scan ends belongs on the output.</p>
+divide: in postfix, the first value popped is the right operand. In prefix scanned right to left, it
+is the left operand. And confirm the operator stack is empty, since anything still on it when the
+scan ends belongs on the output.</p>
+
+<p>One thing the official page leaves open. When you are asked to evaluate rather than convert, and a
+division does not come out even, nothing in the ACSL reference says to drop the fraction. Every
+worked example there divides exactly, so the question never arises. This guide keeps the fraction,
+which makes <code>8 3 - 2 /</code> equal 2.5 rather than 2, and it is the same rule ACSL states
+outright for LISP, where <code>(DIV 100 8)</code> is 12.5. Assembly is the exception, and says so:
+its <code>DIV</code> keeps the integer part.</p>
 `,
 
 "bit-string-flicking": `

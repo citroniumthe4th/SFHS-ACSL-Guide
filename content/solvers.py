@@ -643,6 +643,12 @@ def _selfcheck():
     assert trav(ops, "ipl") == 15
     assert letters(trav(ops + ["-%d" % ord("M")], "in")) == "A A C E I N R"
 
+    # Postfix and prefix arithmetic keeps the fraction, and prints 4 rather than 4.0. The
+    # official page never divides inexactly, so this follows the rule ACSL does state for LISP
+    # rather than the one it states for assembly. Pinned so it cannot drift back quietly.
+    assert postfix_eval("8 3 - 2 /".split()) == "2.5", postfix_eval("8 3 - 2 /".split())
+    assert postfix_eval("8 2 /".split()) == "4", postfix_eval("8 2 /".split())
+
     # LISP: DIV is ordinary division, and SUB and DIV take exactly two arguments.
     assert lisp("(DIV 100 8)") == "12.5"
     assert lisp("(DIV 6 (SUB 2 5))") == "-2"
