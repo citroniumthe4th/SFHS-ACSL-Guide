@@ -110,10 +110,12 @@ problem, the code they typed for each problem and language, custom input, and an
 progress. No cookies, no accounts.
 
 What does leave the browser is the code itself. Pressing Run or Submit sends the language, the
-editor contents, and the test input to `/api/run`, which forwards them to Wandbox. The footer says
-this and links [/privacy](public/privacy.html), which lists every stored key, names Wandbox as a
-third party executing the code, and says Vercel receives ordinary request metadata including IP
-addresses. Saying anything less would be inaccurate rather than merely brief.
+editor contents, and the test input to `/api/run`, which forwards them to an outside compiler
+service. The footer says this and links [/privacy](public/privacy.html), which lists every stored
+key, names both third parties that may execute the code, and says Vercel receives ordinary request
+metadata including IP addresses. A second runner is a second disclosure, so adding one means
+editing that page as well as the handler. Saying anything less would be inaccurate rather than
+merely brief.
 
 Generated questions are deliberately not recorded, since they would fill storage with thousands of
 keys for questions nobody sees twice.
@@ -135,14 +137,34 @@ Push the repo and import it. `vercel.json` points the static host at `public/` a
 up `api/run.js` automatically. No environment variables are required.
 
 Vercel's Node runtime has no JDK and no g++, so `api/run.js` sends submissions to a remote
-sandbox instead. It defaults to [Wandbox](https://wandbox.org), which needs no API key. If you
-need a different host, set `RUNNER_URL` to a Wandbox-compatible endpoint. Piston uses a
-different request and response format and is not a drop-in replacement.
+sandbox instead. It tries two, in order, and neither needs an API key:
 
-`vercel.json` caps the function at 20 seconds. The proxy itself gives up on Wandbox after 12, so
-20 is a backstop rather than the working timeout: it bounds an invocation that wedges somewhere
-the abort cannot reach. If a deploy ever rejects `maxDuration`, dropping the `functions` block is
-safe, since Hobby's 10 second default still clears a normal compile.
+1. [Wandbox](https://wandbox.org), `cpython-3.11.10`, `openjdk-jdk-21+35`, `gcc-13.2.0`
+2. [Compiler Explorer](https://godbolt.org), `python311`, `java2100`, `g132`
+
+The second exists because on 5 September 2026 Wandbox spent a day answering every request with
+`Failed to get uid`, and the editor had nothing to fall back on. A backup is only worth having if
+it is a different service, so the two speak different protocols: each entry in `BACKENDS` carries
+its own request body and its own reader, and the handler normalizes both into one shape. Adding a
+third means adding one more entry. Piston is not among them, since its public API became
+whitelist-only in February 2026.
+
+Falling through is for the runner's failures, not the program's. A non-2xx reply, a connection
+error, or a response that does not parse moves to the next service. A timeout or a program that
+floods its output stops there, because neither will go better elsewhere and trying doubles the
+wait. When every service fails, the student is told it is not their code.
+
+Compiler Explorer needs two things Wandbox does not: its diagnostics arrive with ANSI color
+escapes, and it compiles to a file of its own naming, so both are rewritten before the text
+reaches the page.
+
+`vercel.json` caps the function at 20 seconds. The handler holds itself to 16 across all attempts
+and 10 for any one of them, so a dead first choice cannot eat the budget the second needs. The
+platform cap is a backstop for an invocation that wedges somewhere the abort cannot reach. If a
+deploy ever rejects `maxDuration`, dropping the `functions` block is safe, since Hobby's 10 second
+default still clears a normal compile.
+
+`RUNNER_URL` still overrides the first entry's address for a Wandbox-compatible host.
 
 ## Domain and email
 

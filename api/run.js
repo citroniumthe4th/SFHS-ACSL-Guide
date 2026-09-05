@@ -1,23 +1,52 @@
 // Vercel serverless function: compiles and runs a student submission.
 //
-// Vercel's Node runtime has no JDK and no g++, so the actual compiling happens on a
-// remote sandbox. Wandbox is the default because it needs no API key. Point RUNNER_URL
-// at another Wandbox-compatible endpoint to use a different host.
+// Vercel's Node runtime has no JDK and no g++, so the actual compiling happens on a remote
+// sandbox. There is more than one, tried in order, because on 5 September 2026 Wandbox spent
+// a day returning "Failed to get uid" on every request and the editor had nothing to fall
+// back on. A backup only helps if it speaks a different service's protocol, so each entry
+// below carries its own request shape and its own reader.
+//
+// RUNNER_URL still overrides the first entry's address for a Wandbox-compatible host.
 
-const WANDBOX = process.env.RUNNER_URL || "https://wandbox.org/api/compile.json";
+const UA = "sfhs-acsl-guide/1.0";
 
 const COMPILERS = {
-  python: { compiler: "cpython-3.11.10", label: "Python 3.11" },
-  java: { compiler: "openjdk-jdk-21+35", label: "Java 21" },
-  cpp: { compiler: "gcc-13.2.0", label: "C++17 (GCC 13)", raw: "-std=c++17\n-O2" },
+  python: {
+    label: "Python 3.11",
+    wandbox: "cpython-3.11.10",
+    godbolt: "python311",
+    godboltLang: "python",
+    source: "solution.py",
+  },
+  java: {
+    label: "Java 21",
+    wandbox: "openjdk-jdk-21+35",
+    godbolt: "java2100",
+    godboltLang: "java",
+    source: "Solution.java",
+  },
+  cpp: {
+    label: "C++17 (GCC 13)",
+    wandbox: "gcc-13.2.0",
+    godbolt: "g132",
+    godboltLang: "c++",
+    source: "solution.cpp",
+    raw: "-std=c++17\n-O2",
+    args: "-std=c++17 -O2",
+  },
 };
 
-// Wandbox writes every submission to prog.java and runs `java prog`, so a public class
-// named Solution will not compile. Drop the modifier and bolt on a prog entry point.
+// Neither host will compile a public class whose name does not match the file it was handed.
+function unpublic(code) {
+  return code.replace(/\bpublic\s+(?=(final\s+|abstract\s+)?class\s+Solution\b)/, "");
+}
+
+// Wandbox writes every submission to prog.java and runs `java prog`, so it needs an entry
+// point of that name as well. Compiler Explorer finds main on its own and needs only the
+// modifier gone.
 function shimJava(code) {
-  const stripped = code.replace(/\bpublic\s+(?=(final\s+|abstract\s+)?class\s+Solution\b)/, "");
   return (
-    stripped +
+    unpublic(code) +
     "\n\npublic class prog { public static void main(String[] a) throws Exception { Solution.main(a); } }\n"
   );
 }
@@ -25,6 +54,77 @@ function shimJava(code) {
 const MAX_CODE = 200000;
 const MAX_STDIN = 100000;
 const MAX_RESPONSE = 1024 * 1024;
+
+// One attempt is capped below the next, and the whole handler below the platform's own 20s,
+// so a dead first choice cannot eat the budget the second one needs.
+const DEADLINE_MS = 16000;
+const PER_TRY_MS = 10000;
+const MIN_TRY_MS = 2500;
+
+const BACKENDS = [
+  {
+    name: "wandbox",
+    url: () => process.env.RUNNER_URL || "https://wandbox.org/api/compile.json",
+    body: (spec, lang, code, stdin) => ({
+      compiler: spec.wandbox,
+      code: lang === "java" ? shimJava(code) : code,
+      stdin,
+      "compiler-option-raw": spec.raw || "",
+    }),
+    read: (d) => {
+      for (const key of ["compiler_error", "program_output", "program_error"]) {
+        if (d[key] !== undefined && typeof d[key] !== "string") {
+          throw new Error("Invalid runner stream");
+        }
+      }
+      const exit = parseInt(d.status, 10);
+      return {
+        compileErr: d.compiler_error || "",
+        stdout: d.program_output || "",
+        stderr: d.program_error || "",
+        // Wandbox reports a failed build as a non-zero status with no program streams.
+        built: !(d.compiler_error && !d.program_output && !d.program_error && d.status !== "0"),
+        exit: Number.isNaN(exit) ? 1 : exit,
+      };
+    },
+  },
+  {
+    name: "godbolt",
+    url: (spec) => "https://godbolt.org/api/compiler/" + spec.godbolt + "/compile",
+    headers: { Accept: "application/json" },
+    body: (spec, lang, code, stdin) => ({
+      source: lang === "java" ? unpublic(code) : code,
+      lang: spec.godboltLang,
+      allowStoreCodeDebug: false,
+      options: {
+        userArguments: spec.args || "",
+        executeParameters: { args: [], stdin },
+        compilerOptions: { executorRequest: true },
+        filters: { execute: true },
+      },
+    }),
+    read: (d) => {
+      // Compiler Explorer answers with one object per line of output.
+      const joined = (rows) => {
+        if (rows === undefined || rows === null) return "";
+        if (!Array.isArray(rows)) throw new Error("Invalid runner stream");
+        return rows.map((r) => String((r && r.text) || "")).join("\n");
+      };
+      if (typeof d.code !== "number" || !Array.isArray(d.stdout)) {
+        throw new Error("Invalid runner stream");
+      }
+      const build = d.buildResult || {};
+      const built = build.code === undefined || build.code === 0;
+      return {
+        compileErr: built ? "" : joined(build.stderr),
+        stdout: joined(d.stdout),
+        stderr: joined(d.stderr),
+        built,
+        exit: d.code,
+      };
+    },
+  },
+];
 
 // Bound the upstream body before parsing it, including output from printing loops.
 async function readRunnerResponse(response) {
@@ -51,12 +151,32 @@ async function readRunnerResponse(response) {
   if (!data || typeof data !== "object" || Array.isArray(data)) {
     throw new Error("Invalid runner response");
   }
-  for (const key of ["compiler_error", "program_output", "program_error"]) {
-    if (data[key] !== undefined && typeof data[key] !== "string") {
-      throw new Error("Invalid runner stream");
-    }
-  }
   return data;
+}
+
+async function attempt(backend, spec, lang, code, stdin, budget) {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), budget);
+  try {
+    const r = await fetch(backend.url(spec), {
+      method: "POST",
+      headers: Object.assign(
+        { "Content-Type": "application/json", "User-Agent": UA },
+        backend.headers || {}
+      ),
+      body: JSON.stringify(backend.body(spec, lang, code, stdin)),
+      signal: ctl.signal,
+    });
+    if (!r.ok) {
+      if (r.body) await r.body.cancel();
+      const error = new Error("upstream " + r.status);
+      error.code = "HTTP_" + r.status;
+      throw error;
+    }
+    return backend.read(await readRunnerResponse(r));
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // Best-effort throttle shared by callers on one school network. This resets across
@@ -120,60 +240,63 @@ module.exports = async (req, res) => {
     return res.status(400).json({ status: "error", message: "Too much input" });
   }
 
-  const payload = {
-    compiler: spec.compiler,
-    code: lang === "java" ? shimJava(code) : code,
-    stdin: input,
-    "compiler-option-raw": spec.raw || "",
-  };
-
-  // This bounds our wait, including queueing and compilation. Aborting the request does
-  // not stop work already running at Wandbox.
-  //
-  // vercel.json caps the function itself at 20s. That is deliberately a little above this abort
-  // rather than equal to it: this timer is the normal way a slow run ends, and the platform cap
-  // is the backstop for an invocation that wedges somewhere this timer cannot reach.
-  const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), 12000);
-  let data;
-  try {
-    const r = await fetch(WANDBOX, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "User-Agent": "sfhs-acsl-guide/1.0" },
-      body: JSON.stringify(payload),
-      signal: ctl.signal,
-    });
-    if (!r.ok) {
-      console.error("runner HTTP status:", r.status);
-      if (r.body) await r.body.cancel();
-      return res.status(200).json({
-        status: "error",
-        message: "The compile service is not answering properly right now. Try again in a moment.",
-      });
+  const started = Date.now();
+  let data = null;
+  let failure = null;
+  for (let i = 0; i < BACKENDS.length; i++) {
+    const left = DEADLINE_MS - (Date.now() - started);
+    if (left < MIN_TRY_MS) break;
+    try {
+      data = await attempt(BACKENDS[i], spec, lang, code, input, Math.min(PER_TRY_MS, left));
+      if (i > 0) console.log("ran on backup runner:", BACKENDS[i].name);
+      break;
+    } catch (e) {
+      failure = e;
+      // A program that prints megabytes will do it again on the next host, and a program
+      // that never finishes will hang there too. Neither is the runner's fault.
+      if (e.code === "OUTPUT_LIMIT" || e.name === "AbortError") break;
+      console.error("runner %s failed: %s", BACKENDS[i].name, e.code || e.name);
     }
-    data = await readRunnerResponse(r);
-  } catch (e) {
-    if (e.name !== "AbortError") console.error("runner response failed:", e.code || e.name);
-    return res.status(200).json({
-      status: e.name === "AbortError" ? "timeout" : "error",
-      message:
-        e.name === "AbortError"
-          ? "The compile service did not finish within twelve seconds. It may be busy, or your "
-            + "program may be taking too long. Check your loops and try again."
-          : e.code === "OUTPUT_LIMIT"
-            ? "The program returned too much output. Remove debug printing and check your loops."
-            : "Could not read a result from the compile service. Try again in a moment.",
-    });
-  } finally {
-    clearTimeout(timer);
   }
 
-  // Wandbox names the file after its own runner. Point errors back at what the student sees.
+  if (!data) {
+    if (failure && failure.name === "AbortError") {
+      return res.status(200).json({
+        status: "timeout",
+        message: "The compile service did not finish within ten seconds. It may be busy, or your "
+          + "program may be taking too long. Check your loops and try again.",
+      });
+    }
+    if (failure && failure.code === "OUTPUT_LIMIT") {
+      return res.status(200).json({
+        status: "error",
+        message: "The program returned too much output. Remove debug printing and check your loops.",
+      });
+    }
+    console.error("every runner failed");
+    return res.status(200).json({
+      status: "error",
+      message: "Every service we use to compile code is unavailable right now. This is not a "
+        + "problem with your program, and there is nothing for you to fix. Your code is saved "
+        + "in this browser, so come back and run it later.",
+    });
+  }
+
+  // Each host names the file after its own runner, and GCC colors its diagnostics, which
+  // arrive as escape codes that would land in the page as garbage. Point both back at
+  // something the student recognizes.
+  const ESC = String.fromCharCode(27);
+  const CSI = new RegExp(ESC + "\\[[0-9;?]*[ -/]*[@-~]", "g");
+  const OSC = new RegExp(ESC + "\\][^\\u0007" + ESC + "]*(?:\\u0007|" + ESC + "\\\\)", "g");
   const rename = (t) =>
     String(t || "")
+      .replace(CSI, "")
+      .replace(OSC, "")
       .replace(/\bprog\.java\b/g, "Solution.java")
       .replace(/\bprog\.(cc|cpp)\b/g, "solution.cpp")
-      .replace(/\bprog\.py\b/g, "solution.py");
+      .replace(/\bprog\.py\b/g, "solution.py")
+      .replace(/<source>/g, spec.source)
+      .replace(/(?:\/app\/)?\boutput\.s\b/g, spec.source);
 
   // A program that prints in a loop can return megabytes, which then has to travel to the browser
   // and be escaped into the page. Keep each stream to something a person could actually read, and
@@ -187,19 +310,18 @@ module.exports = async (req, res) => {
       + "printing inside a loop that does not stop.]";
   };
 
-  const compileErr = (data.compiler_error || "").trim();
-  if (compileErr && !data.program_output && !data.program_error && data.status !== "0") {
+  const compileErr = (data.compileErr || "").trim();
+  if (compileErr && !data.built) {
     return res.status(200).json({
       status: "compile_error",
       message: cap(rename(compileErr)),
     });
   }
 
-  const exit = parseInt(data.status, 10);
   return res.status(200).json({
-    status: exit === 0 ? "ok" : "runtime_error",
-    stdout: cap(data.program_output),
-    stderr: cap(rename(data.program_error)),
-    exit: Number.isNaN(exit) ? 1 : exit,
+    status: data.exit === 0 ? "ok" : "runtime_error",
+    stdout: cap(data.stdout),
+    stderr: cap(rename(data.stderr)),
+    exit: data.exit,
   });
 };

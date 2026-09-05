@@ -201,6 +201,81 @@ async function main() {
   assert.equal((await call()).data.status, "error");
   api.fetch = async () => { const e = new Error("timeout"); e.name = "AbortError"; throw e; };
   assert.equal((await call()).data.status, "timeout");
+
+  // Falling back to a second service. The mock answers by host, so each backend gets the
+  // shape it actually speaks and the test can see which ones were asked.
+  const asked = [];
+  const godboltOk = Response.json({ code: 0, stdout: [{ text: "4" }, { text: "8" }], stderr: [] });
+  const route = (handlers) => async (url) => {
+    const host = String(url).includes("godbolt") ? "godbolt" : "wandbox";
+    asked.push(host);
+    return handlers[host]();
+  };
+
+  api.fetch = route({
+    wandbox: () => ({ ok: false, status: 500, body: { cancel: async () => {} } }),
+    godbolt: () => godboltOk,
+  });
+  let r = await call();
+  assert.equal(r.data.status, "ok", "a dead first service falls through to the second");
+  assert.equal(r.data.stdout, "4\n8", "line objects rejoin with newlines");
+  assert.deepEqual(asked, ["wandbox", "godbolt"]);
+
+  asked.length = 0;
+  api.fetch = route({
+    wandbox: () => { throw new Error("ECONNREFUSED"); },
+    godbolt: () => Response.json({ code: 1, stdout: [], stderr: [],
+                                   buildResult: { code: 1, stderr: [{ text: "<source>:3: error: bad" }] } }),
+  });
+  r = await call({ lang: "java", code: "public class Solution {}" });
+  assert.equal(r.data.status, "compile_error");
+  assert.match(r.data.message, /Solution\.java:3/, "the backup's <source> is renamed too");
+
+  asked.length = 0;
+  api.fetch = route({
+    wandbox: () => ({ ok: false, status: 500, body: { cancel: async () => {} } }),
+    godbolt: () => ({ ok: false, status: 502, body: { cancel: async () => {} } }),
+  });
+  r = await call();
+  assert.equal(r.data.status, "error");
+  assert.match(r.data.message, /not a problem with your program/);
+  assert.deepEqual(asked, ["wandbox", "godbolt"], "every service is tried before giving up");
+
+  asked.length = 0;
+  api.fetch = route({
+    wandbox: () => { const e = new Error("timeout"); e.name = "AbortError"; throw e; },
+    godbolt: () => godboltOk,
+  });
+  assert.equal((await call()).data.status, "timeout");
+  assert.deepEqual(asked, ["wandbox"], "a program that never finishes will not finish elsewhere");
+
+  asked.length = 0;
+  api.fetch = route({
+    wandbox: () => new Response(new ReadableStream({
+      start(ctrl) { ctrl.enqueue(new Uint8Array(1024 * 1024 + 1)); },
+      cancel() {},
+    })),
+    godbolt: () => godboltOk,
+  });
+  assert.match((await call()).data.message, /too much output/);
+  assert.deepEqual(asked, ["wandbox"], "a program that floods output will flood the backup too");
+
+  // GCC colors its diagnostics and Compiler Explorer compiles to a file of its own naming.
+  // Both would reach the page as noise a student cannot act on.
+  const esc = String.fromCharCode(27);
+  asked.length = 0;
+  api.fetch = route({
+    wandbox: () => ({ ok: false, status: 500, body: { cancel: async () => {} } }),
+    godbolt: () => Response.json({
+      code: 1,
+      stdout: [],
+      stderr: [{ text: esc + "[01m" + esc + "[KFile \"/app/output.s\", line 1" + esc + "[m" + esc + "[K" }],
+    }),
+  });
+  r = await call();
+  assert.equal(r.data.stderr, 'File "solution.py", line 1', "escapes stripped, file renamed");
+  assert.equal(r.data.stderr.indexOf(esc), -1, "no escape codes reach the page");
+
   console.log("Grading, progress migration, backups, generated links, 160 mock exams, and proxy checks passed.");
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

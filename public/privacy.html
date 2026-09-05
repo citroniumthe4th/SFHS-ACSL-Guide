@@ -68,12 +68,15 @@
       request also carries the ordinary HTTP metadata described in the next section, as every web
       request does. Your practice answers and mock-exam progress are not uploaded. Loading pages still sends ordinary request metadata to the host.</p>
 
-      <p>We cannot compile or run anything ourselves, so that request is forwarded to
-      <a href="https://wandbox.org/">Wandbox</a>, a free public compiler service operated by a third
-      party. <strong>Your code is executed on their infrastructure, not ours</strong>, and their
-      handling of it is governed by their terms rather than this page. Treat anything you paste into
-      the editor as leaving your machine. Do not put personal information, passwords, or schoolwork
-      you are not free to share into it.</p>
+      <p>We cannot compile or run anything ourselves, so that request is forwarded to a free public
+      compiler service operated by a third party. There are two, and the request goes to whichever
+      one answers: <a href="https://wandbox.org/">Wandbox</a> first, and
+      <a href="https://godbolt.org/">Compiler Explorer</a> when Wandbox is unavailable. You are not
+      told which one ran your code, so assume either might.
+      <strong>Your code is executed on their infrastructure, not ours</strong>, and their handling of
+      it is governed by their terms rather than this page. Treat anything you paste into the editor
+      as leaving your machine. Do not put personal information, passwords, or schoolwork you are not
+      free to share into it.</p>
 
       <h2>Ordinary request information</h2>
       <p>The site is hosted on Vercel. Like any web host, Vercel receives the normal information that
@@ -95,7 +98,7 @@
       <h2>Your practice scores are not an assessment</h2>
       <p>The study content, the answer key, the hidden test cases, and the reference solutions are all
       downloaded to your browser, and anyone can read them. Running code is the one thing that still
-      needs the site's own endpoint and Wandbox. Scores here are for your own practice and are not
+      needs the site's own endpoint and an outside compiler. Scores here are for your own practice and are not
       suitable for grading.</p>
 
       <h2>Not affiliated with ACSL</h2>
