@@ -81,6 +81,14 @@ def load_bank():
     return json.loads(out.stdout)
 
 
+def choice_key(q, choice):
+    if q["topic"] == "lisp":
+        # ACSL explicitly defines NIL and () as the same empty list, including inside lists.
+        tokens = re.findall(r"[()]|[^()\s]+", choice.upper())
+        return tuple(part for token in tokens for part in (("(", ")") if token == "NIL" else (token,)))
+    return choice
+
+
 def check_positions(bank):
     """Fails if the answer a student sees lands in one position too often.
 
@@ -140,8 +148,8 @@ def main():
             continue
         if q["choices"][4] != NONE:
             bad.append((qid, "choice E must be " + NONE))
-        if len(set(q["choices"])) != 5:
-            bad.append((qid, "repeated choice text"))
+        if len({choice_key(q, c) for c in q["choices"]}) != 5:
+            bad.append((qid, "repeated or equivalent choices"))
         if not 0 <= q["ans"] < 5:
             bad.append((qid, "answer index out of range"))
             continue

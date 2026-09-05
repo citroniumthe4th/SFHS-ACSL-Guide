@@ -58,10 +58,10 @@ answer is None of the above.` },
 
 { id:"pp-07", kind:"problem", topic:"prefix-postfix", level:"b",
   q:`Evaluate the postfix expression 8 3 - 2 /.`,
-  choices:["2","-2","5","3","None of the above"], ans:0,
+  choices:["2.5","-2","5","3","None of the above"], ans:0,
   check:`postfix_eval('8 3 - 2 /'.split())`,
   why:`The value popped first is the right operand, so 8 3 - means 8 minus 3, which is 5, and
-then 5 2 / means 5 divided by 2, which is 2 once the fraction is dropped. Reversing the pop order
+then 5 2 / means 5 divided by 2, which is 2.5. The expression does not specify integer division, so keep the fraction. Reversing the pop order
 would turn the first step into 3 minus 8, and the reason that bug is so hard to spot is that it never
 shows up on addition or multiplication, only on subtraction and division.` },
 

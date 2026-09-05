@@ -38,10 +38,10 @@ append to the end, which is enough to rule out the other three choices without e
 
 { id:"lp-05", kind:"problem", topic:"lisp", level:"s",
   q:`Evaluate (CDR '(7)).`,
-  choices:["()","7","(7)","NIL","None of the above"], ans:0,
+  choices:["()","7","(7)","(())","None of the above"], ans:0,
   check:`lisp("(CDR '(7))")`,
   why:`CDR always hands back a list, even when nothing is left in it, so removing the only
-element of a one element list leaves the empty list, written (). Answering 7 confuses CDR with CAR,
+element of a one element list leaves the empty list, written () or NIL. The choice (()) is different: it contains one element, an empty list. Answering 7 confuses CDR with CAR,
 which would return the element itself, and answering (7) overlooks that anything was removed at
 all.` },
 

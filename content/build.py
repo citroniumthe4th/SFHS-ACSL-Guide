@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Builds public/data/frq.js.
 
-Expected outputs are never typed by hand. They come from running the Python reference
-solution, and the Java and C++ references then have to reproduce them exactly or the build
-fails. That is the only thing keeping the three starter templates honest.
+Practice outputs come from the Python reference; Java and C++ must reproduce them.
+Additional boundary cases have independently derived expectations, so agreement between
+three implementations is not the only check of correctness.
 """
 import importlib
 import json
@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 
 import codegen  # noqa: E402
 from hints import HINTS  # noqa: E402
+from boundary_cases import CASES  # noqa: E402
 import server   # noqa: E402
 
 import html as _html
@@ -96,8 +97,10 @@ def build(only=None):
                                  % (p["id"], len(b), len(params)))
 
         refs = {L: codegen.reference(L, fname, params, ret, p["sol"]) for L in LANGS}
-        blocks = samples + tests
+        boundaries = CASES[p["id"]]
+        blocks = samples + tests + [case for case, _ in boundaries]
         expected = run_all("python", refs["python"], blocks)
+        assert expected[len(samples) + len(tests):] == [out for _, out in boundaries], (p["id"], "independent boundary expectations failed", expected[len(samples) + len(tests):])
         for L in ("java", "cpp"):
             got = run_all(L, refs[L], blocks)
             if got != expected:
@@ -126,6 +129,8 @@ def build(only=None):
 
 if __name__ == "__main__":
     only = set(sys.argv[1:]) or None
+    from test_drivers import check_drivers
+    check_drivers()
     data = build(only)
     if only:
         print("\n(partial build, not writing frq.js)")
