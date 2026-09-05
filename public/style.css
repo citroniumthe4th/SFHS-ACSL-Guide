@@ -175,7 +175,10 @@ a:hover { text-decoration: underline; }
 .diagram figcaption { margin-top: 8px; color: var(--text-dim); font-size: 13px; line-height: 1.6; }
 .diagram-scroll { overflow-x: auto; }
 .diagram-scroll img { min-width: 540px; }
-.editor-hint { margin: 0; padding: 6px 12px; color: var(--text-dim); font-size: 12px; border-bottom: 1px solid var(--line); }
+/* The editor traps Tab, so a keyboard user has to be told Escape gets them out. That is
+   worth a line of screen reader text and not worth a line of the screen. */
+.editor-hint { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 html[data-theme="dark"] .cm-s-material-darker .cm-comment,
 html[data-theme="dark"] .cm-s-material-darker .CodeMirror-linenumber { color: #a0a0a0; }
 .wrap-wide { max-width: 1100px; }
