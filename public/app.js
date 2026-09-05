@@ -1164,6 +1164,13 @@ function problemPage(pid) {
             + '-Shift-Enter">Submit</button>' +
         "</div>" +
         '<p class="editor-hint" id="editor-hint">Tab indents code. Escape moves focus to the toolbar.</p>' +
+        '<div class="driver-notice" id="driver-notice" hidden>' +
+          '<span>The driver below your function has been updated since you started this problem. ' +
+          'Yours still works, but it reads input slightly differently from the one the solutions ' +
+          'use. Resetting picks up the new one and discards what is in the editor.</span>' +
+          '<button class="linkish" id="driver-reset">Reset code</button>' +
+          '<button class="linkish" id="driver-dismiss">Not now</button>' +
+        "</div>" +
         '<div class="editor-host" id="editor-host"></div>' +
         '<div class="custom-input" id="custom-input" hidden>' +
           '<label for="stdin-box">Your own input</label>' +
@@ -1199,12 +1206,19 @@ function problemPage(pid) {
     drawStatement();
   });
 
-  el("reset").addEventListener("click", function () {
+  function resetCode() {
     if (!confirm("Replace the editor with the original starter code?")) return;
     cancelRun();
     el("results").hidden = true;
     cm.setValue(curProblem.starter[curLang]);
     stash();
+    showDriverNotice();
+  }
+  el("reset").addEventListener("click", resetCode);
+  el("driver-reset").addEventListener("click", resetCode);
+  el("driver-dismiss").addEventListener("click", function () {
+    driverAcked[curProblem.id + ":" + curLang] = true;
+    showDriverNotice();
   });
   el("run").addEventListener("click", function () { execute(false); });
   el("submit").addEventListener("click", function () { execute(true); });
@@ -1370,6 +1384,29 @@ function stash() {
   if (cm && curProblem) save(codeKey(curProblem.id, curLang), cm.getValue());
 }
 
+// The driver ships inside the editable template, so it becomes part of whatever a student
+// saves. Change it and they keep the old one until they reset, which is the right trade but
+// leaves the two disagreeing quietly. The difference only shows in Run with this input, where
+// it looks like a bug in their own code, so say it out loud instead. Dismissal lasts the
+// session: they cannot act on this without losing work, and nagging every reload is worse.
+var DRIVER_BANNER = "----- driver code: leave this alone -----";
+var driverAcked = {};
+
+function driverOf(text) {
+  var at = text.indexOf(DRIVER_BANNER);
+  return at < 0 ? null : text.slice(at);
+}
+
+function showDriverNotice() {
+  var box = el("driver-notice");
+  if (!box || !curProblem) return;
+  var saved = store(codeKey(curProblem.id, curLang), null);
+  var mine = typeof saved === "string" ? driverOf(saved) : null;
+  var current = driverOf(curProblem.starter[curLang]);
+  box.hidden = !(mine && current && mine !== current
+                 && !driverAcked[curProblem.id + ":" + curLang]);
+}
+
 function loadCode() {
   cancelRun();
   el("results").hidden = true;
@@ -1377,6 +1414,7 @@ function loadCode() {
   cm.setOption("mode", LANGS.filter(function (l) { return l.id === curLang; })[0].mode);
   cm.setValue(saved === null ? curProblem.starter[curLang] : saved);
   cm.refresh();
+  showDriverNotice();
 }
 
 function caseBlock(lines) {

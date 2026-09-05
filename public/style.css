@@ -925,6 +925,13 @@ details.reveal > div { padding: 0 14px 14px; }
 /* The footer is a wrapping flex row, so the notice claims a line of its own under the rest. */
 .footer-note { flex-basis: 100%; }
 
+/* Sits between the toolbar and the editor, in the same register as the run results. */
+.driver-notice { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap;
+  padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--panel-2);
+  color: var(--text-dim); font-size: 12px; }
+.driver-notice[hidden] { display: none; }
+.driver-notice span { flex: 1 1 20rem; }
+
 /* Study tools use the same controls and spacing as the existing pages. */
 .guide-search { display: block; width: 100%; max-width: 42rem; margin: 8px 0; padding: 12px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
 .bookmark { margin-bottom: 18px; }
