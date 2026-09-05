@@ -541,7 +541,7 @@ function graphTheory(r) {
     u = int(r, 0, n - 1);
     v = int(r, 0, n - 1);
 
-    // Count walks by enumerating them, which is a different method from the matrix
+    // Count paths by enumerating them, which is a different method from the matrix
     // multiplication the Python side uses to check this.
     want = (function walk(at, left) {
       if (left === 0) return at === v ? 1 : 0;
@@ -556,7 +556,7 @@ function graphTheory(r) {
   var matrix = ["    " + names.join(" ")];
   for (var row = 0; row < n; row++) matrix.push(names[row] + "   " + adj[row].join(" "));
 
-  // Spell out a few of the actual walks rather than asserting the count.
+  // Spell out a few of the actual paths rather than asserting the count.
   var found = [];
   (function trace(at, left, path) {
     if (found.length >= 6) return;
@@ -573,17 +573,17 @@ function graphTheory(r) {
     q: "<p>A directed graph on " + WORDS[n] + " vertices has the adjacency matrix below, "
      + "where row " + code("X") + " column " + code("Y") + " is 1 when there is an edge "
      + "from " + code("X") + " to " + code("Y") + ".</p>" + steps(matrix)
-     + "<p>How many walks of length exactly " + k + " run from " + code(names[u])
-     + " to " + code(names[v]) + "? A walk may repeat vertices and edges.</p>",
+     + "<p>How many paths of length exactly " + k + " run from " + code(names[u])
+     + " to " + code(names[v]) + "? A path may repeat vertices and edges.</p>",
     choices: o.choices, ans: o.ans,
-    why: "<p>The number of walks of length " + k + " from one vertex to another is the "
+    why: "<p>The number of paths of length " + k + " from one vertex to another is the "
        + "matching entry of the adjacency matrix raised to the power " + k
        + ", which is the fast way to do this when the graph is larger. At this size you can "
        + "simply list them.</p>"
        + steps(found.length ? found : ["there are none"])
-       + "<p>That is " + want + " walk" + (want === 1 ? "" : "s") + ". Note that this counts "
-       + "sequences that may repeat vertices and edges. ACSL calls these paths and uses "
-       + "simple paths when no vertex may repeat.</p>",
+       + "<p>That is " + want + " path" + (want === 1 ? "" : "s") + ". Note that this counts "
+       + "routes that may repeat vertices and edges, which is what ACSL means by a path. A "
+       + "question asking for a <em>simple path</em> forbids the repeats.</p>",
     check: "str(walks(" + n + ", " + k + ", " + py(names[u]) + ", " + py(names[v]) + ", "
          + py(bits) + "))"
   };

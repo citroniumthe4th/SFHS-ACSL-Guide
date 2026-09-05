@@ -99,7 +99,8 @@ async function main() {
   c.MCQ = c.window.MCQ;
   c.PER_TOPIC = 2;
   c.EXAM_SECONDS = 1800;
-  for (const name of ["topicsFor", "questionsFor", "shuffle", "permute", "isWdtpd", "buildExam"]) {
+  for (const name of ["topicsFor", "questionsFor", "shuffle", "permute", "isWdtpd", "examSize",
+                      "buildExam"]) {
     vm.runInContext(appFunction(name), c);
   }
   for (const division of ["junior", "senior"]) {

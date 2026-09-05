@@ -754,6 +754,10 @@ var clockTimer = null;
 
 function isWdtpd(topicId) { return topicId.indexOf("wdtpd") === 0; }
 
+function examSize(contest, div) {
+  return topicsFor(div).filter(function (t) { return t.contest === contest; }).length * PER_TOPIC;
+}
+
 function buildExam(contest) {
   // acsl.org states the format outright: "Each contest has 6 problems: two problems from each
   // of the 3 topics." So the paper is entirely determined by the contest's own topic list, and
@@ -801,11 +805,15 @@ function saveExam() { save("exam", exam); }
 function loadExam() { return validExam(store("exam", null)); }
 
 function validExam(e) {
-  if (!e || !Array.isArray(e.ids) || e.ids.length !== 6 || new Set(e.ids).size !== 6) return null;
+  if (!e || !Array.isArray(e.ids)) return null;
   if (e.division !== "junior" && e.division !== "senior") return null;
   if (typeof e.submitted !== "boolean") return null;
-  if (!Array.isArray(e.answers) || e.answers.length !== e.ids.length) return null;
   if (!(Number.isInteger(e.contest) && e.contest >= 1 && e.contest <= 4)) return null;
+  // Ask buildExam's own arithmetic how long this paper should be, so that changing PER_TOPIC
+  // does not silently invalidate every exam already in progress.
+  var want = examSize(e.contest, e.division);
+  if (e.ids.length !== want || new Set(e.ids).size !== want) return null;
+  if (!Array.isArray(e.answers) || e.answers.length !== e.ids.length) return null;
   if (typeof e.deadline !== "number" || !isFinite(e.deadline)) return null;
   if (!(Number.isInteger(e.at) && e.at >= 0 && e.at < e.ids.length)) return null;
   if (!e.ids.every(function (id) {
@@ -1407,9 +1415,9 @@ function drawStatement() {
     "The last 6 are hidden. The test cases vary in difficulty, and you should make up sample " +
     "data of your own to test your program properly.</p>" +
 
-    '<h2 class="sec">Hints</h2><p class="note">Open one hint at a time. Hints do not mark the solution as viewed.</p>' +
+    '<h2 class="sec">Hints</h2><p class="note">They get more specific, and opening one closes the other. Neither marks the solution as viewed.</p>' +
     (p.hints || []).map(function (hint, i) {
-      return '<details class="hint"><summary>Hint ' + (i + 1) + '</summary><p>' + esc(hint) + '</p></details>';
+      return '<details class="hint" name="hint"><summary>Hint ' + (i + 1) + '</summary><p>' + esc(hint) + '</p></details>';
     }).join("") +
     '<div class="btn-row"><button class="btn" id="giveup">' +
     (gaveUp ? "Solution shown below" : "Show the solution") + "</button></div>" +

@@ -256,7 +256,12 @@ from minus one to one, skip the pair where both are zero, discard anything falli
 add one for every asterisk. Getting that right once means you never have to think about the eight
 directions again.</p>
 
-<p>For the spread, put the clicked square in a queue. Remove a square, skip it if already uncovered, and otherwise uncover it and record its neighboring mine count. Add its safe neighbors only when that count is zero. A numbered square opens but does not spread the search.</p>
+<p>For the spread, use a queue rather than recursion. Push the clicked square, then repeatedly pop one,
+skipping it if it is already uncovered and otherwise uncovering it and recording its count. Only when
+that count is zero do you push its eight neighbours, and that single condition is the whole rule, since
+a square with a mine beside it is uncovered but is a dead end. Recursion works too, but a 20 by 20 field
+of open ground goes 400 frames deep, which is comfortable in C++ and Java and close enough to Python's
+default limit to be worth avoiding.</p>
 
 <p>The reference solution marks squares when removing them from the queue and skips duplicate entries. Marking a square as visited when first adding it is also correct and prevents those duplicates. Either approach must ensure each square is processed only once.</p>
 

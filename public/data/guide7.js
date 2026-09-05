@@ -11,9 +11,14 @@ window.GUIDE = Object.assign(window.GUIDE || {}, {
 each edge points one way. The degree of a vertex is the number of edges touching it, and in a
 digraph that splits into indegree for arrows coming in and outdegree for arrows going out.</p>
 
-<p>ACSL calls a sequence of adjacent vertices a <em>path</em>, even if a vertex repeats. A <em>simple path</em> repeats no vertex. Many textbooks call the first kind a <em>walk</em>, and this guide uses that word when it helps make repetition explicit. A cycle starts and ends at the same vertex without repeating another vertex.</p>
+<p>ACSL calls a sequence of adjacent vertices a <em>path</em>, even if a vertex repeats, and a
+<em>simple path</em> is one that repeats no vertex. This guide follows ACSL throughout. Be warned
+that many textbooks reserve <em>path</em> for the stricter idea and call the looser one a
+<em>walk</em>, so a definition you find elsewhere may be the other way round. A cycle starts and
+ends at the same vertex without repeating another vertex.</p>
 
-<p>For contest questions, check whether the problem says "simple" or explicitly forbids repeated vertices. Matrix powers count paths with repetition allowed, following the terminology on the ACSL wiki.</p>
+<p>For contest questions, check whether the problem says "simple" or explicitly forbids repeated
+vertices. Matrix powers count paths with repetition allowed.</p>
 
 <p>A graph is connected when some path joins every pair of vertices, and a connected component is a
 maximal piece that is connected. A tree is a connected graph with no cycles, and a tree on N
@@ -32,9 +37,9 @@ symmetric matrix, and a graph with no loops has zeros down the main diagonal.</p
 
 <p>In a loop-free undirected graph, a row sum gives the degree of its vertex. In a digraph, the row sum is the outdegree and the column sum is the indegree. Equal sums do not imply an undirected graph: in a directed cycle, every vertex has one incoming and one outgoing edge.</p>
 
-<h2>Powers of the matrix count walks</h2>
+<h2>Powers of the matrix count paths</h2>
 <p>If M is the adjacency matrix, then the entry in
-row i, column j of M raised to the power p is the number of walks of length exactly p from vertex i
+row i, column j of M raised to the power p is the number of paths of length exactly p from vertex i
 to vertex j.</p>
 
 <p>The reason is worth understanding rather than memorising, because it also tells you what the
@@ -44,11 +49,13 @@ vertices that complete a two step route from i to j. Applying the same argument 
 gives every higher power.</p>
 
 <p>Take the triangle on A, B, and C, whose matrix has zeros on the diagonal and ones everywhere
-else. Squaring it puts 2 on the diagonal and 1 off it, which says there are two walks of length 2
-from A back to A, one through B and one through C, and one walk of length 2 from A to B, namely
+else. Squaring it puts 2 on the diagonal and 1 off it, which says there are two paths of length 2
+from A back to A, one through B and one through C, and one path of length 2 from A to B, namely
 through C.</p>
 
-<p>Matrix powers allow repeated vertices and edges. ACSL calls these counts paths of length p. If a question instead asks for simple paths, or says that vertices cannot repeat, enumerate the allowed routes or use a method that tracks visited vertices.</p>
+<p>These counts allow repeated vertices and edges, which is what makes them paths in ACSL's sense
+and not simple paths. If a question asks for simple paths, or says that vertices cannot repeat,
+enumerate the allowed routes or track the visited vertices yourself.</p>
 
 <p>One practical note for doing this on paper. To get a single entry of M cubed you do not need the
 whole matrix. Compute M squared once, then take the dot product of row i of M squared with column j
@@ -57,7 +64,7 @@ of M, which is one row against one column instead of a full multiplication.</p>
 <h2>Counting cycles</h2>
 <p>For an undirected graph, count a cycle once regardless of its starting vertex or direction around the same edges. In a directed graph, follow the arrows. Check the problem's definition, then enumerate cycles by length to help avoid duplicates.</p>
 
-<h2>Walks, paths, and other things worth rereading</h2>
+<h2>Paths, simple paths, and other things worth rereading</h2>
 <p>Check whether repetition is allowed, whether edges are directed, and whether cycles count once regardless of their starting vertex. When multiplying matrices, label the row and column order and check one entry by counting its routes directly.</p>
 `,
 
