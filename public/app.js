@@ -1165,11 +1165,10 @@ function problemPage(pid) {
         "</div>" +
         '<p class="editor-hint" id="editor-hint">Tab indents code. Escape moves focus to the toolbar.</p>' +
         '<div class="driver-notice" id="driver-notice" hidden>' +
-          '<span>The driver below your function has been updated since you started this problem. ' +
-          'Yours still works, but it reads input slightly differently from the one the solutions ' +
-          'use. Resetting picks up the new one and discards what is in the editor.</span>' +
+          '<span>The driver below your function is older than the one the reference solutions ' +
+          'use, so your own test input can behave differently here than it does anywhere else. ' +
+          'Copy your work somewhere safe and reset the editor as soon as you can.</span>' +
           '<button class="linkish" id="driver-reset">Reset code</button>' +
-          '<button class="linkish" id="driver-dismiss">Not now</button>' +
         "</div>" +
         '<div class="editor-host" id="editor-host"></div>' +
         '<div class="custom-input" id="custom-input" hidden>' +
@@ -1216,10 +1215,6 @@ function problemPage(pid) {
   }
   el("reset").addEventListener("click", resetCode);
   el("driver-reset").addEventListener("click", resetCode);
-  el("driver-dismiss").addEventListener("click", function () {
-    driverAcked[curProblem.id + ":" + curLang] = true;
-    showDriverNotice();
-  });
   el("run").addEventListener("click", function () { execute(false); });
   el("submit").addEventListener("click", function () { execute(true); });
 
@@ -1387,10 +1382,9 @@ function stash() {
 // The driver ships inside the editable template, so it becomes part of whatever a student
 // saves. Change it and they keep the old one until they reset, which is the right trade but
 // leaves the two disagreeing quietly. The difference only shows in Run with this input, where
-// it looks like a bug in their own code, so say it out loud instead. Dismissal lasts the
-// session: they cannot act on this without losing work, and nagging every reload is worse.
+// it looks like a bug in their own code. The notice stays put until the reset happens, since
+// the mismatch does too, and a student who dismissed it would have no way to find it again.
 var DRIVER_BANNER = "----- driver code: leave this alone -----";
-var driverAcked = {};
 
 function driverOf(text) {
   var at = text.indexOf(DRIVER_BANNER);
@@ -1403,8 +1397,7 @@ function showDriverNotice() {
   var saved = store(codeKey(curProblem.id, curLang), null);
   var mine = typeof saved === "string" ? driverOf(saved) : null;
   var current = driverOf(curProblem.starter[curLang]);
-  box.hidden = !(mine && current && mine !== current
-                 && !driverAcked[curProblem.id + ":" + curLang]);
+  box.hidden = !(mine && current && mine !== current);
 }
 
 function loadCode() {
