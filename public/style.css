@@ -892,3 +892,12 @@ details.reveal > div { padding: 0 14px 14px; }
 
 /* The workspace stacks on narrow screens, where a vertical split makes no sense. */
 @media (max-width: 780px) { .ws-split { display: none; } }
+
+/* Wrapped lines hang under the start of the line they belong to rather than resetting to
+   column zero. Without this a wrapped continuation lines up with the margin, which in Python
+   reads as a dedent that is not there. */
+.CodeMirror-wrap pre.CodeMirror-line,
+.CodeMirror-wrap pre.CodeMirror-line-like {
+  text-indent: -3ch;
+  padding-left: calc(4px + 3ch);
+}

@@ -53,7 +53,10 @@ Ctrl-Shift-Enter. Ctrl-F matters more than it sounds: CodeMirror only renders th
 viewport, so the browser's own find silently misses anything scrolled off. The divider between
 the problem and the editor drags, double clicks back to the middle, and moves with the arrow keys
 when focused; A- and A+ set the text size. Both are remembered, the split as a fraction so it
-survives a different window.
+survives a different window. Long lines wrap rather than running off to the right, and reflow as
+the divider moves, since the reason to narrow the editor is to read the problem beside it.
+Wrapped continuations hang under the line they belong to, because a continuation resting at the
+margin reads as a dedent that is not there, which in Python is a real misreading.
 
 It does not complete anything: no method lists, no identifier suggestions, nothing that would
 answer the problem for you. Editing aids yes, hints no.

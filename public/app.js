@@ -1075,7 +1075,10 @@ function problemPage(pid) {
     // would land outside the pair the first two just made.
     autoCloseBrackets: { triples: "'\"" },
     styleActiveLine: true,
-    lineWrapping: false,
+    // Long lines reflow instead of running off to the right. The editor shares its width with
+    // the problem and that width is now draggable, so narrowing the pane to read the statement
+    // should shorten the code, not hide it behind a scrollbar.
+    lineWrapping: true,
     extraKeys: {
       Tab: function (c) {
         if (c.somethingSelected()) c.indentSelection("add");
