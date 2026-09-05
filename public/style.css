@@ -912,3 +912,9 @@ details.reveal > div { padding: 0 14px 14px; }
   text-indent: -3ch;
   padding-left: calc(4px + 3ch);
 }
+
+/* The contact address and the wipe button travel together at the end of the footer, so the
+   pair stays intact when the disclosure text wraps above them on a narrow screen. */
+.footer-links { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; margin-left: auto; }
+.footer-links a { color: var(--text-dim); }
+.footer-links a:hover { color: var(--text); }
