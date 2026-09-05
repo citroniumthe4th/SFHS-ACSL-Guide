@@ -51,7 +51,8 @@ html[data-theme="light"] {
   color-scheme: light;
 }
 body { font-size: 15px; line-height: 1.7; isolation: isolate; }
-.ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+  -webkit-user-select: none; user-select: none; }
 .ambient span { position: absolute; color: var(--text-dim); opacity: .09; font: 400 clamp(35px, 5vw, 70px)/1 var(--mono); animation: drift 22s ease-in-out infinite alternate; }
 .ambient span:nth-child(1) { left: 2%; top: 18%; transform: rotate(-12deg); }
 .ambient span:nth-child(2) { right: 2%; top: 40%; animation-delay: -9s; }
@@ -125,7 +126,10 @@ body[data-section="guide"][data-view="index"] .main { padding-top: 26px; }
 #guide-results > .grid { display: block; margin-top: 0; border-top: 1px solid var(--line); }
 #guide-results .card { display: grid; grid-template-columns: minmax(140px, .85fr) minmax(140px, 1.4fr) 120px; gap: 24px; align-items: baseline; background: transparent; border: 0; border-bottom: 1px solid var(--line-soft); border-radius: 0; padding: 22px 16px; box-shadow: none; }
 #guide-results .card:last-child { border-bottom: 0; }
-#guide-results .card h3 { margin: 0; font-size: 15px; line-height: 1.5; }
+/* Not on the anchor: a browser computes :visited colours in a restricted pass that does not
+   re-resolve custom properties on a theme switch, so an anchor set to var(--text) keeps the
+   old theme's colour and a read lesson becomes unreadable. The heading is not a link. */
+#guide-results .card h3 { margin: 0; font-size: 15px; line-height: 1.5; color: var(--text); }
 #guide-results .card p { font-size: 13px; }
 #guide-results .card .chip { justify-self: end; font-size: 10px; white-space: normal; text-align: right; border: 0; padding: 0; background: transparent; }
 #guide-results .card:hover { background: var(--panel); transform: translateX(3px); }
@@ -172,9 +176,26 @@ a.btn:hover { text-decoration: none; }
 .ws { height: calc(100dvh - 106px); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--panel); }
 .ws-left { background: var(--panel); padding: 32px 32px 60px; }
 .ws-left h1 { font-size: 32px; }
-.ws-bar { padding: 12px; gap: 8px; background: var(--panel-2); flex-wrap: wrap; }
-.ws-bar .btn { min-height: 34px; padding: 5px 11px; font-size: 12px; }
-.ws-bar select { min-height: 34px; }
+.ws-bar { padding: 12px; gap: 8px; background: var(--panel-2); flex-wrap: nowrap; }
+.ws-bar .btn { min-height: 34px; padding: 5px 11px; font-size: 12px; white-space: nowrap; }
+.ws-bar select { min-height: 34px; min-width: 0; }
+/* Measured, not guessed: the row needs 702px with the word Language and 688px without, so
+   the label goes first and the row breaks only below that. The divider is draggable, so
+   both thresholds are the pane's width rather than the window's. Nothing shrinks, because a
+   squeezed button clips its own text. */
+.ws-right { container-type: inline-size; }
+.ws-bar > * { flex-shrink: 0; }
+.ws-bar .ws-label { white-space: nowrap; }
+@container (max-width: 719px) { .ws-bar .ws-label { display: none; } }
+@container (max-width: 699px) {
+  .ws-bar { flex-wrap: wrap; }
+  .ws-bar .spacer { flex-basis: 100%; height: 0; margin: 0; }
+}
+/* Below this the panes stack and the workspace is a single column, so the window is the
+   right measure again. */
+@media (max-width: 1000px) {
+  .ws-bar { flex-wrap: wrap; }
+}
 .ws-right { min-height: 0; }
 .CodeMirror { background: var(--code-bg); }
 html[data-theme="dark"] .cm-s-material-darker.CodeMirror,

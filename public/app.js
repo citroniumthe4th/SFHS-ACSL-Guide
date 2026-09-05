@@ -66,6 +66,9 @@ if (division !== "junior" && division !== "senior") division = "senior";
 var theme = store("theme", document.documentElement.dataset.theme || "dark");
 if (theme !== "dark" && theme !== "light") theme = "dark";
 document.documentElement.setAttribute("data-theme", theme);
+// appearance.js already set this before paint. Repeat it in case a bad stored value sent the
+// two down different paths.
+if (window.applyThemeColor) window.applyThemeColor(theme);
 
 // ------------------------------------------------------------------ helpers
 
@@ -317,6 +320,7 @@ el("theme-btn").addEventListener("click", function () {
   theme = theme === "dark" ? "light" : "dark";
   save("theme", theme);
   document.documentElement.setAttribute("data-theme", theme);
+  if (window.applyThemeColor) window.applyThemeColor(theme);
   paintThemeButton();
   if (window.__cm) window.__cm.setOption("theme", theme === "dark" ? "material-darker" : "default");
 });
