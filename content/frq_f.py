@@ -8,7 +8,7 @@ dict(
     fname="playMove",
     division="Senior",
     contest=1,
-    title="MANCALA MOVE",
+    title="Mancala Move",
     blurb="Sow one handful of stones around the board and work out what it captures.",
     statement="""
 <p>A mancala board is fourteen hollows in a ring. Numbering them 0 through 13 counterclockwise,
@@ -178,7 +178,7 @@ dict(
     fname="reveal",
     division="Senior",
     contest=2,
-    title="MINESWEEPER CLICK",
+    title="Minesweeper Click",
     blurb="One click on a minefield, and the empty ground opens up around it.",
     statement="""
 <p>A minefield is a rectangle of squares. Some squares hide a mine and the rest are safe. Every
@@ -407,7 +407,7 @@ dict(
     fname="encode",
     division="Senior",
     contest=3,
-    title="ROTOR CIPHER",
+    title="Rotor Cipher",
     blurb="Three geared wheels shift each letter, and the wheels turn as you type.",
     statement="""
 <p>The machine has three wheels in a row. Each wheel is set to one of the 26 letters, where A
@@ -555,7 +555,7 @@ dict(
     fname="finalHeights",
     division="Senior",
     contest=4,
-    title="TETRIS DROP",
+    title="Tetris Drop",
     blurb="Drop bars into an eight column well and clear every row that fills up.",
     statement="""
 <p>The well is 8 columns wide, numbered 0 through 7 from the left, and as tall as it needs to be.

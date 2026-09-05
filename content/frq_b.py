@@ -9,7 +9,7 @@ dict(
     fname="romanSum",
     division="Junior",
     contest=1,
-    title="ROMAN ADDITION",
+    title="Roman Addition",
     blurb="Add two Roman numerals and write the answer back in standard form.",
     statement="""
 <p>Roman numerals use the letters I for 1, V for 5, X for 10, L for 50, C for 100, D for 500, and
@@ -172,7 +172,7 @@ dict(
     fname="makeChange",
     division="Junior",
     contest=2,
-    title="CHANGE MACHINE",
+    title="Change Machine",
     blurb="Pay out change largest coin first, and admit it when the greedy rule gets stuck.",
     statement="""
 <p>A vending machine pays out change one coin at a time. It always reaches for the largest coin
@@ -283,7 +283,7 @@ dict(
     fname="countWays",
     division="Senior",
     contest=1,
-    title="STAMP COMBINATIONS",
+    title="Stamp Combinations",
     blurb="Count the ways to make exact postage when order does not matter.",
     statement="""
 <p>A post office sells stamps in a handful of values and never runs out of any of them. A
@@ -384,7 +384,7 @@ dict(
     fname="countExpressions",
     division="Senior",
     contest=2,
-    title="EXPRESSION TARGET",
+    title="Expression Target",
     blurb="Wedge operators between digits, evaluate strictly left to right, and count the hits.",
     statement="""
 <p>You are given a string of digits and a target value. Leave the digits exactly where they are

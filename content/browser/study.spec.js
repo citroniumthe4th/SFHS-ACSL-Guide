@@ -57,8 +57,9 @@ test('hints do not reveal the solution and viewing after solving preserves indep
     await expect(page.locator('.CodeMirror')).toBeInViewport();
     await expect(page.locator('.CodeMirror textarea')).toBeFocused();
   }
-  page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: 'Show the solution', exact: true }).click();
+  await expect(page.locator('#ask')).toBeVisible();
+  await page.locator('#ask-yes').click();
   await expect(page.getByRole('heading', { name: 'How to solve it', exact: true })).toBeVisible();
   await page.goto('/problems');
   const card = page.locator('a.card[href="/problem/digit-chain"]');
@@ -74,9 +75,10 @@ test('backup download can be restored and malformed input does not change saved 
   const download = await downloading;
   const backupPath = await download.path();
   await page.evaluate(() => localStorage.setItem('acsl:code:digit-chain:python', JSON.stringify('changed')));
-  page.once('dialog', dialog => dialog.accept());
   const reloaded = page.waitForEvent('load');
   await page.locator('#backup-file').setInputFiles(backupPath);
+  await expect(page.locator('#ask')).toBeVisible();
+  await page.locator('#ask-yes').click();
   await reloaded;
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('acsl:code:digit-chain:python')))).toBe('print("saved")');
   await page.waitForLoadState('load');
@@ -125,8 +127,9 @@ test('finishing an exam grades shuffled choices, blanks, and explanation colors'
   await page.locator('#choices .choice').nth(answers[0]).click();
   await page.locator('#next').click();
   await page.locator('#choices .choice').nth((answers[1] + 1) % 5).click();
-  page.once('dialog', dialog => dialog.accept());
   await page.locator('#finish').click();
+  await expect(page.locator('#ask')).toBeVisible();
+  await page.locator('#ask-yes').click();
   await expect(page.locator('.scoreline')).toHaveText('1 / 6');
   await expect(page.locator('.review')).toHaveCount(6);
   await expect(page.locator('.verdict', { hasText: 'Correct' })).toHaveCount(1);
@@ -165,8 +168,9 @@ test('driver notice follows edits and canceling reset preserves saved work', asy
   const edited = starter.replace('Incomplete test case:', 'Old input driver:');
   await page.evaluate(code => window.__cm.setValue(code), edited);
   await expect(page.locator('#driver-notice')).toBeVisible();
-  page.once('dialog', dialog => dialog.dismiss());
   await page.locator('#driver-reset').click();
+  await expect(page.locator('#ask')).toBeVisible();
+  await page.locator('#ask-no').click();
   expect(await page.evaluate(() => window.__cm.getValue())).toBe(edited);
   await page.reload();
   await expect(page.locator('#driver-notice')).toBeVisible();
@@ -197,4 +201,49 @@ test('correcting a generated question removes its missed record but preserves it
   expect(await page.evaluate(() => localStorage.getItem('acsl:q:gen:graph-theory:123'))).toBeNull();
   await page.locator('#section-tabs a[href="/bookmarks"]').click();
   await expect(page.getByRole('link', { name: 'Link to this question', exact: true })).toHaveAttribute('href', /gen%3Agraph-theory%3A123/);
+});
+
+test('the question box answers with a click, Escape and the backdrop, and never reloads', async ({ page }) => {
+  await page.goto('/problem/digit-chain');
+  const mark = '# work I would rather keep';
+  await page.evaluate(m => window.__cm.setValue(window.__cm.getValue() + '\n' + m + '\n'), mark);
+  const navigations = () => page.evaluate(() => performance.getEntriesByType('navigation')[0].startTime);
+  const started = await navigations();
+
+  // Escape declines.
+  await page.locator('#reset').click();
+  await expect(page.locator('#ask')).toBeVisible();
+  // The safe answer holds the focus on anything irreversible.
+  await expect(page.locator('#ask-no')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#ask')).toBeHidden();
+  expect(await page.evaluate(() => window.__cm.getValue())).toContain(mark);
+
+  // A click on the backdrop declines. The dialog is centred, so the top left corner is outside it.
+  await page.locator('#reset').click();
+  await expect(page.locator('#ask')).toBeVisible();
+  await page.mouse.click(4, 4);
+  await expect(page.locator('#ask')).toBeHidden();
+  expect(await page.evaluate(() => window.__cm.getValue())).toContain(mark);
+
+  // Saying yes does the thing.
+  await page.locator('#reset').click();
+  await page.locator('#ask-yes').click();
+  await expect(page.locator('#ask')).toBeHidden();
+  expect(await page.evaluate(() => window.__cm.getValue())).not.toContain(mark);
+
+  // None of that was a page load.
+  expect(await navigations()).toBe(started);
+});
+
+test('declining a second exam paper returns to the one in progress', async ({ page }) => {
+  await page.goto('/exam/1');
+  await page.locator('#choices .choice').first().click();
+  await page.goto('/exam/2');
+  await expect(page.locator('#ask')).toBeVisible();
+  await page.locator('#ask-no').click();
+  await expect(page).toHaveURL(/\/exam\/1$/);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('acsl:exam')).contest)).toBe(1);
+  expect(await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('acsl:exam')).answers.filter(a => a !== null).length)).toBe(1);
 });

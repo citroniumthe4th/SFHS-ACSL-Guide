@@ -9,7 +9,7 @@ dict(
     fname="scoreGame",
     division="Junior",
     contest=1,
-    title="BOWLING NIGHT",
+    title="Bowling Night",
     blurb="Score ten frames, where a strike is worth whatever you knock down next.",
     statement="""
 <p>The Tuesday league at Sunset Lanes still keeps score on paper, and nobody can agree on the
@@ -160,7 +160,7 @@ dict(
     fname="lastPlayer",
     division="Junior",
     contest=2,
-    title="HOT POTATO",
+    title="Hot Potato",
     blurb="Kids in a circle, a rhyme of a fixed length, and one survivor.",
     statement="""
 <p>N kids sit in a circle, numbered 1 through N clockwise. Kid number 1 starts holding the
@@ -252,7 +252,7 @@ dict(
     fname="shotReport",
     division="Junior",
     contest=3,
-    title="SALVO",
+    title="Salvo",
     blurb="Call the shots on a hidden fleet and report hit, miss, or sunk.",
     statement="""
 <p>Two players set up fleets on an 8 by 8 grid. Columns are lettered A through H from the left
@@ -444,7 +444,7 @@ dict(
     fname="raceResult",
     division="Junior",
     contest=4,
-    title="THE RACE",
+    title="The Race",
     blurb="Two tokens, one shared list of rolls, and a board full of ladders and slides.",
     statement="""
 <p>The board is 100 squares in a line, numbered 1 through 100. Two players, A and B, each start

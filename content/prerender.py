@@ -87,7 +87,7 @@ def main():
         pages.append(("%s.html" % section, title + SUFFIX, desc, "/" + section))
 
     for t in topics:
-        who = "Junior and Senior" if t["div"] == "both" else t["div"]
+        who = "Junior and Senior" if t["div"] == "both" else t["div"].capitalize()
         pages.append(("guide/%s.html" % t["id"], t["name"] + SUFFIX,
                       "%s Worked examples and the mistakes that cost points, written for "
                       "ACSL %s." % (t["blurb"], who), "/guide/%s" % t["id"]))

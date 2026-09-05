@@ -45,6 +45,56 @@ function forget(key) {
   try { localStorage.removeItem("acsl:" + key); } catch (e) { /* nothing to forget */ }
 }
 
+// The browser's own confirm box is a modal that stops the world, cannot be styled, and
+// says the hostname at the top. This is the same question asked in the site's own voice.
+// Returns a promise so callers read the same way the old synchronous calls did.
+function ask(opts) {
+  var d = el("ask");
+  // Any browser without <dialog> still gets the question, just the plain one.
+  if (!d || typeof d.showModal !== "function") {
+    return Promise.resolve(window.confirm(opts.title + (opts.body ? "\n\n" + opts.body : "")));
+  }
+  el("ask-title").textContent = opts.title;
+  el("ask-body").textContent = opts.body || "";
+  el("ask-body").hidden = !opts.body;
+  el("ask-yes").textContent = opts.yes || "Continue";
+  el("ask-no").textContent = opts.no || "Cancel";
+  el("ask-yes").classList.toggle("btn-danger", !!opts.danger);
+  d.returnValue = "";
+  var form = d.querySelector("form");
+  return new Promise(function (resolve) {
+    var settled = false;
+    // Three ways out, and the answer is taken from whichever arrives: submitting the form
+    // for either button, Escape, and a click on the backdrop. Reading only the close event
+    // would be tidier, but it leaves the promise hanging anywhere that event does not
+    // arrive, and a question nobody can answer is worse than a plain confirm box.
+    function finish(yes) {
+      if (settled) return;
+      settled = true;
+      form.removeEventListener("submit", onSubmit);
+      d.removeEventListener("cancel", onCancel);
+      d.removeEventListener("close", onClose);
+      d.removeEventListener("click", onBackdrop);
+      if (d.open) d.close();
+      resolve(yes);
+    }
+    function onSubmit(e) { finish(!!e.submitter && e.submitter.value === "yes"); }
+    function onCancel() { finish(false); }
+    function onClose() { finish(d.returnValue === "yes"); }
+    // The form fills the dialog, so a click that lands on the dialog itself landed outside
+    // the content.
+    function onBackdrop(e) { if (e.target === d) finish(false); }
+    form.addEventListener("submit", onSubmit);
+    d.addEventListener("cancel", onCancel);
+    d.addEventListener("close", onClose);
+    d.addEventListener("click", onBackdrop);
+    d.showModal();
+    // Something irreversible should not be one stray Return away, so the safe button holds
+    // the focus for those.
+    (opts.danger ? el("ask-no") : el("ask-yes")).focus();
+  });
+}
+
 var warned = false;
 function warnOnce(text) {
   if (warned) return;
@@ -78,6 +128,12 @@ function esc(s) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
   });
 }
+// Junior and Senior are the names of the two divisions, so they are capitalised wherever
+// they are read as names rather than as the value of a setting.
+function divName(div) {
+  return div === "both" ? "Junior and Senior" : div.charAt(0).toUpperCase() + div.slice(1);
+}
+
 function topicsFor(div) {
   return TOPICS.filter(function (t) { return t.div === "both" || t.div === div; });
 }
@@ -253,7 +309,7 @@ function metaFor(r) {
   var suffix = " | SFHS ACSL Guide";
   if (r.section === "guide" && t) {
     return [t.name + suffix, t.blurb + " Worked examples and the mistakes that cost points, "
-            + "written for ACSL " + (t.div === "both" ? "Junior and Senior" : t.div) + ".", true];
+            + "written for ACSL " + divName(t.div) + ".", true];
   }
   if (r.section === "practice" && t) {
     return [t.name + " practice" + suffix,
@@ -472,7 +528,7 @@ function guideIndex() {
         + (at + 150 < lesson.body.length ? "…" : "") : t.blurb;
       html += '<a class="card" href="/guide/' + t.id + '"><h3>' + esc(t.name)
         + '</h3><p>' + esc(snippet) + '</p><span class="chip">'
-        + (t.div === "both" ? "Junior and Senior" : t.div) + '</span></a>';
+        + divName(t.div) + '</span></a>';
     });
     el("guide-results").innerHTML = html + (matched.length ? "</div>" : '<p>No lessons match. Try a shorter term.</p>');
     el("search-count").textContent = term
@@ -946,7 +1002,7 @@ function examIndex() {
   el("main").innerHTML = html + "</div></div>";
 }
 
-function examPage(contestArg) {
+async function examPage(contestArg) {
   var contest = parseInt(contestArg, 10);
   if (!(contest >= 1 && contest <= 4)) return examIndex();
 
@@ -964,10 +1020,17 @@ function examPage(contestArg) {
     // The index warns that starting a new paper discards the old one, but the warning was
     // the whole of the protection: clicking another contest simply did it. Half an hour of
     // work deserves a question first.
-    if (saved && !saved.submitted
-        && !confirm("You have a mock exam in progress for Contest " + saved.contest
-                    + ". Starting Contest " + contest + " will discard it. Continue?")) {
-      return go("/exam");
+    if (saved && !saved.submitted && !(await ask({
+      title: "Discard the paper you are part way through?",
+      body: "Contest " + saved.contest + " is still open. Starting Contest " + contest
+        + " throws away the answers you have given so far.",
+      yes: "Start Contest " + contest,
+      no: "Keep Contest " + saved.contest,
+      danger: true,
+    }))) {
+      // Back to the paper being protected, rather than to the index. Declining is a decision
+      // to carry on with it.
+      return go("/exam/" + saved.contest);
     }
     exam = buildExam(contest);
     saveExam();
@@ -1035,10 +1098,15 @@ function drawExamQuestion(focusTarget) {
   el("next").addEventListener("click", function () {
     if (exam.at < exam.ids.length - 1) { exam.at++; saveExam(); drawExamQuestion("question"); }
   });
-  el("finish").addEventListener("click", function () {
+  el("finish").addEventListener("click", async function () {
     var blank = exam.answers.filter(function (x) { return x === null; }).length;
-    var msg = blank ? "You have " + blank + " unanswered. Finish anyway?" : "Finish the exam?";
-    if (confirm(msg)) finishExam();
+    if (await ask({
+      title: "Finish and see your results?",
+      body: blank ? "You have " + blank + (blank === 1 ? " question" : " questions")
+        + " still unanswered. They will be marked wrong." : "",
+      yes: "Finish",
+      no: "Keep working",
+    })) finishExam();
   });
 
   if (focusTarget === "question") el("exam-question").focus();
@@ -1185,10 +1253,11 @@ function problemPage(pid) {
           '<label for="lang" class="ws-label">Language</label>' +
           '<select id="lang"></select>' +
           '<button class="btn btn-ghost" id="reset">Reset code</button>' +
-          '<span class="fontsize"><button class="btn btn-ghost" id="font-down" ' +
-            'aria-label="Smaller text" title="Smaller text">A&minus;</button>' +
-          '<button class="btn btn-ghost" id="font-up" aria-label="Larger text" ' +
-            'title="Larger text">A+</button></span>' +
+          '<span class="fontsize"><label for="font-size">Text</label>' +
+            '<input type="range" id="font-size" list="font-stops" min="' + FONT_MIN +
+            '" max="' + FONT_MAX + '" step="1" aria-label="Editor text size in pixels">' +
+            '<datalist id="font-stops">' + fontStops() + "</datalist>" +
+            '<output id="font-size-out" for="font-size"></output></span>' +
           '<span class="spacer"></span>' +
           '<button class="btn btn-ghost" id="toggle-input">Custom input</button>' +
           '<button class="btn" id="run" title="Run the six visible tests' + META + '-Enter">' +
@@ -1238,8 +1307,14 @@ function problemPage(pid) {
     drawStatement();
   });
 
-  function resetCode() {
-    if (!confirm("Replace the editor with the original starter code?")) return;
+  async function resetCode() {
+    if (!await ask({
+      title: "Replace everything in the editor?",
+      body: "The original starter code comes back and the work in the box is lost.",
+      yes: "Reset the editor",
+      no: "Keep my code",
+      danger: true,
+    })) return;
     cancelRun();
     el("results").hidden = true;
     cm.setValue(curProblem.starter[curLang]);
@@ -1338,22 +1413,32 @@ function fontSize() {
   return (n >= FONT_MIN && n <= FONT_MAX) ? n : FONT_DEFAULT;
 }
 
+// One <option> per whole pixel, which is what draws the notches under the track.
+function fontStops() {
+  var out = "";
+  for (var n = FONT_MIN; n <= FONT_MAX; n++) out += '<option value="' + n + '"></option>';
+  return out;
+}
+
 function applyFontSize() {
   if (!cm) return;
-  cm.getWrapperElement().style.fontSize = fontSize() + "px";
+  var n = fontSize();
+  cm.getWrapperElement().style.fontSize = n + "px";
   cm.refresh();
+  var slider = el("font-size");
+  if (slider) {
+    slider.value = n;
+    slider.setAttribute("aria-valuetext", n + " pixels");
+    el("font-size-out").textContent = n;
+  }
 }
 
 function wireFontSize() {
-  var step = function (by) {
-    return function () {
-      var n = Math.max(FONT_MIN, Math.min(FONT_MAX, fontSize() + by));
-      save("editor-font", n);
-      applyFontSize();
-    };
-  };
-  el("font-down").addEventListener("click", step(-1));
-  el("font-up").addEventListener("click", step(1));
+  el("font-size").addEventListener("input", function () {
+    var n = Math.max(FONT_MIN, Math.min(FONT_MAX, parseInt(this.value, 10) || FONT_DEFAULT));
+    save("editor-font", n);
+    applyFontSize();
+  });
 }
 
 // The split is stored as a fraction of the workspace, not a pixel count, so it survives a
@@ -1518,9 +1603,15 @@ function drawStatement() {
   });
   var gb = el("giveup");
   gb.disabled = gaveUp;
-  gb.addEventListener("click", function () {
-    if (!confirm("Show the reference solution and all twelve test cases? This will mark the "
-                 + "solution as viewed.")) return;
+  gb.addEventListener("click", async function () {
+    if (!await ask({
+      title: "Show the reference solution?",
+      body: "All twelve test cases become visible, and this problem is marked as solved with "
+        + "the solution rather than on your own.",
+      yes: "Show me",
+      no: "Not yet",
+      danger: true,
+    })) return;
     recordProblem(p.id, "view");
     drawStatement();
   });
@@ -1938,15 +2029,28 @@ el("backup-file").addEventListener("change", async function () {
     var data = JSON.parse(await file.text());
     var keys = validateBackup(data);
     if (!keys.length) throw new Error("This backup contains no study data.");
-    if (!confirm("Import " + keys.length + " saved entries? Matching answers, code, and settings in this browser will be replaced. Other saved work will stay.")) return;
+    if (!await ask({
+      title: "Import " + keys.length + " saved " + (keys.length === 1 ? "entry" : "entries") + "?",
+      body: "Answers, code and settings that appear in the file replace the ones in this "
+        + "browser. Anything the file does not mention is left alone.",
+      yes: "Import",
+      no: "Cancel",
+    })) return;
     restoreBackup(data);
     location.reload();
   } catch (e) { el("backup-status").textContent = e.message; }
 });
 
-document.getElementById("wipe").addEventListener("click", function () {
-  if (!confirm("Delete your saved answers, exam progress, code, custom input, theme, language, "
-               + "and division from this browser? This cannot be undone.")) return;
+document.getElementById("wipe").addEventListener("click", async function () {
+  if (!await ask({
+    title: "Delete everything saved in this browser?",
+    body: "Your answers, exam progress, code, custom input, bookmarks, theme, language and "
+      + "division all go. This cannot be undone, and only a backup you exported can bring "
+      + "any of it back.",
+    yes: "Delete it all",
+    no: "Cancel",
+    danger: true,
+  })) return;
   try {
     Object.keys(localStorage)
       .filter(function (k) { return k.indexOf("acsl:") === 0; })

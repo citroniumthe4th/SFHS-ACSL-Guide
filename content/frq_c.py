@@ -9,7 +9,7 @@ dict(
     fname="countRoutes",
     division="Senior",
     contest=3,
-    title="MAZE ROUTES",
+    title="Maze Routes",
     blurb="Count the ways across a blocked grid when you may only move right or down.",
     statement="""
 <p>A delivery robot starts in the top left square of a rectangular grid and has to reach the
@@ -158,7 +158,7 @@ dict(
     fname="classifyPlate",
     division="Senior",
     contest=4,
-    title="NUMBER SAFARI",
+    title="Number Safari",
     blurb="Hunt five kinds of number inside the digits of a license plate.",
     statement="""
 <p>Every summer the Ortiz family drives from Providence to Montreal, and the youngest passenger
@@ -374,7 +374,7 @@ dict(
     fname="minMoves",
     division="Senior",
     contest=1,
-    title="KNIGHT MOVES",
+    title="Knight Moves",
     blurb="Fewest knight hops between two squares of a chessboard.",
     statement="""
 <p>A knight on a chessboard moves in an L: two squares along one direction and then one square at
@@ -522,7 +522,7 @@ dict(
     fname="shuffleCount",
     division="Senior",
     contest=2,
-    title="SHUFFLE CYCLES",
+    title="Shuffle Cycles",
     blurb="Riffle a deck perfectly, over and over, until it comes back to where it started.",
     statement="""
 <p>A perfect riffle shuffle of a deck with an even number of cards works like this. Cut the deck

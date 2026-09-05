@@ -9,7 +9,7 @@ dict(
     fname="chainLength",
     division="Junior",
     contest=1,
-    title="DIGIT CHAIN",
+    title="Digit Chain",
     blurb="Square the digits, add them up, repeat, and count the steps before it settles.",
     statement="""
 <p>Pick a whole number. Replace it with the sum of the squares of its digits. Do that again to
@@ -122,7 +122,7 @@ dict(
     fname="lockerReport",
     division="Junior",
     contest=2,
-    title="LOCKER HALLWAY",
+    title="Locker Hallway",
     blurb="A hallway of lockers, a line of students, and every locker toggled more than once.",
     statement="""
 <p>A hallway at ACSL High has N lockers in a row, numbered 1 through N, and every one of them
@@ -221,7 +221,7 @@ dict(
     fname="countTrips",
     division="Junior",
     contest=3,
-    title="ELEVATOR TRIPS",
+    title="Elevator Trips",
     blurb="Load the elevator from the front of the line until the next person would overload it.",
     statement="""
 <p>A single elevator serves the lobby of an office tower, and it has a weight limit. A line of
@@ -351,7 +351,7 @@ dict(
     fname="readSpiral",
     division="Junior",
     contest=4,
-    title="SPIRAL WORD",
+    title="Spiral Word",
     blurb="Read a square grid of letters clockwise from the outside in.",
     statement="""
 <p>A square grid of letters is given to you flattened into a single string, filled in row by row.

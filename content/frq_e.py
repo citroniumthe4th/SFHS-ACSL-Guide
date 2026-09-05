@@ -8,7 +8,7 @@ dict(
     fname="bestCategory",
     division="Junior",
     contest=3,
-    title="YAHTZEE ROLL",
+    title="Yahtzee Roll",
     blurb="Five dice, seven categories, and the highest score wins the argument.",
     statement="""
 <p>You have rolled five dice and now you have to decide which category to claim. These are the
@@ -205,7 +205,7 @@ dict(
     fname="countStops",
     division="Junior",
     contest=4,
-    title="TRAFFIC LIGHTS",
+    title="Traffic Lights",
     blurb="Drive a straight road and count the red lights, remembering that waiting moves you later.",
     statement="""
 <p>A car pulls onto a straight road at position 0 at time 0 and drives at a steady speed. Every
@@ -350,7 +350,7 @@ dict(
     fname="playWar",
     division="Senior",
     contest=3,
-    title="CARD WAR",
+    title="Card War",
     blurb="Two decks, one card each per round, and ties burn both cards.",
     statement="""
 <p>Two players each hold a deck of cards face down. A card is a number from 2 to 14, where 11 is a
@@ -492,7 +492,7 @@ dict(
     fname="cleanReport",
     division="Senior",
     contest=4,
-    title="ROBOT VACUUM",
+    title="Robot Vacuum",
     blurb="A dumb robot that only knows how to go forward or turn right.",
     statement="""
 <p>A robot vacuum sits on a rectangular floor plan. A period is open floor, a number sign is a

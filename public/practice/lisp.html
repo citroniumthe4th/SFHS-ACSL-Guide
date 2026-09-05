@@ -15,12 +15,12 @@
 <meta property="og:description" content="Short answer practice on lisp, with the reasoning for every answer.">
 <meta property="og:url" content="https://www.sfhsacsl.org/practice/lisp">
 <meta name="twitter:card" content="summary">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128187;</text></svg>">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%2391e2d2%22%2F%3E%3Ctext%20x%3D%2216%22%20y%3D%2223%22%20text-anchor%3D%22middle%22%20fill%3D%22%23102c27%22%20font-family%3D%22-apple-system%2CBlinkMacSystemFont%2CSegoe%20UI%2CHelvetica%2CArial%2Csans-serif%22%20font-size%3D%2219%22%20font-weight%3D%22700%22%20letter-spacing%3D%22-1.6%22%3Esf.%3C%2Ftext%3E%3C%2Fsvg%3E">
 <link rel="stylesheet" href="/vendor/codemirror/lib/codemirror.css?v=97f897fa">
 <link rel="stylesheet" href="/vendor/codemirror/theme/material-darker.css?v=e2d34217">
 <link rel="stylesheet" href="/vendor/codemirror/addon/dialog/dialog.css?v=f870660a">
 <link rel="stylesheet" href="/style.css?v=6e7d6689">
-<link rel="stylesheet" href="/experience.css?v=7e15ba2f">
+<link rel="stylesheet" href="/experience.css?v=c9061dbf">
 </head>
 <body>
 <div class="ambient" aria-hidden="true"><span>{ }</span><span>01</span><span>λ</span><span>[ ]</span><span>⊕</span><span>∧</span></div>
@@ -59,6 +59,19 @@
   <aside class="sidebar" id="sidebar"></aside>
   <main class="main" id="main"></main>
 </div>
+
+<!-- One dialog, reused. A native <dialog> brings the focus trap, the Escape key, the
+     backdrop and the top layer with it, so none of that is reimplemented here. -->
+<dialog class="ask" id="ask" aria-labelledby="ask-title">
+  <form method="dialog">
+    <h2 id="ask-title"></h2>
+    <p id="ask-body"></p>
+    <div class="ask-row">
+      <button type="submit" value="no" class="btn" id="ask-no">Cancel</button>
+      <button type="submit" value="yes" class="btn btn-primary" id="ask-yes">Continue</button>
+    </div>
+  </form>
+</dialog>
 
 <footer class="footer" id="footer">
   <span>Your division, your answers, and the code you write are stored in this browser. When you
@@ -113,7 +126,7 @@
 <script src="/data/mcq11.js?v=d4125666"></script>
 <script src="/data/mcq12.js?v=3a9c940f"></script>
 <script src="/data/gen.js?v=7ac382b1"></script>
-<script src="/data/frq.js?v=f16487ab"></script>
-<script src="/app.js?v=f09aa136"></script>
+<script src="/data/frq.js?v=c82946ca"></script>
+<script src="/app.js?v=3448e23f"></script>
 </body>
 </html>
