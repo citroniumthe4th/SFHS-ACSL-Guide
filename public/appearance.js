@@ -19,4 +19,10 @@ window.applyThemeColor = function (theme) {
   } catch (e) { /* The system preference still works without storage. */ }
   document.documentElement.dataset.theme = theme;
   window.applyThemeColor(theme);
+  // Standalone pages need the same saved accessibility settings, before their first paint.
+  ['contrast', 'plain', 'bigtext', 'underline'].forEach(function (flag) {
+    var on = false;
+    try { on = JSON.parse(localStorage.getItem('acsl:a11y:' + flag)) === true; } catch (e) {}
+    document.documentElement.dataset[flag] = on ? 'on' : 'off';
+  });
 })();
