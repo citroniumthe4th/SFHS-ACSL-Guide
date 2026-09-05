@@ -175,7 +175,10 @@ a:hover { text-decoration: underline; }
 .diagram figcaption { margin-top: 8px; color: var(--text-dim); font-size: 13px; line-height: 1.6; }
 .diagram-scroll { overflow-x: auto; }
 .diagram-scroll img { min-width: 540px; }
-.editor-hint { margin: 0; padding: 6px 12px; color: var(--text-dim); font-size: 12px; border-bottom: 1px solid var(--line); }
+/* The editor traps Tab, so a keyboard user has to be told Escape gets them out. That is
+   worth a line of screen reader text and not worth a line of the screen. */
+.editor-hint { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 html[data-theme="dark"] .cm-s-material-darker .cm-comment,
 html[data-theme="dark"] .cm-s-material-darker .CodeMirror-linenumber { color: #a0a0a0; }
 .wrap-wide { max-width: 1100px; }
@@ -918,3 +921,14 @@ details.reveal > div { padding: 0 14px 14px; }
 .footer-links { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; margin-left: auto; }
 .footer-links a { color: var(--text-dim); }
 .footer-links a:hover { color: var(--text); }
+
+/* Study tools use the same controls and spacing as the existing pages. */
+.guide-search { display: block; width: 100%; max-width: 42rem; margin: 8px 0; padding: 12px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
+.bookmark { margin-bottom: 18px; }
+.bookmark[aria-pressed="true"] { border-color: var(--accent); }
+.hint { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.hint summary { cursor: pointer; padding: 8px 0; }
+.hint p { margin-bottom: 0; }
+.jump-editor { display: none; }
+#editor-host { scroll-margin-top: 80px; }
+@media (max-width: 1000px) { .jump-editor { display: inline-flex; margin-bottom: 16px; } }

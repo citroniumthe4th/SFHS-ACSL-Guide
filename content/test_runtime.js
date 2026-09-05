@@ -19,7 +19,7 @@ async function main() {
   const shown = [];
   const pending = [];
   const c = vm.createContext({
-    console, AbortController, activeRun: null,
+    console, AbortController, activeRun: null, URLSearchParams,
     cm: { getValue: () => "print(1)" }, curProblem: { id: "a" }, curLang: "python",
     esc: s => String(s),
     el: id => buttons[id],
@@ -30,7 +30,7 @@ async function main() {
     fetch: (url, options) => new Promise(resolve => pending.push({ resolve, options })),
   });
   for (const name of ["divergence", "showBlanks", "markDiff", "diffHint", "comparison", "report",
-                      "runButtons", "cancelRun", "requestRun"]) {
+                      "runButtons", "cancelRun", "requestRun", "problemProgress", "recordProblem"]) {
     vm.runInContext(appFunction(name), c);
   }
   const cases = [{ in: ["input"], out: "1" }];
@@ -51,10 +51,17 @@ async function main() {
   c.report({ status: "ok", stdout: "1\ndebug\n" }, cases, true);
   assert.match(shown.at(-1)[0], /extra output/);
   c.report({ status: "ok", stdout: "1\n", stderr: "a harmless warning" }, cases, true);
-  assert.equal(saved.get("frq:a"), "solved");
+  assert.equal(saved.get("frq:a").solved, true);
+  assert.equal(saved.get("frq:a").assisted, false);
+  c.recordProblem("a", "view");
+  assert.equal(saved.get("frq:a").assisted, false, "later viewing preserves independent completion");
   saved.set("frq:a", "gaveup");
   c.report({ status: "ok", stdout: "1\n" }, cases, true);
-  assert.equal(saved.get("frq:a"), "gaveup");
+  assert.equal(saved.get("frq:a").solved, true);
+  assert.equal(saved.get("frq:a").assisted, true, "solving after viewing records assisted completion");
+  saved.set("frq:a", "solved");
+  c.recordProblem("a", "view");
+  assert.equal(saved.get("frq:a").assisted, false, "migrate old independent completions");
   saved.clear();
   c.report({ status: "ok", stdout: "1\n" }, cases, false);
   assert.equal(saved.size, 0, "visible tests alone do not mark solved");
@@ -85,14 +92,15 @@ async function main() {
   }
 
   c.window = {};
-  for (const file of ["topics.js", ...Array.from({length: 12}, (_, i) => "mcq" + (i + 1) + ".js")]) {
+  for (const file of ["topics.js", "gen.js", "frq.js", ...Array.from({length: 12}, (_, i) => "mcq" + (i + 1) + ".js")]) {
     vm.runInContext(fs.readFileSync(path.join(root, "public/data", file), "utf8"), c);
   }
   c.TOPICS = c.window.TOPICS;
   c.MCQ = c.window.MCQ;
   c.PER_TOPIC = 2;
   c.EXAM_SECONDS = 1800;
-  for (const name of ["topicsFor", "questionsFor", "shuffle", "permute", "isWdtpd", "buildExam"]) {
+  for (const name of ["topicsFor", "questionsFor", "shuffle", "permute", "isWdtpd", "examSize",
+                      "buildExam"]) {
     vm.runInContext(appFunction(name), c);
   }
   for (const division of ["junior", "senior"]) {
@@ -104,13 +112,56 @@ async function main() {
         const topics = new Map();
         for (const id of exam.ids) {
           const q = c.MCQ.find(q => q.id === id);
-          assert.ok(q.check && q.exam !== false);
+          assert.ok(q.kind === "problem" && q.exam !== false);
           topics.set(q.topic, (topics.get(q.topic) || 0) + 1);
         }
         assert.deepEqual([...topics.values()], [2, 2, 2]);
       }
     }
   }
+
+  c.GEN = c.window.GEN;
+  c.FRQ = c.window.FRQ;
+  c.LANGS = ["python", "java", "cpp"].map(id => ({ id }));
+  const storage = new Map();
+  c.localStorage = {
+    getItem: key => storage.has(key) ? storage.get(key) : null,
+    setItem: (key, value) => storage.set(key, value),
+    removeItem: key => storage.delete(key),
+  };
+  for (const name of ["questionById", "problemById", "validExam", "validSavedEntry", "validateBackup", "restoreBackup"]) {
+    vm.runInContext(appFunction(name), c);
+  }
+  const generated = c.questionById("gen:graph-theory:123");
+  assert.equal(generated.id, "gen:graph-theory:123");
+  assert.equal(JSON.stringify(generated), JSON.stringify(c.questionById(generated.id)));
+  for (const id of ["gen:unknown:1", "gen:graph-theory:-1", "gen:graph-theory:4294967296", "gen:graph-theory:01"]) {
+    assert.equal(c.questionById(id), null, id);
+  }
+  for (const problem of c.FRQ) assert.equal(problem.hints.length, 2, problem.id);
+  assert.equal(c.validSavedEntry("code:digit-chain:python", "x".repeat(200001)), true, "backups retain code larger than the runner limit");
+  const good = { version: 1, entries: { "code:digit-chain:python": "print(1)", "q:gen:graph-theory:123": false } };
+  c.restoreBackup(good);
+  assert.equal(storage.get("acsl:code:digit-chain:python"), '"print(1)"');
+  assert.throws(() => c.restoreBackup({ version: 1, entries: { theme: "light", "code:unknown:python": "bad" } }));
+  assert.equal(storage.has("acsl:theme"), false, "validate everything before writing");
+  assert.throws(() => c.validateBackup({ version: 1, entries: JSON.parse('{"__proto__":{}}') }));
+  assert.throws(() => c.validateBackup({ version: 1, entries: { "frq:digit-chain": { solved: false, solutionViewed: false, assisted: true } } }));
+  const before = [...storage];
+  let fail = true;
+  c.localStorage.setItem = (key, value) => {
+    if (key === "acsl:theme" && fail) { fail = false; throw new Error("quota"); }
+    storage.set(key, value);
+  };
+  assert.throws(() => c.restoreBackup({ version: 1, entries: { "code:digit-chain:python": "changed", theme: "light" } }), /previous data was restored/);
+  assert.deepEqual([...storage], before, "failed import rolls back earlier writes");
+  const paper = c.buildExam(4);
+  assert.ok(c.validExam(paper));
+  paper.answers[0] = 0.5;
+  assert.equal(c.validExam(paper), null);
+  paper.answers[0] = null;
+  paper.at = 0.5;
+  assert.equal(c.validExam(paper), null);
 
   const api = vm.createContext({
     module: { exports: {} }, process: { env: {} }, Buffer, AbortController,
@@ -150,6 +201,6 @@ async function main() {
   assert.equal((await call()).data.status, "error");
   api.fetch = async () => { const e = new Error("timeout"); e.name = "AbortError"; throw e; };
   assert.equal((await call()).data.status, "timeout");
-  console.log("Grading, request isolation, 160 mock exams, and proxy regression checks passed.");
+  console.log("Grading, progress migration, backups, generated links, 160 mock exams, and proxy checks passed.");
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

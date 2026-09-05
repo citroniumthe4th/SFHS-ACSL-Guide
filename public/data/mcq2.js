@@ -1,6 +1,6 @@
 window.MCQ = (window.MCQ || []).concat([
 
-{ id:"rf-01", topic:"recursive-functions", level:"b",
+{ id:"rf-01", kind:"problem", topic:"recursive-functions", level:"b",
   q:`Find f(21), given:
 <div class="cases"><div class="fn">f(x) =</div><div class="rows">
 <div><span>f(x &minus; 4) + 3</span><span>if x &gt; 6</span></div>
@@ -17,7 +17,7 @@ at which point the argument is no longer above 6 and the second rule answers wit
 Four levels each contribute a 3, so the answer is 10 plus 12. Counting the steps like this is faster
 than tracing, but only once you have confirmed where the chain actually stops.` },
 
-{ id:"rf-02", topic:"recursive-functions", level:"s",
+{ id:"rf-02", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Find f(10, 7), given:
 <div class="cases"><div class="fn">f(x, y) =</div><div class="rows">
 <div><span>f(x &minus; y, y &minus; 1) + 2</span><span>if x &gt; y</span></div>
@@ -34,7 +34,7 @@ single 2 that was left waiting gives 11. The chain is short here, which is the d
 arguments it is easy to move one and forget the other, so write both on every line even when one of
 them does not change.` },
 
-{ id:"rf-03", topic:"recursive-functions", level:"s",
+{ id:"rf-03", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Find f(f(f(f(14)))), given:
 <div class="cases"><div class="fn">f(n) =</div><div class="rows">
 <div><span>[n / 3] + 2</span><span>if n &gt; 5</span></div>
@@ -52,7 +52,7 @@ At that point 4 is no longer greater than 5, so the second rule takes over and f
 is 2. The boundary is doing real work here, since 6 still qualifies for the first rule and 5 would
 not.` },
 
-{ id:"rf-04", topic:"recursive-functions", level:"s",
+{ id:"rf-04", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Recursion works on strings as well as numbers. Using the rules of ACSL pseudocode, what is
 the value of f("python")?
 <div class="cases"><div class="fn">f(s) =</div><div class="rows">
@@ -71,7 +71,7 @@ followed by "ht", and f("on") is f("") followed by "no", which is just "no". Win
 "no", then "noht", then "nohtyp". Notice that the base case fires on the empty string rather than on
 a single character, which it can do only because "python" has even length.` },
 
-{ id:"rf-05", topic:"recursive-functions", level:"b",
+{ id:"rf-05", kind:"problem", topic:"recursive-functions", level:"b",
   q:`Find f(11), given:
 <div class="cases"><div class="fn">f(x) =</div><div class="rows">
 <div><span>f(x &minus; 3) + 1</span><span>if x &gt; 0</span></div>
@@ -88,7 +88,7 @@ to 1. Had the condition read greater than or equal to 0, the chain would have st
 and the answer would have been completely different, which is why the inequality deserves a look
 before you start.` },
 
-{ id:"rf-06", topic:"recursive-functions", level:"b",
+{ id:"rf-06", kind:"problem", topic:"recursive-functions", level:"b",
   q:`Find f(10), given:
 <div class="cases"><div class="fn">f(n) =</div><div class="rows">
 <div><span>f(n &minus; 1) + f(n &minus; 2)</span><span>if n &gt; 1</span></div>
@@ -105,7 +105,7 @@ equal to 0 and f(1) equal to 1, the values run 1, 2, 3, 5, 8, 13, 21, 34, and 55
 for f(10) has 177 nodes while the table has eleven entries. Since 55 is not among the four choices
 offered, the answer is None of the above.` },
 
-{ id:"rf-07", topic:"recursive-functions", level:"s",
+{ id:"rf-07", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Find f(9), given:
 <div class="cases"><div class="fn">f(n) =</div><div class="rows">
 <div><span>f(n &minus; 1) + f(n &minus; 3)</span><span>if n &gt; 2</span></div>
@@ -122,7 +122,7 @@ to 4, f(6) equal to 6, f(7) equal to 9, f(8) equal to 13, and finally f(9) equal
 Keeping three columns and reading across is what makes a definition that reaches back three steps no
 harder than one that reaches back two.` },
 
-{ id:"rf-08", topic:"recursive-functions", level:"b",
+{ id:"rf-08", kind:"problem", topic:"recursive-functions", level:"b",
   q:`Find f(8), given:
 <div class="cases"><div class="fn">f(n) =</div><div class="rows">
 <div><span>2 f(n &minus; 1) + 1</span><span>if n &gt; 0</span></div>
@@ -138,7 +138,7 @@ should be recognisable well before you reach the end: every one of them is a pow
 so f(n) is 2 to the n minus 1. This is the number of moves in the Tower of Hanoi, and spotting the
 closed form saves the entire trace whenever the argument is large.` },
 
-{ id:"rf-09", topic:"recursive-functions", level:"s",
+{ id:"rf-09", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Find g(48, 18), given:
 <div class="cases"><div class="fn">g(x, y) =</div><div class="rows">
 <div><span>g(y, x &minus; y)</span><span>if x &gt; y</span></div>
@@ -158,7 +158,7 @@ of the Euclidean algorithm and the value it computes is the greatest common divi
 arguments. Recognising that answers the question in a single step, provided you also check that the
 base case returns x itself rather than something derived from it.` },
 
-{ id:"rf-10", topic:"recursive-functions", level:"s",
+{ id:"rf-10", kind:"problem", topic:"recursive-functions", level:"s",
   q:`A square of side 27 is painted by this rule. Divide it into nine equal subsquares, paint the
 center one, then apply the same rule to the four corner subsquares only. Stop at side 1 and paint
 nothing at that size. What total area is painted?`,
@@ -173,7 +173,7 @@ a centre of area s squared over 9 and then repeats on four subsquares of side s 
 equal to 9 plus 4, then A(27) equal to 81 plus 52. The stopping rule is what decides the answer, so
 read it carefully before you start.` },
 
-{ id:"rf-11", topic:"recursive-functions", level:"j",
+{ id:"rf-11", kind:"problem", topic:"recursive-functions", level:"j",
   q:`Find f(64), given:
 <div class="cases"><div class="fn">f(n) =</div><div class="rows">
 <div><span>f(n &minus; 10) + 2</span><span>if n &gt; 9</span></div>
@@ -189,7 +189,7 @@ RESULT = f(64)`,
 Counting the steps is much safer than writing seven lines out, since the only thing that can go
 wrong is miscounting them.` },
 
-{ id:"rf-12", topic:"recursive-functions", level:"j",
+{ id:"rf-12", kind:"problem", topic:"recursive-functions", level:"j",
   q:`Find f(20), given:
 <div class="cases"><div class="fn">f(n) =</div><div class="rows">
 <div><span>f(n &minus; 1) + n</span><span>if n &gt; 0</span></div>
@@ -204,7 +204,7 @@ RESULT = f(20)`,
 twenty levels by hand is where arithmetic errors breed, and recognising the closed form removes them
 entirely. Since 210 is not among the four choices offered, the answer is None of the above.` },
 
-{ id:"rf-13", topic:"recursive-functions", level:"s",
+{ id:"rf-13", kind:"problem", topic:"recursive-functions", level:"s",
   q:`How many times is f called in total, counting the first call, when f(6) is evaluated with no
 caching?
 <div class="cases"><div class="fn">f(n) =</div><div class="rows">
@@ -225,7 +225,7 @@ and 25. There is a tidy identity hiding in that table, since the call count alwa
 minus 1 and f(6) is 13. This is the concrete reason plain recursion on Fibonacci becomes unusable
 long before n gets large.` },
 
-{ id:"rf-14", topic:"recursive-functions", level:"j",
+{ id:"rf-14", kind:"problem", topic:"recursive-functions", level:"j",
   q:`Find f(7), given:
 <div class="cases"><div class="fn">f(n) =</div><div class="rows">
 <div><span>f(n &minus; 1) + f(n &minus; 1)</span><span>if n &gt; 0</span></div>
@@ -241,7 +241,7 @@ rather than adding anything. Starting from a base value of 3 and doubling seven 
 128, or 384. The distractor 192 is what you get from doubling only six times, which is the natural
 slip when you count levels rather than steps.` },
 
-{ id:"rf-15", topic:"recursive-functions", level:"s",
+{ id:"rf-15", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Find f(7), given:
 <div class="cases"><div class="fn">f(x) =</div><div class="rows">
 <div><span>f(x &minus; 3) + 2</span><span>if x &ge; 0</span></div>
@@ -257,7 +257,7 @@ than falling to the base case. The chain therefore runs 7, 4, 1, and then -2, an
 second rule finally answers. Winding back up gives -2, then 0, then 2, then 4. With a strict greater
 than instead, f(1) would have returned 1 and the answer would have been 5.` },
 
-{ id:"rf-16", topic:"recursive-functions", level:"s",
+{ id:"rf-16", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Find f("ACSL"), given:
 <div class="cases"><div class="fn">f(s) =</div><div class="rows">
 <div><span>""</span><span>if len(s) = 0</span></div>
@@ -276,7 +276,7 @@ and 15. The recursive call appears twice in the definition, which is why the wor
 level instead of staying flat, and it is also why the answer is nowhere near the original length of
 4.` },
 
-{ id:"rf-17", topic:"recursive-functions", level:"s",
+{ id:"rf-17", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Find f(2, 3), given:
 <div class="cases"><div class="fn">f(m, n) =</div><div class="rows">
 <div><span>n + 1</span><span>if m = 0</span></div>

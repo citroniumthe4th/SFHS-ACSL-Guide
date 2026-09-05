@@ -263,9 +263,7 @@ a square with a mine beside it is uncovered but is a dead end. Recursion works t
 of open ground goes 400 frames deep, which is comfortable in C++ and Java and close enough to Python's
 default limit to be worth avoiding.</p>
 
-<p>Check whether a square is already uncovered when you pop it rather than when you push it. Squares get
-pushed repeatedly from different directions, and filtering only at push time still lets duplicates
-through and can send the search round in circles.</p>
+<p>The reference solution marks squares when removing them from the queue and skips duplicate entries. Marking a square as visited when first adding it is also correct and prevents those duplicates. Either approach must ensure each square is processed only once.</p>
 
 <p>Two things about printing. A mine is never uncovered by a legal click, so it keeps whatever it looked
 like before, which in this problem is a covered square printing as a period. And an uncovered square
@@ -641,8 +639,7 @@ the well has to be modelled square by square. A solution that adjusts the height
 clear gets the first sample right and then drifts.</p>
 
 <p>Parsing is a split on the space, then the first character for the shape, everything between it and
-the colon for the length, and everything after the colon for the column. A bar can be up to 8 long, so
-the length is not always a single digit once you start writing test data of your own.</p>
+the colon for the length, and everything after the colon for the column. The stated lengths are 1 through 8.</p>
 """,
     sol=dict(
         python_helpers="""

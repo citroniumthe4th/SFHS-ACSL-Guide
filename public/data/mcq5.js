@@ -1,6 +1,6 @@
 window.MCQ = (window.MCQ || []).concat([
 
-{ id:"bs-01", topic:"bit-string-flicking", level:"b",
+{ id:"bs-01", kind:"problem", topic:"bit-string-flicking", level:"b",
   q:`Evaluate (LSHIFT-2 11010) | (RCIRC-3 01011).`,
   choices:["01101","01001","11101","01111","None of the above"], ans:0,
   check:`flick('(LSHIFT-2 11010) | (RCIRC-3 01011)')`,
@@ -9,7 +9,7 @@ drops the leading 11 and pads two zeros onto the right, giving 01000, while circ
 by three carries the trailing 011 round to the front, giving 01101. Writing those two results one
 above the other and reading down the columns, the OR comes out as 01101.` },
 
-{ id:"bs-02", topic:"bit-string-flicking", level:"b",
+{ id:"bs-02", kind:"problem", topic:"bit-string-flicking", level:"b",
   q:`Evaluate 10110 | 01001 &amp; 11100.`,
   choices:["11110","11111","10110","01000","None of the above"], ans:0,
   check:`flick('10110 | 01001 & 11100')`,
@@ -18,7 +18,7 @@ gives 01000, and 10110 or 01000 is 11110. Evaluating strictly left to right inst
 and that wrong answer appears among the choices on essentially every version of this question,
 because it is what almost everyone reaches when hurrying.` },
 
-{ id:"bs-03", topic:"bit-string-flicking", level:"b",
+{ id:"bs-03", kind:"problem", topic:"bit-string-flicking", level:"b",
   q:`What is RCIRC-9 applied to 1011?`,
   choices:["1101","0101","1110","1011","None of the above"], ans:0,
   check:`flick('RCIRC-9 1011')`,
@@ -27,7 +27,7 @@ and 9 modulo 4 is 1, so the whole instruction collapses to RCIRC-1, which carrie
 to the front and gives 1101. Attempting to count nine positions round a four bit string without
 reducing first is precisely where bits go missing.` },
 
-{ id:"bs-04", topic:"bit-string-flicking", level:"j",
+{ id:"bs-04", kind:"problem", topic:"bit-string-flicking", level:"j",
   q:`What is LSHIFT-2 applied to 10110?`,
   choices:["11000","01011","11010","00101","None of the above"], ans:0,
   check:`flick('LSHIFT-2 10110')`,
@@ -36,7 +36,7 @@ leaves 110, and padding two zeros onto the right to preserve the length gives 11
 11010 is what LCIRC-2 would produce, where those same two bits wrap round to the back instead of
 vanishing.` },
 
-{ id:"bs-05", topic:"bit-string-flicking", level:"j",
+{ id:"bs-05", kind:"problem", topic:"bit-string-flicking", level:"j",
   q:`What is RCIRC-2 applied to 10110?`,
   choices:["10101","00101","11010","01101","None of the above"], ans:0,
   check:`flick('RCIRC-2 10110')`,
@@ -45,7 +45,7 @@ of the remaining 101, giving 10101. It is worth setting this beside RSHIFT-2 on 
 would throw those two bits away and pad with zeros to give 00101, since the difference between the two
 operations is exactly the difference between those two answers.` },
 
-{ id:"bs-06", topic:"bit-string-flicking", level:"s",
+{ id:"bs-06", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`Evaluate ~(11010 &amp; 01110).`,
   choices:["10101","01010","11110","00101","None of the above"], ans:0,
   check:`flick('~(11010 & 01110)')`,
@@ -54,7 +54,7 @@ and third positions, giving 01010, whose complement is 10101. DeMorgan gets you 
 if you prefer, since the complement of an and is the or of the complements, and 00101 or 10001 is the
 same 10101.` },
 
-{ id:"bs-07", topic:"bit-string-flicking", level:"s",
+{ id:"bs-07", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`Evaluate (LCIRC-4 10110) ^ (RSHIFT-1 10110).`,
   choices:["00000","10101","01011","11111","None of the above"], ans:0,
   check:`flick('LCIRC-4 10110 ^ RSHIFT-1 10110')`,
@@ -64,7 +64,7 @@ leading 1011 round to the back and gives 01011, while RSHIFT-1 drops the trailin
 front, which also gives 01011. The two sides are identical, and anything exclusive-ored with itself is
 all zeros.` },
 
-{ id:"bs-08", topic:"bit-string-flicking", level:"s",
+{ id:"bs-08", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`How many 5 bit strings X satisfy (X &amp; 10110) equal to 10110?`,
   choices:["5", "1", "8", "2", "None of the above"], ans:4,
   check:`str(len([x for x in ['{:05b}'.format(i) for i in range(32)] if flick(x + ' & 10110') == '10110']))`,
@@ -74,7 +74,7 @@ against 0 and therefore give 0 regardless of what X holds, which leaves them fre
 means 2 squared, or 4 strings. Since 4 is not among the four choices offered, the answer is None of
 the above.` },
 
-{ id:"bs-09", topic:"bit-string-flicking", level:"s",
+{ id:"bs-09", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`How many 4 bit strings X satisfy (X | 1010) equal to 1110?`,
   choices:["4","2","1","8","None of the above"], ans:0,
   check:`str(len([x for x in ['{:04b}'.format(i) for i in range(16)] if flick(x + ' | 1010') == '1110']))`,
@@ -84,7 +84,7 @@ positions 1 and 3. Where the mask holds a 0, X alone decides the outcome, so pos
 position 4 must be 0. Two free positions gives 4 strings. Had any position required a 0 in the result
 where the mask already holds a 1, there would have been no solutions at all.` },
 
-{ id:"bs-10", topic:"bit-string-flicking", level:"b",
+{ id:"bs-10", kind:"problem", topic:"bit-string-flicking", level:"b",
   q:`Evaluate ~~1100 ^ 1010.`,
   choices:["0110","1001","1110","0000","None of the above"], ans:0,
   check:`flick('~~1100 ^ 1010')`,
@@ -92,7 +92,7 @@ where the mask already holds a 1, there would have been no solutions at all.` },
 Exclusive or with 1010 then gives a 1 wherever the two bits differ: the first pair agree, the second
 and third differ, and the fourth agree, producing 0110.` },
 
-{ id:"bs-11", topic:"bit-string-flicking", level:"b",
+{ id:"bs-11", kind:"concept", topic:"bit-string-flicking", level:"b",
   q:`Which single operation has the same effect as XOR with a string of all 1s?`,
   choices:["complement with ~","LCIRC by the length","AND with all 1s","OR with all 0s","None of the above"], ans:0,
   why:`Exclusive or gives 1 exactly where the two bits differ, and against a solid row of ones
@@ -100,7 +100,7 @@ every bit differs from its own inverse, so every position flips. That is precise
 does. The other three choices all leave the string exactly as it was, which makes them worth knowing
 for the opposite reason: they are the identity operations you can recognise and skip.` },
 
-{ id:"bs-12", topic:"bit-string-flicking", level:"s",
+{ id:"bs-12", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`Evaluate (11110000 | 00001111) &amp; ~10101010.`,
   choices:["01010101","10101010","11111111","00000000","None of the above"], ans:0,
   check:`flick('(11110000 | 00001111) & ~10101010')`,
@@ -109,7 +109,7 @@ for the opposite reason: they are the identity operations you can recognise and 
 returns that thing unchanged, so the answer is 01010101. Spotting that the left side collapses to all
 ones saves the columnwise work on the final and.` },
 
-{ id:"bs-13", topic:"bit-string-flicking", level:"j",
+{ id:"bs-13", kind:"problem", topic:"bit-string-flicking", level:"j",
   q:`Start with 10110 and apply LCIRC-2, then XOR-11111, then RSHIFT-1. What is the result?`,
   choices:["00010","00101","11010","10100","None of the above"], ans:0,
   check:`mask_run('10110', ['LCIRC-2','XOR-11111','RSHIFT-1'])`,
@@ -117,7 +117,7 @@ ones saves the columnwise work on the final and.` },
 carries the leading 10 round to the back, giving 11010. Exclusive or against a row of ones flips every
 bit, giving 00101. RSHIFT-1 then drops the trailing 1 and pads a zero in front, leaving 00010.` },
 
-{ id:"bs-14", topic:"bit-string-flicking", level:"s",
+{ id:"bs-14", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`Evaluate 1010 ^ 0110 ^ 1111 | 0001.`,
   choices:["0011","0010","1111","0001","None of the above"], ans:0,
   check:`flick('1010 ^ 0110 ^ 1111 | 0001')`,
@@ -126,7 +126,7 @@ from left to right. 1010 xor 0110 is 1100, and 1100 xor 1111 is 0011. Only then 
 0001 apply, and it changes nothing, since that bit was already set. Noticing that the final or is
 inert is a useful check that the earlier steps were right.` },
 
-{ id:"bs-15", topic:"bit-string-flicking", level:"s",
+{ id:"bs-15", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`Evaluate RCIRC-1 LCIRC-1 1101101.`,
   choices:["1101101","1011011","0110110","1110110","None of the above"], ans:0,
   check:`flick('RCIRC-1 LCIRC-1 1101101')`,
@@ -135,7 +135,7 @@ its result. Circulating left by one and then right by one puts every bit back wh
 string is returned unchanged. Recognising that on sight is worth doing, because working it through
 arithmetically takes twice as long and offers twice as many chances to slip.` },
 
-{ id:"bs-16", topic:"bit-string-flicking", level:"s",
+{ id:"bs-16", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`Evaluate ~(LSHIFT-1 (RSHIFT-1 111000111000)).`,
   choices:["000111000111","111000111001","011100011100","111000111000","None of the above"], ans:0,
   check:`flick('~(LSHIFT-1 (RSHIFT-1 111000111000))')`,

@@ -91,8 +91,47 @@ function problemById(id) {
   for (var i = 0; i < FRQ.length; i++) if (FRQ[i].id === id) return FRQ[i];
   return null;
 }
+function problemProgress(id) {
+  var old = store("frq:" + id, null);
+  if (old === "solved") return { solved: true, solutionViewed: false, assisted: false };
+  if (old === "gaveup") return { solved: false, solutionViewed: true, assisted: false };
+  if (old && typeof old.solved === "boolean" && typeof old.solutionViewed === "boolean"
+      && typeof old.assisted === "boolean") return old;
+  return { solved: false, solutionViewed: false, assisted: false };
+}
+
+function recordProblem(id, action) {
+  var progress = problemProgress(id);
+  if (action === "view") progress.solutionViewed = true;
+  if (action === "solve" && !progress.solved) {
+    progress.solved = true;
+    progress.assisted = progress.solutionViewed;
+  }
+  save("frq:" + id, progress);
+}
+
+function reviewQuestions() {
+  var found = MCQ.slice(), seen = new Set(found.map(function (q) { return q.id; }));
+  try {
+    Object.keys(localStorage).forEach(function (key) {
+      var match = /^acsl:(?:q|bookmark):(gen:.*)$/.exec(key);
+      if (!match || seen.has(match[1])) return;
+      var q = questionById(match[1]);
+      if (q) { found.push(q); seen.add(q.id); }
+    });
+  } catch (e) { /* Fixed questions remain available without storage. */ }
+  return found;
+}
+
+function bookmarkedFor(div) {
+  return reviewQuestions().filter(function (q) {
+    return store("bookmark:" + q.id, false) === true
+      && (q.level === "b" || q.level === div.charAt(0));
+  });
+}
+
 function missedFor(div) {
-  return MCQ.filter(function (q) {
+  return reviewQuestions().filter(function (q) {
     if (store("q:" + q.id, null) !== false) return false;
     return q.level === "b" || q.level === div.charAt(0);
   });
@@ -100,7 +139,7 @@ function missedFor(div) {
 
 function missedElsewhere(div) {
   var other = div === "junior" ? "senior" : "junior";
-  return MCQ.filter(function (q) {
+  return reviewQuestions().filter(function (q) {
     if (store("q:" + q.id, null) !== false) return false;
     var here = q.level === "b" || q.level === div.charAt(0);
     var there = q.level === "b" || q.level === other.charAt(0);
@@ -155,7 +194,7 @@ function route() {
 }
 
 function go(path) {
-  if (path !== location.pathname) history.pushState(null, "", path);
+  if (path !== location.pathname + location.search + location.hash) history.pushState(null, "", path);
   render();
 }
 
@@ -365,7 +404,6 @@ function renderSidebar(section, active) {
 // ------------------------------------------------------------------ guide
 
 function guideIndex() {
-  var list = topicsFor(division);
   var html = '<div class="wrap-wide">' +
     '<div class="eyebrow">' + division + " division</div>" +
     "<h1>Study guide</h1>" +
@@ -374,24 +412,51 @@ function guideIndex() {
     '<p class="note">Preparing for Intermediate or another division? Use the ' +
     '<a href="https://www.acsl.org/get-started/study-materials">official study materials</a> ' +
     'to check your syllabus. This site is not affiliated with ACSL.</p>';
-  var lastContest = null;
-  list.forEach(function (t) {
-    if (t.contest !== lastContest) {
-      lastContest = t.contest;
-      html += "<h2>" + CONTEST_NAMES[t.contest] + "</h2>" +
-        '<div class="grid" data-c="' + t.contest + '"></div>';
-    }
-  });
-  html += "</div>";
+  html += '<label for="guide-search">Search all lessons</label>'
+    + '<input id="guide-search" class="guide-search" type="search" autocomplete="off" placeholder="Try CDR or external path length">'
+    + '<p class="note" id="search-count" role="status"></p><div id="guide-results"></div></div>';
   el("main").innerHTML = html;
-  list.forEach(function (t) {
-    var g = el("main").querySelector('.grid[data-c="' + t.contest + '"]');
-    var a = document.createElement("a");
-    a.className = "card";
-    a.href = "/guide/" + t.id;
-    a.innerHTML = "<h3>" + esc(t.name) + "</h3><p>" + esc(t.blurb) + "</p>";
-    g.appendChild(a);
+  var search = el("guide-search");
+  search.value = new URLSearchParams(location.search).get("search") || "";
+  // The name and blurb are searchable, but they already sit on the card, so a snippet is cut
+  // from the lesson body and the blurb stands in when the match was in the heading.
+  var lessons = TOPICS.map(function (t) {
+    var doc = document.createElement("div");
+    doc.innerHTML = GUIDE[t.id] || "";
+    return { topic: t, head: (t.name + " " + t.blurb).toLowerCase(),
+             body: doc.textContent.replace(/\s+/g, " ").trim() };
   });
+  function results() {
+    var term = search.value.trim().toLowerCase();
+    var matched = lessons.filter(function (lesson) {
+      return term ? lesson.head.includes(term) || lesson.body.toLowerCase().includes(term)
+        : lesson.topic.div === "both" || lesson.topic.div === division;
+    });
+    var html = "", lastContest = null;
+    matched.forEach(function (lesson) {
+      var t = lesson.topic;
+      if (t.contest !== lastContest) {
+        if (lastContest !== null) html += "</div>";
+        lastContest = t.contest;
+        html += "<h2>" + CONTEST_NAMES[t.contest] + '</h2><div class="grid">';
+      }
+      var at = term ? lesson.body.toLowerCase().indexOf(term) : -1;
+      var snippet = at >= 0 ? (at > 60 ? "…" : "") + lesson.body.slice(Math.max(0, at - 60), at + 150)
+        + (at + 150 < lesson.body.length ? "…" : "") : t.blurb;
+      html += '<a class="card" href="/guide/' + t.id + '"><h3>' + esc(t.name)
+        + '</h3><p>' + esc(snippet) + '</p><span class="chip">'
+        + (t.div === "both" ? "Junior and Senior" : t.div) + '</span></a>';
+    });
+    el("guide-results").innerHTML = html + (matched.length ? "</div>" : '<p>No lessons match. Try a shorter term.</p>');
+    el("search-count").textContent = term
+      ? matched.length + " matching lesson" + (matched.length === 1 ? "" : "s")
+        + " across both divisions" : "";
+  }
+  search.addEventListener("input", function () {
+    history.replaceState(null, "", location.pathname + (search.value ? "?search=" + encodeURIComponent(search.value) : ""));
+    results();
+  });
+  results();
 }
 
 // A category that belongs to one division only should put you in that division, the way a
@@ -473,6 +538,7 @@ function practiceIndex() {
   var html = '<div class="wrap-wide"><div class="eyebrow">' + division + " division</div>" +
     "<h1>Practice</h1><p class=\"note\">Pick a category. Every question shows its reasoning " +
     "once you answer, right or wrong.</p>";
+  html += '<p><a href="/missed?view=bookmarks">Bookmarked questions (' + bookmarkedFor(division).length + ')</a></p>';
   var missed = missedFor(division);
   if (missed.length) {
     html += '<div class="grid"><a class="card" href="/missed"><h3>Missed questions</h3>' +
@@ -517,15 +583,21 @@ function practicePage(topicId) {
                     + "differ between the two divisions, so a link shared by someone in the other "
                     + "one may not exist in yours.");
   }
-  var qs = questionsFor(topicId, division);
+  var requested = new URLSearchParams(location.search).get("q");
+  var linked = requested ? questionById(requested) : null;
+  if (requested && (!linked || linked.topic !== topicId)) {
+    return notFound("That question link is not in this category. Open Practice to choose a question.");
+  }
+  if (linked && linked.level !== "b") adoptDivisionFor({ div: linked.level === "j" ? "junior" : "senior" });
+  var qs = linked ? [linked] : questionsFor(topicId, division);
   if (!qs.length) {
     el("main").innerHTML = '<div class="wrap"><h1>' + esc(t.name) +
       '</h1><p class="empty">No questions in this category for the ' + division +
       " division yet.</p></div>";
     return;
   }
-  if (!quiz || quiz.topic !== topicId || quiz.division !== division) {
-    quiz = { topic: topicId, division: division, list: shuffle(qs.slice()).map(presented),
+  if (!quiz || quiz.topic !== topicId || quiz.division !== division || quiz.requested !== requested) {
+    quiz = { topic: topicId, division: division, requested: requested, list: shuffle(qs.slice()).map(presented),
              i: 0, picked: null, right: 0, seen: 0, endless: false };
   }
   drawQuestion();
@@ -541,6 +613,8 @@ function fillAhead() {
 }
 
 function setMode(endless) {
+  history.replaceState(null, "", "/practice/" + quiz.topic);
+  quiz.requested = null;
   quiz.endless = endless;
   quiz.i = 0; quiz.picked = null; quiz.right = 0; quiz.seen = 0;
   quiz.list = endless ? []
@@ -550,7 +624,7 @@ function setMode(endless) {
 
 function questionReport(q) {
   var title = "Question " + q.id + ": correction";
-  var body = "Question ID: " + q.id + "\nPage: " + location.origin + location.pathname
+  var body = "Question ID: " + q.id + "\nPage: " + location.origin + questionLink(q)
     + "\n\nWhat seems wrong:\n\nSuggested correction or source:\n";
   return '<a href="https://github.com/citroniumthe4th/SFHS-ACSL-Guide/issues/new?title='
     + encodeURIComponent(title) + '&amp;body=' + encodeURIComponent(body)
@@ -558,13 +632,14 @@ function questionReport(q) {
 }
 
 function drawQuestion() {
-  var missedMode = quiz.topic === "__missed";
+  var bookmarksMode = quiz.topic === "__bookmarks";
+  var missedMode = quiz.topic === "__missed" || bookmarksMode;
   fillAhead();
   var q = quiz.list[quiz.i];
   var t = topicById(missedMode ? q.topic : quiz.topic);
-  var heading = missedMode ? "Missed questions" : t.name;
+  var heading = bookmarksMode ? "Bookmarked questions" : missedMode ? "Missed questions" : t.name;
   var crumb = missedMode
-    ? '<a href="/practice">Practice</a> &middot; questions you got wrong'
+    ? '<a href="/practice">Practice</a> &middot; ' + (bookmarksMode ? 'questions you saved' : 'questions you got wrong')
     : '<a href="/practice">Practice</a> &middot; ' + CONTEST_NAMES[t.contest];
 
   var html = '<div class="wrap">' +
@@ -580,20 +655,29 @@ function drawQuestion() {
           '<button class="' + (quiz.endless ? "" : "on") + '" data-endless="0">Question bank' +
           "</button>" +
           '<button class="' + (quiz.endless ? "on" : "") + '" data-endless="1">Endless</button>' +
-          '<span class="note">' + (quiz.endless
+          '<span class="note">' + (quiz.requested ? "Shared question. Choose a mode to continue practicing this category." : quiz.endless
             ? "Generated fresh each time, so you are very unlikely to see the same one twice. "
-              + "These do not go in your missed list."
+              + "Missed questions are saved so you can retry the same version."
             : "Fixed question bank. " + questionsFor(quiz.topic, quiz.division).length
               + " of them, and your score is kept.") + "</span></div>"
       : "") +
     '<p class="question-meta">' + esc(q.id) + " &middot; "
-      + (q.exam === false ? "Extension beyond the core syllabus" : q.check || quiz.endless ? "Practice problem" : "Concept check")
+      + (q.exam === false ? "Extension beyond the core syllabus" : q.kind === "problem" || q.generated ? "Practice problem" : "Concept check")
+      + ' &middot; <a href="' + questionLink(q) + '">Link to this question</a>'
       + ' &middot; ' + questionReport(q) + "</p>" +
+    '<button class="btn bookmark" id="bookmark" aria-pressed="' + String(store("bookmark:" + q.id, false) === true)
+      + '">' + (store("bookmark:" + q.id, false) === true ? "Bookmarked" : "Bookmark question") + "</button>" +
     '<div class="qtext">' + q.q + "</div>" +
     '<div class="choices" id="choices"></div>' +
     '<div id="after"></div></div>';
   el("main").innerHTML = html;
 
+  el("bookmark").addEventListener("click", function () {
+    var marked = store("bookmark:" + q.id, false) !== true;
+    save("bookmark:" + q.id, marked);
+    this.setAttribute("aria-pressed", String(marked));
+    this.textContent = marked ? "Bookmarked" : "Bookmark question";
+  });
   var modes = el("modes");
   if (modes) {
     modes.addEventListener("click", function (e) {
@@ -646,7 +730,7 @@ function paintAnswer() {
   });
   var rb = el("restart");
   if (rb) rb.addEventListener("click", function () {
-    var wasMissed = quiz.topic === "__missed";
+    var wasMissed = quiz.topic === "__missed" || quiz.topic === "__bookmarks";
     quiz = null;
     if (wasMissed) missedPage();
     else practicePage(q.topic);
@@ -659,7 +743,7 @@ function answer(idx) {
   quiz.picked = idx;
   quiz.seen++;
   if (idx === q.ans) quiz.right++;
-  if (!q.generated) save("q:" + q.id, idx === q.ans);
+  save("q:" + q.id, idx === q.ans);
   paintAnswer();
 }
 
@@ -675,6 +759,10 @@ var clockTimer = null;
 
 function isWdtpd(topicId) { return topicId.indexOf("wdtpd") === 0; }
 
+function examSize(contest, div) {
+  return topicsFor(div).filter(function (t) { return t.contest === contest; }).length * PER_TOPIC;
+}
+
 function buildExam(contest) {
   // acsl.org states the format outright: "Each contest has 6 problems: two problems from each
   // of the 3 topics." So the paper is entirely determined by the contest's own topic list, and
@@ -686,7 +774,7 @@ function buildExam(contest) {
 
   topics.forEach(function (t) {
     shuffle(questionsFor(t.id, div).slice())
-      .filter(function (q) { return q.check && q.exam !== false && ids.indexOf(q.id) < 0; })
+      .filter(function (q) { return q.kind === "problem" && q.exam !== false && ids.indexOf(q.id) < 0; })
       .slice(0, PER_TOPIC)
       .forEach(function (q) { picked.push(q); ids.push(q.id); });
   });
@@ -719,14 +807,24 @@ function saveExam() { save("exam", exam); }
 // and then blanked it again on the next reload, since nothing ever threw the bad record
 // away. Vet the whole shape here instead: anything that fails is dropped, and the caller
 // builds a fresh paper.
-function loadExam() {
-  var e = store("exam", null);
-  if (!e || !Array.isArray(e.ids) || !e.ids.length) return null;
+function loadExam() { return validExam(store("exam", null)); }
+
+function validExam(e) {
+  if (!e || !Array.isArray(e.ids)) return null;
+  if (e.division !== "junior" && e.division !== "senior") return null;
+  if (typeof e.submitted !== "boolean") return null;
+  if (!(Number.isInteger(e.contest) && e.contest >= 1 && e.contest <= 4)) return null;
+  // Ask buildExam's own arithmetic how long this paper should be, so that changing PER_TOPIC
+  // does not silently invalidate every exam already in progress.
+  var want = examSize(e.contest, e.division);
+  if (e.ids.length !== want || new Set(e.ids).size !== want) return null;
   if (!Array.isArray(e.answers) || e.answers.length !== e.ids.length) return null;
-  if (!(e.contest >= 1 && e.contest <= 4)) return null;
   if (typeof e.deadline !== "number" || !isFinite(e.deadline)) return null;
-  if (!(e.at >= 0 && e.at < e.ids.length)) return null;
-  if (!e.ids.every(function (id) { return questionById(id); })) return null;
+  if (!(Number.isInteger(e.at) && e.at >= 0 && e.at < e.ids.length)) return null;
+  if (!e.ids.every(function (id) {
+    var q = MCQ.find(function (q) { return q.id === id; });
+    return q && (q.level === "b" || q.level === e.division.charAt(0));
+  })) return null;
   if (!Array.isArray(e.orders) || e.orders.length !== e.ids.length) return null;
   var shapeOk = e.orders.every(function (o, i) {
     var n = questionById(e.ids[i]).choices.length;
@@ -736,7 +834,7 @@ function loadExam() {
   });
   if (!shapeOk) return null;
   return e.answers.every(function (a, i) {
-    return a === null || (a >= 0 && a < questionById(e.ids[i]).choices.length);
+    return a === null || (Number.isInteger(a) && a >= 0 && a < questionById(e.ids[i]).choices.length);
   }) ? e : null;
 }
 
@@ -748,7 +846,15 @@ function examQ(i) {
 
 function questionById(id) {
   for (var i = 0; i < MCQ.length; i++) if (MCQ[i].id === id) return MCQ[i];
+  var match = /^gen:([a-z-]+):(0|[1-9][0-9]{0,9})$/.exec(String(id));
+  if (match && GEN.has(match[1]) && Number(match[2]) <= 4294967295) {
+    return GEN.make(match[1], Number(match[2]));
+  }
   return null;
+}
+
+function questionLink(q) {
+  return "/practice/" + q.topic + "?q=" + encodeURIComponent(q.id);
 }
 
 function secondsLeft() {
@@ -954,19 +1060,21 @@ function drawExamResults() {
 // ------------------------------------------------------------------ missed bank
 
 function missedPage() {
-  var missed = missedFor(division);
+  var bookmarks = new URLSearchParams(location.search).get("view") === "bookmarks";
+  var topic = bookmarks ? "__bookmarks" : "__missed";
+  var missed = bookmarks ? bookmarkedFor(division) : missedFor(division);
   if (!missed.length) {
     var elsewhere = missedElsewhere(division);
     el("main").innerHTML = '<div class="wrap"><div class="eyebrow">' + division +
-      " division</div><h1>Missed questions</h1>" +
-      '<p class="empty">Nothing here. Questions you get wrong in practice or on a mock exam ' +
-      "land in this list, and they leave it once you get them right." +
-      (elsewhere ? " You do have " + elsewhere + " missed in the other division." : "") +
+      " division</div><h1>" + (bookmarks ? "Bookmarked questions" : "Missed questions") + "</h1>" +
+      '<p class="empty">' + (bookmarks ? "No bookmarks in this division yet. Use Bookmark question while practicing to save one here."
+        : "Questions you get wrong in practice or on a mock exam land here. Getting one right removes it.") +
+      (!bookmarks && elsewhere ? " You do have " + elsewhere + " missed in the other division." : "") +
       '</p><div class="btn-row"><a class="btn" href="/practice">Back to practice</a></div></div>';
     return;
   }
-  if (!quiz || quiz.topic !== "__missed" || quiz.division !== division) {
-    quiz = { topic: "__missed", division: division,
+  if (!quiz || quiz.topic !== topic || quiz.division !== division) {
+    quiz = { topic: topic, division: division,
              list: shuffle(missed.slice()).map(presented), i: 0,
              picked: null, right: 0, seen: 0 };
   }
@@ -984,12 +1092,12 @@ function problemsIndex() {
     "function. The driver below it feeds the test data in and prints what you return.</p>" +
     '<div class="grid">';
   probs.forEach(function (p) {
-    var st = store("frq:" + p.id, null);
+    var st = problemProgress(p.id);
     html += '<a class="card" href="/problem/' + p.id + '"><h3>' + esc(p.title) + "</h3><p>" +
       esc(p.blurb) + '</p><div class="card-foot"><span class="chip">' +
       CONTEST_NAMES[p.contest] + '</span><span class="chip">' + esc(p.fname) + "</span>" +
-      (st === "solved" ? '<span class="chip ok">solved</span>' : "") +
-      (st === "gaveup" ? '<span class="chip">solution seen</span>' : "") +
+      (st.solved ? '<span class="chip ok">' + (st.assisted ? "solved with solution" : "solved independently") + "</span>" : "") +
+      (st.solutionViewed ? '<span class="chip">solution seen</span>' : "") +
       "</div></a>";
   });
   el("main").innerHTML = html + "</div></div>";
@@ -1271,7 +1379,7 @@ function dataList(cases, lockFrom, startAt) {
 
 function drawStatement() {
   var p = curProblem;
-  var gaveUp = store("frq:" + p.id, null) === "gaveup";
+  var gaveUp = problemProgress(p.id).solutionViewed;
   var visible = p.tests.slice(0, 6);
   var hidden = p.tests.slice(6);
 
@@ -1279,6 +1387,7 @@ function drawStatement() {
     '<div class="eyebrow"><a href="/problems">Programming problems</a> &middot; ' +
       CONTEST_NAMES[p.contest] + " &middot; " + p.division + " division</div>" +
     "<h1>" + esc(p.title) + "</h1>" +
+    '<a class="btn jump-editor" href="#editor-host" id="jump-editor">Jump to editor</a>' +
 
     '<h2 class="sec">Problem</h2>' + p.statement +
     '<h2 class="sec">Example</h2>' + p.example +
@@ -1311,17 +1420,26 @@ function drawStatement() {
     "The last 6 are hidden. The test cases vary in difficulty, and you should make up sample " +
     "data of your own to test your program properly.</p>" +
 
+    '<h2 class="sec">Hints</h2><p class="note">They get more specific, and opening one closes the other. Neither marks the solution as viewed.</p>' +
+    (p.hints || []).map(function (hint, i) {
+      return '<details class="hint" name="hint"><summary>Hint ' + (i + 1) + '</summary><p>' + esc(hint) + '</p></details>';
+    }).join("") +
     '<div class="btn-row"><button class="btn" id="giveup">' +
     (gaveUp ? "Solution shown below" : "Show the solution") + "</button></div>" +
     '<div id="solution"></div>';
 
   el("ws-left").innerHTML = html;
+  el("jump-editor").addEventListener("click", function (e) {
+    e.preventDefault();
+    el("editor-host").scrollIntoView({ block: "start" });
+    if (cm) cm.focus();
+  });
   var gb = el("giveup");
   gb.disabled = gaveUp;
   gb.addEventListener("click", function () {
     if (!confirm("Show the reference solution and all twelve test cases? This will mark the "
                  + "solution as viewed.")) return;
-    save("frq:" + p.id, "gaveup");
+    recordProblem(p.id, "view");
     drawStatement();
   });
   if (gaveUp) drawSolution();
@@ -1582,8 +1700,8 @@ function report(res, cases, full) {
               + (res.stderr ? ", and the program wrote to stderr" : "") + "</span>",
               html);
 
-  if (full && accepted && store("frq:" + curProblem.id, null) !== "gaveup") {
-    save("frq:" + curProblem.id, "solved");
+  if (full && accepted) {
+    recordProblem(curProblem.id, "solve");
   }
 }
 
@@ -1640,6 +1758,106 @@ function render() {
     if (r.arg) guidePage(r.arg); else guideIndex();
   }
 }
+
+// Backups contain only recognized study data. Validate the complete file before writing.
+function validSavedEntry(key, value) {
+  if (key === "division") return value === "junior" || value === "senior";
+  if (key === "theme") return value === "dark" || value === "light";
+  if (key === "lang") return LANGS.some(function (lang) { return lang.id === value; });
+  if (key === "editor-font") return Number.isInteger(value) && value >= 11 && value <= 22;
+  if (key === "ws-split") return typeof value === "number" && value >= 0.2 && value <= 0.75;
+  if (key === "exam") return value === null || !!validExam(value);
+  var parts = key.split(":");
+  if (parts[0] === "q" || parts[0] === "bookmark") {
+    return typeof value === "boolean" && !!questionById(parts.slice(1).join(":"));
+  }
+  if (!problemById(parts[1])) return false;
+  if (parts[0] === "code" && parts.length === 3) {
+    return LANGS.some(function (lang) { return lang.id === parts[2]; })
+      && typeof value === "string" && value.length <= 5 * 1024 * 1024;
+  }
+  if (parts[0] === "stdin" && parts.length === 2) return typeof value === "string" && value.length <= 5 * 1024 * 1024;
+  if (parts[0] === "frq" && parts.length === 2) {
+    if (value === "solved" || value === "gaveup") return true;
+    return !!value && !Array.isArray(value) && Object.keys(value).length === 3
+      && typeof value.solved === "boolean" && typeof value.solutionViewed === "boolean"
+      && typeof value.assisted === "boolean" && (!value.assisted || (value.solved && value.solutionViewed));
+  }
+  return false;
+}
+
+function backupData() {
+  var entries = {};
+  Object.keys(localStorage).forEach(function (key) {
+    if (!key.startsWith("acsl:")) return;
+    var short = key.slice(5), value = store(short, null);
+    if (validSavedEntry(short, value)) entries[short] = value;
+  });
+  var data = { version: 1, entries: entries };
+  validateBackup(data);
+  return data;
+}
+
+function validateBackup(data) {
+  if (!data || data.version !== 1 || !data.entries || typeof data.entries !== "object"
+      || Array.isArray(data.entries)) throw new Error("Choose a version 1 ACSL backup file.");
+  var keys = Object.keys(data.entries);
+  if (keys.length > 20000) throw new Error("This backup has too many entries.");
+  keys.forEach(function (key) {
+    if (!validSavedEntry(key, data.entries[key])) throw new Error("Invalid backup entry: " + key.slice(0, 80));
+  });
+  return keys;
+}
+
+function restoreBackup(data) {
+  var keys = validateBackup(data), previous = new Map();
+  // Read all old values first, so a read failure cannot interrupt a partial restore.
+  keys.forEach(function (key) { previous.set(key, localStorage.getItem("acsl:" + key)); });
+  try {
+    keys.forEach(function (key) { localStorage.setItem("acsl:" + key, JSON.stringify(data.entries[key])); });
+  } catch (error) {
+    var restored = true;
+    previous.forEach(function (value, key) {
+      try {
+        if (value === null) localStorage.removeItem("acsl:" + key);
+        else localStorage.setItem("acsl:" + key, value);
+      } catch (e) { restored = false; }
+    });
+    throw new Error(restored ? "Import failed. Your previous data was restored. Free some browser storage and try again."
+      : "Import stopped and the browser could not restore every previous value. Keep your backup file and export the current data before continuing.");
+  }
+}
+
+el("export-progress").addEventListener("click", function () {
+  try {
+    var blob = new Blob([JSON.stringify(backupData(), null, 2)], { type: "application/json" });
+    if (blob.size > 25 * 1024 * 1024) throw new Error("Study data exceeds the 25 MB backup limit. Copy your code before clearing older progress.");
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = "acsl-progress-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    el("backup-status").textContent = "Backup downloaded. It includes saved code and stays on your device.";
+  } catch (e) { el("backup-status").textContent = "Could not export: " + e.message; }
+});
+el("import-progress").addEventListener("click", function () { el("backup-file").click(); });
+el("backup-file").addEventListener("change", async function () {
+  var file = this.files[0];
+  this.value = "";
+  if (!file) return;
+  try {
+    if (file.size > 25 * 1024 * 1024) throw new Error("The backup must be smaller than 25 MB.");
+    var data = JSON.parse(await file.text());
+    var keys = validateBackup(data);
+    if (!keys.length) throw new Error("This backup contains no study data.");
+    if (!confirm("Import " + keys.length + " saved entries? Matching answers, code, and settings in this browser will be replaced. Other saved work will stay.")) return;
+    restoreBackup(data);
+    location.reload();
+  } catch (e) { el("backup-status").textContent = e.message; }
+});
 
 document.getElementById("wipe").addEventListener("click", function () {
   if (!confirm("Delete your saved answers, exam progress, code, custom input, theme, language, "

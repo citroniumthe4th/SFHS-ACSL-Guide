@@ -15,6 +15,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 
 import codegen  # noqa: E402
+from hints import HINTS  # noqa: E402
 import server   # noqa: E402
 
 import html as _html
@@ -110,6 +111,8 @@ def build(only=None):
         rec = {k: p[k] for k in ("id", "division", "contest", "title", "blurb", "statement",
                                  "example", "input_spec", "output_spec", "constraints",
                                  "approach")}
+        assert len(HINTS[p["id"]]) == 2, p["id"]
+        rec["hints"] = HINTS[p["id"]]
         rec["fname"] = fname
         rec["task"] = p["task"]
         rec["samples"] = [{"in": b, "out": o} for b, o in zip(samples, expected[:3])]
