@@ -58,6 +58,17 @@ function wrapJava(code, entry) {
   );
 }
 
+// Judge0 answers a program whose output is not valid UTF-8 with HTTP 400 unless both
+// directions are base64, which reads as a total outage to anyone whose program prints a
+// stray byte. Nothing else on the list needs this, so it stays local to that entry.
+const toBase64 = (text) => Buffer.from(String(text), "utf8").toString("base64");
+
+const fromBase64 = (text) => {
+  if (text === undefined || text === null) return "";
+  if (typeof text !== "string") throw new Error("Invalid runner stream");
+  return Buffer.from(text, "base64").toString("utf8");
+};
+
 const MAX_CODE = 200000;
 const MAX_STDIN = 100000;
 const MAX_RESPONSE = 1024 * 1024;
@@ -149,19 +160,18 @@ const BACKENDS = [
   },
   {
     name: "judge0",
-    url: () => "https://ce.judge0.com/submissions?base64_encoded=false&wait=true",
+    url: () => "https://ce.judge0.com/submissions?base64_encoded=true&wait=true",
     body: (spec, lang, code, stdin) => ({
-      source_code: lang === "java" ? wrapJava(code, "Main") : code,
+      source_code: toBase64(lang === "java" ? wrapJava(code, "Main") : code),
       language_id: spec.judge0,
+      // Options are read as plain text even when the streams are not.
       compiler_options: spec.args || "",
-      stdin,
+      stdin: toBase64(stdin),
     }),
     read: (d) => {
-      for (const key of ["stdout", "stderr", "compile_output"]) {
-        if (d[key] !== undefined && d[key] !== null && typeof d[key] !== "string") {
-          throw new Error("Invalid runner stream");
-        }
-      }
+      const stdout = fromBase64(d.stdout);
+      const stderr = fromBase64(d.stderr);
+      const compileOut = fromBase64(d.compile_output);
       const status = d.status && d.status.id;
       // Queued/processing and internal failures are not verdicts about the student's code.
       if (!Number.isInteger(status) || status < 3 || status > 12) {
@@ -172,9 +182,9 @@ const BACKENDS = [
       }
       const built = status !== 6; // 6 is Judge0's compilation error
       return {
-        compileErr: built ? "" : d.compile_output || "",
-        stdout: d.stdout || "",
-        stderr: d.stderr || "",
+        compileErr: built ? "" : compileOut,
+        stdout,
+        stderr,
         built,
         // exit_code comes back null even for a program that really did exit non-zero, so
         // the status stands in for it. The page only asks whether this is zero.

@@ -169,7 +169,9 @@ all three services. When every service fails, the student is told it is not thei
 
 Compiler Explorer needs two things Wandbox does not: its diagnostics arrive with ANSI color
 escapes, and it compiles to a file of its own naming, so both are rewritten before the text
-reaches the page.
+reaches the page. Judge0 needs a third: it answers HTTP 400 for any output it cannot read as
+UTF-8 unless the transfer is base64, so its source, stdin and three output streams are encoded
+both ways. Without that, a program printing one accented character looks like a total outage.
 
 `vercel.json` caps the function at 20 seconds. The handler holds itself to 16 across all attempts
 and 10 for any one of them, so a dead first choice cannot eat the budget the second needs. The

@@ -211,6 +211,8 @@ async function main() {
   const asked = [];
   // A Response body can only be read once, so each use needs its own.
   const godboltOk = () => Response.json({ code: 0, stdout: [{ text: "4" }, { text: "8" }], stderr: [] });
+  // Judge0 transfers base64 both ways, so its fixtures have to as well.
+  const j64 = (text) => Buffer.from(text, "utf8").toString("base64");
   const hostOf = (url) => String(url).includes("godbolt") ? "godbolt"
     : String(url).includes("judge0") ? "judge0" : "wandbox";
   const dead = (status) => () => ({ ok: false, status, body: { cancel: async () => {} } });
@@ -245,7 +247,7 @@ async function main() {
   api.fetch = route({
     wandbox: dead(500),
     godbolt: dead(503),
-    judge0: () => Response.json({ stdout: "4\n8\n", stderr: null, compile_output: null,
+    judge0: () => Response.json({ stdout: j64("4\n8\n"), stderr: null, compile_output: null,
                                   status: { id: 3, description: "Accepted" } }),
   });
   r = await call();
@@ -258,7 +260,7 @@ async function main() {
   api.fetch = route({
     wandbox: dead(500),
     godbolt: dead(503),
-    judge0: () => Response.json({ compile_output: "Main.java:1: error: bad", stdout: null,
+    judge0: () => Response.json({ compile_output: j64("Main.java:1: error: bad"), stdout: null,
                                   stderr: null, status: { id: 6, description: "Compilation Error" } }),
   });
   r = await call({ lang: "java", code: "public class Solution {}" });
@@ -269,7 +271,7 @@ async function main() {
   api.fetch = route({
     wandbox: dead(500),
     godbolt: dead(503),
-    judge0: () => Response.json({ stdout: "partial", stderr: null, compile_output: null,
+    judge0: () => Response.json({ stdout: j64("partial"), stderr: null, compile_output: null,
                                   exit_code: null, status: { id: 11, description: "Runtime Error" } }),
   });
   r = await call();
@@ -340,7 +342,7 @@ async function main() {
     { code: 0, stdout: [{ unexpected: "4" }] },
   ]) {
     api.fetch = route({ wandbox: dead(500), godbolt: () => Response.json(response),
-      judge0: () => Response.json({ status: { id: 3 }, stdout: "4" }) });
+      judge0: () => Response.json({ status: { id: 3 }, stdout: j64("4") }) });
     assert.equal((await call()).data.stdout, "4", "invalid or unexecuted CE result must fall back");
   }
   for (const [id, expected] of [[1, "error"], [2, "error"], [13, "error"], [14, "error"], [99, "error"],
@@ -351,10 +353,18 @@ async function main() {
   }
   api.fetch = async (url, options) => {
     if (hostOf(url) !== "judge0") return dead(500)();
-    assert.equal(JSON.parse(options.body).compiler_options, "-std=c++17 -O2");
-    return Response.json({ status: { id: 3 }, stdout: "201703" });
+    const sent = JSON.parse(options.body);
+    assert.equal(sent.compiler_options, "-std=c++17 -O2", "options stay plain text");
+    assert.equal(Buffer.from(sent.source_code, "base64").toString("utf8"), "int main() {}",
+                 "the source travels base64");
+    return Response.json({ status: { id: 3 }, stdout: j64("201703") });
   };
   assert.equal((await call({ lang: "cpp", code: "int main() {}" })).data.status, "ok");
+
+  // The reason for base64 at all: Judge0 refuses anything it cannot read as UTF-8 otherwise.
+  api.fetch = route({ wandbox: dead(500), godbolt: dead(503),
+    judge0: () => Response.json({ status: { id: 3 }, stdout: j64("caf\u00e9 \u2014 ok\n") }) });
+  assert.equal((await call()).data.stdout, "caf\u00e9 \u2014 ok\n", "non-ascii output survives");
 
   console.log("Grading, progress migration, backups, generated links, 160 mock exams, and proxy checks passed.");
 }
