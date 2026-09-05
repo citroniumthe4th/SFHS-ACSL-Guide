@@ -30,7 +30,7 @@ def main():
         raise SystemExit("sitemap: found %d topics and %d problems, expected both"
                          % (len(topics), len(problems)))
 
-    # The mock exam and the missed list are per person and hold nothing to index.
+    # The mock exam, the missed list and the bookmarks are per person and hold nothing to index.
     urls = ["/", "/guide", "/practice", "/problems", "/privacy"]
     urls += ["/guide/%s" % t for t in topics]
     urls += ["/practice/%s" % t for t in topics]
@@ -47,6 +47,7 @@ def main():
         "Disallow: /api/\n"
         "Disallow: /exam\n"
         "Disallow: /missed\n"
+        "Disallow: /bookmarks\n"
         "\n"
         "Sitemap: %s/sitemap.xml\n" % ORIGIN)
 

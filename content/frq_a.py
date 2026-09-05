@@ -247,7 +247,7 @@ Three trips in all, so output 3.
     input_spec="Input an integer, the weight limit, on the first line. On the second line input a "
                "string of weights, each separated by a single space.",
     output_spec="Output an integer, the number of trips.",
-    constraints="There are at most 60 people in line. Every weight is a positive integer no "
+    constraints="The line holds between 1 and 60 people. Every weight is a positive integer no "
                 "larger than the limit, and the limit is at most 5000.",
     task="""
 <ul>

@@ -349,7 +349,7 @@ a.card:hover { border-color: var(--accent-dim); text-decoration: none; }
 }
 .explain h2 { margin: 0 0 6px; color: var(--accent); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
 .explain.wrong { border-left-color: var(--bad); }
-.explain.wrong h4 { color: var(--bad); }
+.explain.wrong h2 { color: var(--bad); }
 .explain p:last-child { margin-bottom: 0; }
 
 .verdict { font: 600 12px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
@@ -932,3 +932,17 @@ details.reveal > div { padding: 0 14px 14px; }
 .jump-editor { display: none; }
 #editor-host { scroll-margin-top: 80px; }
 @media (max-width: 1000px) { .jump-editor { display: inline-flex; margin-bottom: 16px; } }
+
+/* The platform scrollbar draws a pale strip down the page, which is loud on a dark theme and
+   worst in the workspace, where the statement, the editor and the console can each show one.
+   Thumb only, in the border colour, over the page's own background. */
+* { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* Narrower again inside the workspace, where the panes are already tight. */
+.ws ::-webkit-scrollbar { width: 7px; height: 7px; }
+.ws-left::-webkit-scrollbar { width: 7px; }

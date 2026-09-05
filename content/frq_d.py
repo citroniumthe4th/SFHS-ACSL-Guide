@@ -288,8 +288,8 @@ F5 finishes the second ship, so S.
                "two end squares joined by a hyphen. On the second line input the shots, each "
                "separated by a single space.",
     output_spec="Output one letter per shot, in order, with no spaces between them.",
-    constraints="The grid is 8 by 8. There are at most 5 ships, no ship overlaps another, and "
-                "there are at most 64 shots.",
+    constraints="The grid is 8 by 8. There are between 1 and 5 ships, no ship overlaps another, "
+                "and between 1 and 64 shots are fired.",
     task="""
 <ul>
 <li>The function has 2 parameters: a string, <code>fleet</code>, holding the ships separated by
@@ -484,9 +484,9 @@ reported. Both tokens finish on 27.
                 "the number of the roll that did it, counting the first roll in the list as roll "
                 "1. Otherwise output NOBODY, then A's final square, then B's final square, "
                 "separated by single spaces.",
-    constraints="Squares run from 1 to 100. There are at most 20 ladders and slides, no two start "
-                "on the same square, and none starts on square 100. There are at most 300 rolls, "
-                "each from 1 to 6.",
+    constraints="Squares run from 1 to 100. There are between 1 and 20 ladders and slides, no two "
+                "start on the same square, and none starts on square 100. There are between 1 "
+                "and 300 rolls, each from 1 to 6.",
     task="""
 <ul>
 <li>The function has 2 parameters: a string, <code>jumps</code>, holding the ladders and slides

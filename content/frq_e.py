@@ -241,9 +241,9 @@ That is the second stop.
                "and given in increasing order of position. On the second line input the speed of "
                "the car in units per second.",
     output_spec="Output an integer, the number of lights the car has to wait at.",
-    constraints="There are at most 40 lights. Every position is a whole multiple of the speed, so "
-                "the car always reaches a light on a whole second. Green and red times are "
-                "between 1 and 200 seconds. The speed is between 1 and 50.",
+    constraints="The road carries between 1 and 40 lights. Every position is a whole multiple of "
+                "the speed, so the car always reaches a light on a whole second. Green and red "
+                "times are between 1 and 200 seconds. The speed is between 1 and 50.",
     task="""
 <ul>
 <li>The function has 2 parameters: a string, <code>lights</code>, describing the lights, and an

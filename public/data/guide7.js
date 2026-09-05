@@ -4,7 +4,7 @@ window.GUIDE = Object.assign(window.GUIDE || {}, {
 <p class="lead">A graph consists of vertices and edges connecting them. In this category, practise reading directed and undirected graphs, building adjacency matrices, and counting routes of a given length.</p>
 
 <figure class="diagram"><img src="/assets/diagrams/graph.svg" width="333" height="220" alt="Undirected graph on vertices 1 through 6. Edges join 1 to 2 and 5, 2 to 3 and 5, 3 to 4, and 4 to 5 and 6." loading="lazy"><figcaption><a href="https://commons.wikimedia.org/wiki/File:6n-graf.svg">AzaToth, based on the graph by Booyabazooka</a>. Public domain.</figcaption></figure>
-<p>In this graph, vertex 4 has neighbors 3, 5, and 6. With rows and columns ordered 1 through 6, row 4 of its adjacency matrix is 0 0 1 0 1 1.</p>
+<p>In this graph, vertex 4 has neighbours 3, 5, and 6. With rows and columns ordered 1 through 6, row 4 of its adjacency matrix is 0 0 1 0 1 1.</p>
 
 <h2>Vocabulary, stated precisely</h2>
 <p>In an undirected graph an edge works in both directions, while in a directed graph, or digraph,

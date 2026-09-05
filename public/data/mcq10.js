@@ -165,7 +165,7 @@ column 4 contains 0. The row is 0 0 1 0 1 1.` },
 edges.</p>`,
   choices:["1","2","3","0","None of the above"], ans:0,
   check:`str(walks(6, 2, 'A', 'D', '010010101010010100001011110100000100'))`,
-  why:`A two-edge path has one intermediate vertex. The neighbors of 1 are 2 and 5, and the neighbors of
+  why:`A two-edge path has one intermediate vertex. The neighbours of 1 are 2 and 5, and the neighbours of
 4 are 3, 5, and 6. Only 5 appears in both sets, so the only path is 1 to 5 to 4. This is also the
 row 1, column 4 entry of the squared adjacency matrix.` }
 

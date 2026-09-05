@@ -77,6 +77,10 @@
     {
       "source": "/missed",
       "destination": "/index.html"
+    },
+    {
+      "source": "/bookmarks",
+      "destination": "/index.html"
     }
   ]
 }

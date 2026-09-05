@@ -3,5 +3,6 @@ Allow: /
 Disallow: /api/
 Disallow: /exam
 Disallow: /missed
+Disallow: /bookmarks
 
 Sitemap: https://www.sfhsacsl.org/sitemap.xml

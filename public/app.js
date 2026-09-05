@@ -270,6 +270,8 @@ function metaFor(r) {
                + "every question."],
     missed:   ["Missed questions" + suffix, "The questions you got wrong, waiting to be "
                + "tried again."],
+    bookmarks: ["Bookmarked questions" + suffix, "The questions you saved while practising, "
+               + "ready to work through again."],
     problems: ["Programming problems" + suffix,
                "ACSL style programming problems with twelve test cases, solvable in Python, "
                + "Java, or C++ in the browser."]
@@ -538,7 +540,6 @@ function practiceIndex() {
   var html = '<div class="wrap-wide"><div class="eyebrow">' + division + " division</div>" +
     "<h1>Practice</h1><p class=\"note\">Pick a category. Every question shows its reasoning " +
     "once you answer, right or wrong.</p>";
-  html += '<p><a href="/missed?view=bookmarks">Bookmarked questions (' + bookmarkedFor(division).length + ')</a></p>';
   var missed = missedFor(division);
   if (missed.length) {
     html += '<div class="grid"><a class="card" href="/missed"><h3>Missed questions</h3>' +
@@ -622,13 +623,17 @@ function setMode(endless) {
   drawQuestion();
 }
 
+// Both routes carry the same prefilled report. GitHub is public and needs an account;
+// the address does not, which for most people here is the shorter path.
 function questionReport(q) {
   var title = "Question " + q.id + ": correction";
   var body = "Question ID: " + q.id + "\nPage: " + location.origin + questionLink(q)
     + "\n\nWhat seems wrong:\n\nSuggested correction or source:\n";
-  return '<a href="https://github.com/citroniumthe4th/SFHS-ACSL-Guide/issues/new?title='
+  return 'Report a mistake by <a href="mailto:contact@sfhsacsl.org?subject='
+    + encodeURIComponent(title) + '&amp;body=' + encodeURIComponent(body) + '">email</a> or '
+    + '<a href="https://github.com/citroniumthe4th/SFHS-ACSL-Guide/issues/new?title='
     + encodeURIComponent(title) + '&amp;body=' + encodeURIComponent(body)
-    + '" target="_blank" rel="noopener noreferrer">Report an issue</a>';
+    + '" target="_blank" rel="noopener noreferrer">on GitHub</a>';
 }
 
 function drawQuestion() {
@@ -639,7 +644,8 @@ function drawQuestion() {
   var t = topicById(missedMode ? q.topic : quiz.topic);
   var heading = bookmarksMode ? "Bookmarked questions" : missedMode ? "Missed questions" : t.name;
   var crumb = missedMode
-    ? '<a href="/practice">Practice</a> &middot; ' + (bookmarksMode ? 'questions you saved' : 'questions you got wrong')
+    ? (bookmarksMode ? 'Questions you saved while practising'
+                       : '<a href="/practice">Practice</a> &middot; questions you got wrong')
     : '<a href="/practice">Practice</a> &middot; ' + CONTEST_NAMES[t.contest];
 
   var html = '<div class="wrap">' +
@@ -655,7 +661,7 @@ function drawQuestion() {
           '<button class="' + (quiz.endless ? "" : "on") + '" data-endless="0">Question bank' +
           "</button>" +
           '<button class="' + (quiz.endless ? "on" : "") + '" data-endless="1">Endless</button>' +
-          '<span class="note">' + (quiz.requested ? "Shared question. Choose a mode to continue practicing this category." : quiz.endless
+          '<span class="note">' + (quiz.requested ? "Shared question. Choose a mode to continue practising this category." : quiz.endless
             ? "Generated fresh each time, so you are very unlikely to see the same one twice. "
               + "Missed questions are saved so you can retry the same version."
             : "Fixed question bank. " + questionsFor(quiz.topic, quiz.division).length
@@ -730,9 +736,9 @@ function paintAnswer() {
   });
   var rb = el("restart");
   if (rb) rb.addEventListener("click", function () {
-    var wasMissed = quiz.topic === "__missed" || quiz.topic === "__bookmarks";
+    var was = quiz.topic;
     quiz = null;
-    if (wasMissed) missedPage();
+    if (was === "__missed" || was === "__bookmarks") missedPage(was === "__bookmarks");
     else practicePage(q.topic);
   });
 }
@@ -1059,15 +1065,18 @@ function drawExamResults() {
 
 // ------------------------------------------------------------------ missed bank
 
-function missedPage() {
-  var bookmarks = new URLSearchParams(location.search).get("view") === "bookmarks";
+function missedPage(bookmarks) {
+  // /missed?view=bookmarks was the address for about a day. Send it to its own page.
+  if (!bookmarks && new URLSearchParams(location.search).get("view") === "bookmarks") {
+    return go("/bookmarks");
+  }
   var topic = bookmarks ? "__bookmarks" : "__missed";
   var missed = bookmarks ? bookmarkedFor(division) : missedFor(division);
   if (!missed.length) {
     var elsewhere = missedElsewhere(division);
     el("main").innerHTML = '<div class="wrap"><div class="eyebrow">' + division +
       " division</div><h1>" + (bookmarks ? "Bookmarked questions" : "Missed questions") + "</h1>" +
-      '<p class="empty">' + (bookmarks ? "No bookmarks in this division yet. Use Bookmark question while practicing to save one here."
+      '<p class="empty">' + (bookmarks ? "No bookmarks in this division yet. Use Bookmark question while practising to save one here."
         : "Questions you get wrong in practice or on a mock exam land here. Getting one right removes it.") +
       (!bookmarks && elsewhere ? " You do have " + elsewhere + " missed in the other division." : "") +
       '</p><div class="btn-row"><a class="btn" href="/practice">Back to practice</a></div></div>';
@@ -1707,7 +1716,7 @@ function report(res, cases, full) {
 
 // ------------------------------------------------------------------ not found
 
-var SECTIONS = ["guide", "practice", "exam", "missed", "problems", "problem"];
+var SECTIONS = ["guide", "practice", "exam", "missed", "bookmarks", "problems", "problem"];
 
 // Every dead link used to land on the guide index without a word, which reads as though
 // the site lost your place rather than as though the address was wrong.
@@ -1748,8 +1757,8 @@ function render() {
     if (r.arg) practicePage(r.arg); else practiceIndex();
   } else if (r.section === "exam") {
     if (r.arg) examPage(r.arg); else examIndex();
-  } else if (r.section === "missed") {
-    missedPage();
+  } else if (r.section === "missed" || r.section === "bookmarks") {
+    missedPage(r.section === "bookmarks");
   } else if (r.section === "problems") {
     problemsIndex();
   } else if (r.section === "problem") {
@@ -1759,7 +1768,7 @@ function render() {
   }
 }
 
-// Backups contain only recognized study data. Validate the complete file before writing.
+// Backups contain only recognised study data. Validate the complete file before writing.
 function validSavedEntry(key, value) {
   if (key === "division") return value === "junior" || value === "senior";
   if (key === "theme") return value === "dark" || value === "light";

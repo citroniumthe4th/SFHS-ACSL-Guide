@@ -202,8 +202,8 @@ Reporting the counts in the order the coins were listed gives 3 1 0 2.
     output_spec="Output the number of each coin paid out, in the same order the coin values were "
                 "given, separated by single spaces. If the machine cannot pay the exact amount by "
                 "this rule, output IMPOSSIBLE.",
-    constraints="The amount owed is between 1 and 100000, inclusive. There are at most 10 coin "
-                "values, all positive and all distinct, given in descending order.",
+    constraints="The amount owed is between 1 and 100000, inclusive. The machine stocks between 1 "
+                "and 10 coin values, all positive and all distinct, given in descending order.",
     task="""
 <ul>
 <li>The function has 2 parameters: an integer, <code>owed</code>, the amount to pay out, and a
@@ -306,8 +306,9 @@ one 2 and eight 1s; ten 1s.
     input_spec="Input the postage amount as an integer on the first line. On the second line "
                "input the stamp values, each separated by a single space.",
     output_spec="Output an integer, the number of distinct ways to make the exact amount.",
-    constraints="The amount is between 0 and 300, inclusive. There are at most 8 distinct stamp "
-                "values, each between 1 and 300. The answer always fits in a 64 bit integer.",
+    constraints="The amount is between 0 and 300, inclusive. There are between 1 and 8 distinct "
+                "stamp values, each between 1 and 300. The answer always fits in a 64 bit "
+                "integer.",
     task="""
 <ul>
 <li>The function has 2 parameters: an integer, <code>amount</code>, the postage to make, and a

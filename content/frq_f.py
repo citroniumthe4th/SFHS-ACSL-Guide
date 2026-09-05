@@ -449,7 +449,8 @@ L: wheel one turns to 6, shift 3, giving O.
     output_spec="Output the encoded message, with every character that is not a capital letter "
                 "copied through unchanged.",
     constraints="The message is between 1 and 200 characters and contains only capital letters, "
-                "spaces, and digits. The setting is always three capital letters.",
+                "spaces, and digits, with no space at either end. The setting is always three "
+                "capital letters.",
     task="""
 <ul>
 <li>The function has 2 parameters: a string, <code>message</code>, and a string,
@@ -593,8 +594,8 @@ empty.
                "square occupies.",
     output_spec="Output the height of each of the 8 columns, from column 0 to column 7, separated "
                 "by single spaces.",
-    constraints="There are at most 60 pieces. A bar is between 1 and 8 long, and a piece always "
-                "fits inside the 8 columns.",
+    constraints="There are between 1 and 60 pieces. A bar is between 1 and 8 long, and a piece "
+                "always fits inside the 8 columns.",
     task="""
 <ul>
 <li>The function has 1 parameter: a string, <code>pieces</code>, holding the pieces in the order
