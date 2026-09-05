@@ -7,9 +7,7 @@ order. What is the preorder traversal?`,
   check:`trav("+50 +30 +70 +20 +40 +60 +80".split(), "pre")`,
   why:`Inserting those seven values in that order gives a balanced tree with 50 at the root, 30
 and 70 below it, and the remaining four as leaves. Preorder writes the root, then the entire left
-subtree, then the entire right, so it reads 50, then 30 20 40, then 70 60 80. The second choice is the
-inorder traversal, which on any binary search tree is always sorted, and the fourth is level order,
-which reads across each row rather than descending.` },
+subtree, then the entire right, so it reads 50, then 30 20 40, then 70 60 80. The sorted sequence 20 30 40 50 60 70 80 is inorder. The sequence 50 30 70 20 40 60 80 is level order, which reads across each row.` },
 
 { id:"ds-02", topic:"data-structures", level:"b",
   q:`Using the same tree built from 50, 30, 70, 20, 40, 60, 80, what is the postorder traversal?`,
@@ -56,19 +54,18 @@ removed?`,
   choices:["4","1","3","5","None of the above"], ans:0,
   check:`stack_queue("Q3 Q1 Q4 Q1 Q5 D D D".split()).split()[-1]`,
   why:`A queue is first in, first out, so the values leave in the order they arrived, which is 3,
-then 1, then 4, making the third removal 4. That happens to match the stack answer from the previous
-question purely by coincidence, which is a good argument for always running the two structures in
-separate columns rather than assuming they behave alike.` },
+then 1, then 4, making the third removal 4. Drawing the queue from front to back makes the removal order explicit.` },
 
 { id:"ds-07", topic:"data-structures", level:"s",
   q:`Run these commands, where S pushes onto a stack, Q adds to a queue, P pops the stack, and D
-removes from the front of the queue: SA SB QC P D P P. What is written, in order?`,
+removes from the front of the queue. A removal from an empty structure writes X.
+For SA SB QC P D P P, what is written, in order?`,
   choices:["B C A X","A C B X","B C A","A B C X","None of the above"], ans:0,
   check:`stack_queue("SA SB QC P D P P".split())`,
   why:`Pushing A and then B leaves B on top of the stack, while C goes into the queue. The first
 P therefore writes B, the D writes C, and the next P writes A. The final P finds the stack empty, and
 the rule is to write X rather than to stop, so the output ends with an X. Forgetting that last step is
-what produces the third choice.` },
+what produces B C A, with the final result missing.` },
 
 { id:"ds-08", topic:"data-structures", level:"s",
   q:`The values 8, 3, 10, 1, 6, 14, 4, 7, 13 are inserted into an empty binary search tree in
@@ -123,12 +120,10 @@ but it still needs handling separately from the one child and two child cases in
 write.` },
 
 { id:"ds-13", topic:"data-structures", level:"b",
-  q:`Which traversal of a binary search tree writes the root before anything else?`,
+  q:`Which traversal visits the root, then the entire left subtree, then the entire right subtree?`,
   choices:["preorder","inorder","postorder","level order","None of the above"], ans:0,
   why:`Preorder means root, then left subtree, then right subtree, so the root is always the
-first value written. Inorder places it in the middle and postorder places it last. Level order also
-begins with the root, but it is not one of the three traversals ACSL defines for this category, and it
-reads across rows rather than descending recursively.` },
+first value written. Inorder places it in the middle and postorder places it last. Level order also starts at the root, but then visits nodes by depth. It does not finish the left subtree before starting the right subtree.` },
 
 { id:"ds-14", topic:"data-structures", level:"s",
   q:`Insert 20, 10, 30, 5, 15, 25, 35 into a binary search tree, then delete 10 using the largest
@@ -161,4 +156,39 @@ RESULT = " ".join(q)`,
 B, C, D. The second removal takes B, leaving C at the front with D behind it. Additions always happen
 at the back and removals always at the front, and that single rule is the whole of a queue.` }
 
+]);
+
+window.MCQ = window.MCQ.concat([
+  {
+    "id": "ds-17",
+    "topic": "data-structures",
+    "level": "b",
+    "q": "What is the postorder traversal of the tree shown?<figure class=\"diagram\"><img src=\"/assets/diagrams/binary-search-tree.svg\" width=\"300\" height=\"250\" loading=\"lazy\" alt=\"Binary search tree. Root 8 has children 3 and 10. Node 3 has children 1 and 6. Node 6 has children 4 and 7. Node 10 has right child 14, whose left child is 13.\"><figcaption>Binary search tree by Derrick Coetzee, reworked by Booyabazooka and Inductiveload. <a href=\"https://commons.wikimedia.org/wiki/File:Binary_search_tree.svg\">Source and public-domain dedication</a>. Unmodified.</figcaption></figure>",
+    "choices": [
+      "1 4 7 6 3 13 14 10 8",
+      "8 3 1 6 4 7 10 14 13",
+      "1 3 4 6 7 8 10 13 14",
+      "1 4 7 3 6 13 10 14 8",
+      "None of the above"
+    ],
+    "ans": 0,
+    "check": "trav(\"+8 +3 +10 +1 +6 +14 +4 +7 +13\".split(), \"post\")",
+    "why": "Postorder visits the entire left subtree, then the entire right subtree, then the root. The subtree rooted at 3 gives 1 4 7 6 3. The subtree rooted at 10 gives 13 14 10. Append the root, 8."
+  },
+  {
+    "id": "ds-18",
+    "topic": "data-structures",
+    "level": "b",
+    "q": "How many leaves does the tree shown have?<figure class=\"diagram\"><img src=\"/assets/diagrams/binary-search-tree.svg\" width=\"300\" height=\"250\" loading=\"lazy\" alt=\"Binary search tree. Root 8 has children 3 and 10. Node 3 has children 1 and 6. Node 6 has children 4 and 7. Node 10 has right child 14, whose left child is 13.\"><figcaption>Binary search tree by Derrick Coetzee, reworked by Booyabazooka and Inductiveload. <a href=\"https://commons.wikimedia.org/wiki/File:Binary_search_tree.svg\">Source and public-domain dedication</a>. Unmodified.</figcaption></figure>",
+    "choices": [
+      "4",
+      "3",
+      "5",
+      "9",
+      "None of the above"
+    ],
+    "ans": 0,
+    "check": "str(sum(1 for children in [(3,10),(1,6),(None,14),(None,None),(4,7),(13,None),(None,None),(None,None),(None,None)] if children == (None,None)))",
+    "why": "A leaf has no children. Here the leaves are 1, 4, 7, and 13, giving four. Node 14 has only one child, but it still is not a leaf."
+  }
 ]);

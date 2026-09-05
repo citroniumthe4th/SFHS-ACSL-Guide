@@ -11,11 +11,20 @@ the page.
 
 ## What is in it
 
+Lessons link to their official ACSL topic references and have section navigation. Three reused
+diagrams have source credits, alt text, and license links. See
+[diagram credits](public/assets/diagrams/ATTRIBUTION.md).
+
+The question bank labels conceptual and extension questions. New mock exams omit these
+foundational definition questions and the two extensions using bases outside the four core bases.
+They use this site's practice bank, so the score is not calibrated to an official ACSL exam.
+Question IDs and issue links make corrections easier to report.
+
 **Guide.** Sixteen pages, one per category per division, covering the material and ending with
 the checks to run before writing an answer down.
 
-**Practice.** 219 short answer questions in the format ACSL uses on the contest: five choices
-with "None of the above" as E, which is the correct answer about 11 percent of the time. Choices
+**Practice.** 223 short answer questions in the format ACSL uses on the contest: five choices
+with "None of the above" as E, which is the correct answer about 10 percent of the time. Choices
 are shuffled on the way to the screen, so the position of the right answer carries no
 information. Every question shows its reasoning once you answer. Anything you get wrong lands in
 a missed questions list, and getting it right later takes it off again.
@@ -66,8 +75,8 @@ and tabs drawn as glyphs inside the marked run, and a plain sentence naming the 
 it has a name: only the surrounding spaces, only the case, the line stopping early. Most failures
 here are one invisible character, which is exactly what two plain lines above each other hide.
 
-On a screen narrower than 780px the editor is replaced by a note asking you to open the problem
-on a computer. The statement, the samples, and the visible test cases stay readable there.
+On narrow screens, the editor stacks below the statement. Its toolbar wraps so code entry,
+custom input, and submission stay available on phones. Escape leaves the editor and focuses Run.
 
 ## URLs
 
@@ -118,8 +127,8 @@ up `api/run.js` automatically. No environment variables are required.
 
 Vercel's Node runtime has no JDK and no g++, so `api/run.js` sends submissions to a remote
 sandbox instead. It defaults to [Wandbox](https://wandbox.org), which needs no API key. If you
-would rather not lean on a free community service, run your own
-[Piston](https://github.com/engineer-man/piston) instance and set `RUNNER_URL` to its endpoint.
+need a different host, set `RUNNER_URL` to a Wandbox-compatible endpoint. Piston uses a
+different request and response format and is not a drop-in replacement.
 
 `vercel.json` caps the function at 20 seconds. The proxy itself gives up on Wandbox after 12, so
 20 is a backstop rather than the working timeout: it bounds an invocation that wedges somewhere
@@ -161,7 +170,7 @@ Worth knowing before you point a class at it.
 
 `api/run.js` compiles whatever it is handed, so it is the only part of this that a stranger can
 make do work. Standing between it and abuse: cross site posts are refused, the source and input
-sizes are capped, each returned stream is truncated at 64 KB with a note saying so, the upstream
+sizes are capped, the upstream response is limited to 1 MiB before JSON parsing, each returned stream is truncated at 64 KB with a note saying so, the upstream
 request is abandoned after twelve seconds, and each address gets 120 runs a minute from an
 in-function counter, with `Retry-After` on the 429.
 
@@ -169,9 +178,10 @@ That counter is best effort by construction. It lives in memory, so it catches a
 address while an instance stays warm, resets on a cold start, and counts separately on a second
 instance. It cannot bind the site as a whole. `MAX_PER_WINDOW` in `api/run.js` is its dial.
 
-The durable limit is a **Vercel WAF rate limit rule**, which runs at the edge before a request
+A durable limit requires a **Vercel WAF rate limit rule**, which runs at the edge before a request
 reaches the function. It cannot live in this repo; the dashboard is the source of truth for it.
-It matches request path `/api/run`, keyed by IP address. Sixty requests per ten seconds suits a
+Configure it to match request path `/api/run`, keyed by IP address. Verify the active rule in the
+dashboard before relying on it. Sixty requests per ten seconds suits a
 class of about twenty: their busiest moment, including everyone submitting at once, is roughly
 twenty to thirty in ten seconds, while a script ignoring the interface exhausts sixty in about a
 second. A short window is better than a long one here, because a fixed window lets a burst
@@ -215,6 +225,7 @@ is worse than none: a student will trust it over their own arithmetic.
 ```bash
 python3 content/solvers.py    # the ACSL conventions, checked against the official examples
 python3 content/build.py      # rewrites public/data/frq.js
+node content/test_runtime.js # grading, stale runs, mock exams, and proxy regressions
 python3 content/verify.py     # rechecks every computable multiple choice answer
 python3 content/checkgen.py   # rechecks the generated questions
 python3 content/sitemap.py    # rewrites sitemap.xml and robots.txt
@@ -224,7 +235,7 @@ python3 content/stamp.py      # cache keys, then the per URL copies
 Run them after editing anything under `content/` or `public/`. `stamp.py` calls
 `content/prerender.py` itself, so the per URL copies can never drift onto a stale asset hash.
 
-`verify.py` re-derives 200 of the 219 answers using `content/solvers.py`, which holds its own
+`verify.py` re-derives 204 of the 223 answers using `content/solvers.py`, which holds its own
 implementations of everything the bank asks about. The remaining 19 are definitional and have no
 computation to check. Checks run under a five second alarm and a memory cap, because a question is
 data and a runaway expression in one should fail loudly rather than take the machine down. It also

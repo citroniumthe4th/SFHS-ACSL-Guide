@@ -12,16 +12,15 @@ RESULT = best`,
 it is worth resisting, because binary sits underneath both bases and lets you do the whole thing by
 regrouping. Each hex digit expands to four bits, so EAFBDC becomes 1110 1010 1111 1011 1101 1100.
 Those same twenty four bits regrouped into threes from the right read 111 010 101 111 101 111 011
-100, which is 72575734 in octal. Counting through that, 7 turns up four times while nothing else
+100, which is 72575734 in octal. Counting through that, 7 turns up three times while nothing else
 appears more than twice.` },
 
-{ id:"ns-02", topic:"number-systems", level:"b",
+{ id:"ns-02", exam:false, topic:"number-systems", level:"b",
   q:`Evaluate the following and express the answer in octal.
 <div class="expr">21<sub>6</sub> + 20<sub>8</sub> + 202<sub>16</sub> + 2026<sub>8</sub></div>`,
   choices:["3065","2742","3052","3072","None of the above"], ans:0,
   check:`to_base(from_base('21',6)+from_base('20',8)+from_base('202',16)+from_base('2026',8), 8)`,
-  why:`Four different bases are in play here, so there is no grouping shortcut available and
-every term has to pass through decimal. Working left to right, 21 in base 6 is 13, 20 in base 8 is
+  why:`The inputs use three bases. Converting each term to decimal gives a common base for addition. Working left to right, 21 in base 6 is 13, 20 in base 8 is
 16, 202 in base 16 is 514, and 2026 in base 8 is 1046, which together come to 1589. Pushing 1589
 back into octal by repeated division gives remainders of 5, then 6, then 0, with a final quotient of
 3, and reading those upward produces 3065.` },
@@ -57,9 +56,7 @@ this question exists to catch.` },
   check:`to_base(from_base('3676',8),16)`,
   why:`Both bases are powers of two, which means binary is the bridge and decimal is a detour.
 Expanding each octal digit into three bits gives 011 110 111 110, and regrouping those twelve bits
-into fours from the right gives 0111, 1011, and 1110, which read as 7, B, and E. Going through
-decimal instead would take three times as long and hand your arithmetic three separate chances to go
-wrong.` },
+into fours from the right gives 0111, 1011, and 1110, which read as 7, B, and E. Converting through decimal also works, but grouping bits avoids that extra conversion.` },
 
 { id:"ns-06", topic:"number-systems", level:"b",
   q:`Evaluate the following in hexadecimal.
@@ -86,9 +83,7 @@ leftmost group pads out to 011. Reading each group as a single digit gives 3, 3,
   check:`to_base(from_base('11011010',2),16)`,
   why:`Sixteen is 2 to the fourth, so hexadecimal works in groups of four rather than three.
 From the right those groups are 1101 and 1010, which are thirteen and ten, and therefore D and A.
-This is the same number as the previous question, and it is worth noticing that its octal and
-hexadecimal forms look nothing like each other, which means you can never check one against the
-other by eye.` },
+The same value is 332 in octal. To compare the two representations, expand their digits back into binary.` },
 
 { id:"ns-09", topic:"number-systems", level:"b",
   q:`Solve for the base b.
@@ -109,7 +104,7 @@ any base of 4 or below.` },
 rather than waiting for it to reach 10. If you would rather check the answer than trust the carries,
 the sum is 22 plus 13 in decimal, which is 35, and 35 in binary is 100011.` },
 
-{ id:"ns-11", topic:"number-systems", level:"s",
+{ id:"ns-11", exam:false, topic:"number-systems", level:"s",
   q:`How many integers from 1 through 100<sub>10</sub>, inclusive, end in the digit 3 when written
 in base 5?`,
   choices:["20","25","19","21","None of the above"], ans:0,

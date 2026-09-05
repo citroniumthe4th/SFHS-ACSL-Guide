@@ -1,24 +1,16 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "graph-theory": `
-<p class="lead">A graph is a set of vertices and a set of edges joining pairs of them, which is
-almost aggressively simple as definitions go, and yet it models road networks, dependencies between
-tasks, friendships, and the structure of a program. ACSL tests two things here: whether you know the
-vocabulary exactly, and whether you can count paths using powers of an adjacency matrix.</p>
+<p class="lead">A graph consists of vertices and edges connecting them. In this category, practise reading directed and undirected graphs, building adjacency matrices, and counting routes of a given length.</p>
 
 <h2>Vocabulary, stated precisely</h2>
 <p>In an undirected graph an edge works in both directions, while in a directed graph, or digraph,
 each edge points one way. The degree of a vertex is the number of edges touching it, and in a
 digraph that splits into indegree for arrows coming in and outdegree for arrows going out.</p>
 
-<p>A walk is any sequence of edges laid end to end, with vertices and edges free to repeat. A simple
-path is a walk that repeats no vertex at all. A cycle begins and ends at the same vertex and repeats
-no other vertex along the way.</p>
+<p>ACSL calls a sequence of adjacent vertices a <em>path</em>, even if a vertex repeats. A <em>simple path</em> repeats no vertex. Many textbooks call the first kind a <em>walk</em>, and this guide uses that word when it helps make repetition explicit. A cycle starts and ends at the same vertex without repeating another vertex.</p>
 
-<p>Those last two are worth stating separately rather than defining one in terms of the other,
-because a cycle does repeat a vertex, its first, which is exactly what a simple path is not allowed
-to do. The distinction between a walk and a path is not pedantry either, and the section on matrix
-powers below is where it starts to matter.</p>
+<p>For contest questions, check whether the problem says "simple" or explicitly forbids repeated vertices. Matrix powers count paths with repetition allowed, following the terminology on the ACSL wiki.</p>
 
 <p>A graph is connected when some path joins every pair of vertices, and a connected component is a
 maximal piece that is connected. A tree is a connected graph with no cycles, and a tree on N
@@ -28,22 +20,17 @@ that need not be connected. A complete graph has an edge between every pair of v
 to N(N - 1) / 2 edges. A graph is bipartite when its vertices split into two groups with every edge
 crossing between them, and a graph is bipartite exactly when it contains no cycle of odd length.</p>
 
-<p>One fact earns its keep more than any other. The sum of all the degrees equals twice the number
-of edges, because each edge contributes one to the degree of each of its two endpoints. That single
-observation answers a large share of the counting questions in this category in one line, and it
-also tells you that the number of vertices of odd degree is always even.</p>
+<p>In an undirected graph, every edge contributes two to the total degree, with a loop contributing twice at its vertex. Thus the sum of the degrees is twice the edge count. It also follows that the number of odd-degree vertices is even.</p>
 
 <h2>Adjacency matrices</h2>
 <p>Label the vertices A, B, C, and so on, and build an N by N grid with a 1 in row i, column j
 whenever an edge runs from vertex i to vertex j, and a 0 otherwise. An undirected graph gives a
 symmetric matrix, and a graph with no loops has zeros down the main diagonal.</p>
 
-<p>The row sum is the degree of that vertex in an undirected graph, or its outdegree in a digraph,
-and the column sum is the indegree. Those two agree only when the matrix is symmetric, which is
-another way of saying the graph is undirected.</p>
+<p>In a loop-free undirected graph, a row sum gives the degree of its vertex. In a digraph, the row sum is the outdegree and the column sum is the indegree. Equal sums do not imply an undirected graph: in a directed cycle, every vertex has one incoming and one outgoing edge.</p>
 
 <h2>Powers of the matrix count walks</h2>
-<p>This is the one real technique in the category. If M is the adjacency matrix, then the entry in
+<p>If M is the adjacency matrix, then the entry in
 row i, column j of M raised to the power p is the number of walks of length exactly p from vertex i
 to vertex j.</p>
 
@@ -58,28 +45,17 @@ else. Squaring it puts 2 on the diagonal and 1 off it, which says there are two 
 from A back to A, one through B and one through C, and one walk of length 2 from A to B, namely
 through C.</p>
 
-<p>Notice the word walk. These counts allow vertices to repeat, so they are not path counts, and a
-question asking for paths of length 4 with no repeated vertex cannot be answered with matrix powers
-at all. Those problems are always small enough to enumerate by hand, and the setter knows it.</p>
+<p>Matrix powers allow repeated vertices and edges. ACSL calls these counts paths of length p. If a question instead asks for simple paths, or says that vertices cannot repeat, enumerate the allowed routes or use a method that tracks visited vertices.</p>
 
 <p>One practical note for doing this on paper. To get a single entry of M cubed you do not need the
 whole matrix. Compute M squared once, then take the dot product of row i of M squared with column j
 of M, which is one row against one column instead of a full multiplication.</p>
 
 <h2>Counting cycles</h2>
-<p>Questions that ask for the number of cycles almost always mean distinct cycles as sets of edges,
-so going round a triangle clockwise and anticlockwise counts once, and starting from a different
-vertex of the same triangle also counts once. Read the problem in case it says otherwise, then
-enumerate by length, taking all the triangles first, then the four cycles, and so on. Counting them
-all at once is how duplicates creep in.</p>
+<p>For an undirected graph, count a cycle once regardless of its starting vertex or direction around the same edges. In a directed graph, follow the arrows. Check the problem's definition, then enumerate cycles by length to help avoid duplicates.</p>
 
 <h2>Walks, paths, and other things worth rereading</h2>
-<p>Confusing walks with paths, since matrix powers count walks. Reading a matrix as directed when
-the problem says undirected or the reverse, which its symmetry will tell you. Counting the same
-cycle several times because it was traced from different starting points. Forgetting that a tree on
-N vertices has N minus 1 edges, which is often the fastest route to an answer. And ordinary
-arithmetic slips inside a matrix multiplication, which is worth guarding against by recomputing one
-entry a second way.</p>
+<p>Check whether repetition is allowed, whether edges are directed, and whether cycles count once regardless of their starting vertex. When multiplying matrices, label the row and column order and check one entry by counting its routes directly.</p>
 `,
 
 "digital-electronics": `
@@ -88,6 +64,7 @@ expression written in a different notation, and once you have written it back ou
 everything from the Boolean Algebra category applies unchanged.</p>
 
 <h2>The eight gates</h2>
+<figure class="diagram"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Gate symbols, scroll horizontally on small screens"><img src="/assets/diagrams/logic-gates.svg" width="908" height="110" loading="lazy" alt="From left to right: AND has a flat left edge and a rounded right edge. OR has a curved left edge and a pointed right edge. NOT is a triangle with a small circle on its output."></div><figcaption>AND, OR, and NOT symbols by Vaughan Pratt. <a href="https://commons.wikimedia.org/wiki/File:LogicGates.svg">Source</a>, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Unmodified. The symbols &and;, &or;, and &not; mean AND, OR, and NOT.</figcaption></figure>
 <table class="tbl">
 <tr><th>Gate</th><th>Expression</th><th>Output is 1 when</th></tr>
 <tr><td>BUFFER</td><td>A</td><td>the input is 1</td></tr>
@@ -141,12 +118,7 @@ cancels during simplification, it doubles the count, so an expression over three
 reduces to C alone is true on four rows rather than one.</p>
 
 
-<p>Missing an inversion bubble on a gate is the biggest one, which is why scanning for them before
-you start labelling is worth the five seconds. After that: mixing up NAND and NOR, remembering that
-NAND is 1 unless both inputs are 1 while NOR is 1 only when both are 0. Treating XOR as OR, when
-they differ on exactly one row, the one where both inputs are high. Losing a wire where one gate
-output feeds two later gates, so trace every branch of a fork. And counting rows over the wrong
-number of variables after one has cancelled out.</p>
+<p>Mark inversion bubbles before evaluating a circuit. NAND is 0 only when both inputs are 1. NOR is 1 only when both inputs are 0. XOR and OR differ on input 11. Follow every branch of a wire, and count assignments over all original inputs even if a variable disappears during simplification.</p>
 `
 
 });

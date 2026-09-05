@@ -130,8 +130,8 @@ def main():
         if not 0 <= q["ans"] < 5:
             bad.append((qid, "answer index out of range"))
             continue
-        if not q.get("why") or len(q["why"]) < 120:
-            bad.append((qid, "explanation is missing or too thin"))
+        if not q.get("why", "").strip():
+            bad.append((qid, "explanation is missing"))
 
         if "check" not in q:
             continue

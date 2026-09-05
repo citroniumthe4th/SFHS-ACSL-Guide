@@ -26,8 +26,8 @@ the answer completely.` },
   check:`[c for c in CHOICES if same(c, "A+AB")][0]`,
   why:`This is plain absorption. Factoring gives A(1 + B), and 1 ored with anything is 1, so the
 result is A. Put another way, every row on which AB is true is already a row on which A is true, so
-oring it in adds nothing at all. Set this beside the previous question, where a single complement bar
-changed the answer to A + B.` },
+ORing it in adds nothing. Compare A + A'B: the complement allows B to matter when A is 0,
+so that expression simplifies to A + B instead.` },
 
 { id:"ba-04", topic:"boolean-algebra", level:"b",
   q:`Apply DeMorgan to (AB)'.`,
@@ -142,10 +142,10 @@ question is built around.` },
 { id:"ba-16", topic:"boolean-algebra", level:"b",
   q:`Which one of these is NOT equal to the other three?`,
   choices:["A'B'","(AB)'","A'+B'","((AB))'","None of the above"], ans:0,
-  why:`DeMorgan makes (AB)' the same as A' + B', and the fourth choice is that same expression
+  why:`DeMorgan makes (AB)' the same as A' + B', and ((AB))' is that same expression
 with a redundant pair of brackets, so three of the four are one expression written three ways. A'B' is
 the odd one out: it is true only when both variables are 0, while the other three are true on three
-rows of the four. Building two columns side by side settles it in about fifteen seconds, and the rows
+rows of the four. Building two truth-table columns checks the difference, and the rows
 where exactly one variable is 1 are where they part company.` }
 
 ]);

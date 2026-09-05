@@ -236,7 +236,7 @@ it is read, and that is what turns what looks like a simple neighbour sum into a
 the same loop backwards would produce a completely different array.` },
 
 { id:"wa-10", topic:"wdtpd-arrays", level:"j",
-  q:`Array A holds 7, 7, 7, 7, 7. What is wrong with using T = A(I), A(I) = A(J), A(J) = T to swap
+  q:`Array A holds 1, 2, 3, 4, 5, and I = 1 and J = 5 (one-based indices). What is wrong with using T = A(I), A(I) = A(J), A(J) = T to swap
 two elements, compared with A(I) = A(J) followed by A(J) = A(I)?`,
   choices:["nothing, the first version is correct and the second destroys a value","the first version needs the assignments reversed","the second version is correct and the first is redundant","both versions fail when I equals J","None of the above"], ans:0,
   why:`The three line version holds the old value of A(I) safely in the temporary while A(I) is
@@ -245,4 +245,39 @@ means that by the time A(J) is assigned the original A(I) is already gone and bo
 holding the old A(J). In a language without simultaneous assignment the temporary is not a stylistic
 preference but a requirement.` }
 
+]);
+
+window.MCQ = window.MCQ.concat([
+  {
+    "id": "fr-13",
+    "topic": "fsa-regex",
+    "level": "s",
+    "q": "How many binary strings of length 4 does this machine accept?<figure class=\"diagram\"><img src=\"/assets/diagrams/dfa.svg\" width=\"500\" height=\"299\" loading=\"lazy\" alt=\"Two-state automaton. S1 is the start and only accepting state. A 0 switches between S1 and S2. A 1 loops at either state.\"><figcaption>Automaton by Cepheus, with arrow cleanup by Interiot. <a href=\"https://commons.wikimedia.org/wiki/File:DFAexample.svg\">Source and public-domain dedication</a>. Unmodified.</figcaption></figure>",
+    "choices": [
+      "8",
+      "4",
+      "6",
+      "16",
+      "None of the above"
+    ],
+    "ans": 0,
+    "check": "str(sum(1 for n in range(16) if format(n,\"04b\").count(\"0\") % 2 == 0))",
+    "why": "A zero switches states, so an even number of zeros returns the machine to S1. A length-4 string can have 0, 2, or 4 zeros. Those cases contribute 1, 6, and 1 strings, for a total of 8."
+  },
+  {
+    "id": "fr-14",
+    "topic": "fsa-regex",
+    "level": "s",
+    "q": "Which string is rejected by this machine?<figure class=\"diagram\"><img src=\"/assets/diagrams/dfa.svg\" width=\"500\" height=\"299\" loading=\"lazy\" alt=\"Two-state automaton. S1 is the start and only accepting state. A 0 switches between S1 and S2. A 1 loops at either state.\"><figcaption>Automaton by Cepheus, with arrow cleanup by Interiot. <a href=\"https://commons.wikimedia.org/wiki/File:DFAexample.svg\">Source and public-domain dedication</a>. Unmodified.</figcaption></figure>",
+    "choices": [
+      "01010",
+      "1111",
+      "010",
+      "001100",
+      "None of the above"
+    ],
+    "ans": 0,
+    "check": "[w for w in CHOICES[:4] if w.count(\"0\") % 2 == 1][0]",
+    "why": "01010 contains three zeros. Each zero changes states and each one leaves the state unchanged, so the final state is S2, which is not accepting. The other strings contain 0, 2, and 4 zeros, so they end at S1."
+  }
 ]);

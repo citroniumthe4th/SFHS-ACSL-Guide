@@ -12,7 +12,7 @@ import subprocess
 import sys
 
 PUBLIC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "public")
-PAGES = ("index.html", "404.html")
+PAGES = ("index.html", "404.html", "privacy.html")
 
 
 def main():

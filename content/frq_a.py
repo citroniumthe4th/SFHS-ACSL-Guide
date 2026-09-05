@@ -16,9 +16,7 @@ dict(
 the result, and again, and keep going. Every starting number eventually either lands on 1 or
 falls into a loop it has already been through, so the process always settles.</p>
 
-<p>Count the replacements you make. Stop as soon as you reach 1, or as soon as you produce a
-value you have already seen. The number you stop at is not counted as a replacement, only the
-replacements themselves are.</p>
+<p>Count each replacement, including the one that reaches 1 or repeats a value. Stop before making another replacement. If the starting number is already 1, return 0.</p>
 """,
     example="""
 <table class="ex"><tr><th>Input</th><td>19</td></tr>
@@ -57,10 +55,7 @@ the other.</p>
 begins. On each pass, compute the next value, add one to the count, and then ask two questions in
 this order: is this value 1, and have I seen it before. Either answer ends the loop.</p>
 
-<p>That business of seeding the set with the starting value is not fussiness. The number 4 returns to
-itself after eight replacements, so a program that only records values from the second one onward
-will sail past the repeat and go round the entire loop a second time before noticing anything is
-wrong.</p>
+<p>Record the starting value before the loop. Starting at 4 returns to 4 after eight replacements. If you omit the initial 4 from the set, the program continues to 16 and detects that repeated value after nine replacements.</p>
 
 <p>Be equally careful about what gets counted. The replacement that lands on 1 counts, but arriving at
 1 is not itself a further replacement, so a start of 1 has made no replacements at all and the answer
@@ -72,6 +67,8 @@ by 10, and repeat while n is above zero.</p>
 """,
     sol=dict(
         python="""
+if start == 1:
+    return 0
 seen = {start}
 n = start
 count = 0
@@ -89,6 +86,7 @@ while True:
     seen.add(n)
 """,
         java="""
+if (start == 1) return 0;
 Set<Integer> seen = new HashSet<>();
 seen.add(start);
 int n = start, count = 0;
@@ -102,6 +100,7 @@ while (true) {
 }
 """,
         cpp="""
+if (start == 1) return 0;
 set<int> seen;
 seen.insert(start);
 int n = start, count = 0;

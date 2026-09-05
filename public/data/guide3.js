@@ -1,12 +1,7 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "prefix-postfix": `
-<p class="lead">The same expression can be written three ways, and only one of them needs
-parentheses. Infix puts each operator between its operands and therefore has to carry precedence
-rules and brackets to say what groups with what. Prefix puts the operator in front and postfix puts
-it behind, and both of those are unambiguous on their own, with no precedence rules and no brackets
-needed. That is what makes them worth knowing: each one maps directly onto an expression tree, and
-postfix in particular can be evaluated by a stack in a single left to right pass.</p>
+<p class="lead">Infix puts an operator between its operands, as in A + B. Prefix puts it before them, as in + A B. Postfix puts it after them, as in A B +. With a known number of operands for each operator, prefix and postfix encode the grouping without parentheses.</p>
 
 <table class="tbl">
 <tr><th>Infix</th><th>Prefix</th><th>Postfix</th></tr>
@@ -17,9 +12,7 @@ postfix in particular can be evaluated by a stack in a single left to right pass
 </table>
 <p>Prefix is also called Polish notation, after the logician Jan Lukasiewicz, and postfix is
 reverse Polish. Look down the columns and you will see that the operands never move: A, B, and C
-appear in that order in all three forms. Only the operators travel, which is the most useful single
-observation in this category, because it rules out roughly half of every set of answer choices at a
-glance.</p>
+appear in that order in all three forms. Only the operators travel, which gives you a quick way to reject conversions that change the operand order.</p>
 
 <h2>Precedence and associativity</h2>
 <p>You need these before you can even read the infix form, let alone convert it. Exponentiation
@@ -28,9 +21,7 @@ division come next and group from the left, making A / B * C mean (A / B) * C. A
 subtraction come last and also group from the left, so A - B - C is (A - B) - C. Where a problem
 uses a unary minus, it binds tighter than multiplication.</p>
 
-<p>The right associativity of the exponent is what separates a four out of five from a five out of
-five here. In postfix, A ^ B ^ C comes out as A B C ^ ^ and not as A B ^ C ^, and both of those
-will be sitting in the answer choices waiting for you.</p>
+<p>With right-associative exponentiation, A ^ B ^ C becomes A B C ^ ^ in postfix. A B ^ C ^ instead represents (A ^ B) ^ C. Parenthesize exponent chains explicitly when writing practice problems so the intended grouping is clear.</p>
 
 <h2>The hand method</h2>
 <p>Fully parenthesise the infix expression so that every operator has a pair of brackets of its own,
@@ -69,11 +60,7 @@ operator. Scanning prefix from the right is often quicker, because the last oper
 always the outermost one.</p>
 
 <h2>Evaluating without converting</h2>
-<p>Postfix evaluates with a stack and a single pass. Push operands, and when an operator arrives,
-pop two values, combine them, and push the result. The value popped first is the right operand,
-which matters for subtraction and division and not at all for addition and multiplication. That
-asymmetry is why a reversed pop is such a nasty bug: half your test cases still pass, and the
-failures look random until you notice they are all minus signs and slashes.</p>
+<p>Postfix evaluates with a stack and a single pass. Push each operand. At a binary operator, pop the right operand first, then the left, apply the operator, and push the result. For 8 2 -, pop 2 and then 8 to compute 8 - 2 = 6. Reversing those operands would give -6.</p>
 
 <p>Prefix evaluates the same way with the scan running right to left, and there the first value
 popped is the left operand instead.</p>
@@ -90,11 +77,7 @@ empty, since anything still on it when the scan ends belongs on the output.</p>
 `,
 
 "bit-string-flicking": `
-<p class="lead">A bit string is a string of binary digits, and this category manipulates them both
-one bit at a time with the logical operators and as a whole unit with the shift and circulate
-operators. The operations themselves take a minute to learn. What the category actually tests is
-whether you apply the precedence table correctly and whether you can circulate a string without
-losing a bit somewhere in the middle.</p>
+<p class="lead">Bit-string flicking combines logical operations on individual bits with shifts and circulates of the whole string. Keep the string length fixed and evaluate the operators in their stated order of precedence.</p>
 
 <p>The bits on the left are called the most significant and those on the right the least
 significant, which is the same convention as ordinary decimal. Programmers use bit strings to hold
@@ -106,11 +89,7 @@ language, digital electronics, and anything close to hardware.</p>
 <p>NOT, written with a tilde, is unary and flips every bit, turning each 0 into a 1 and each 1 into
 a 0.</p>
 
-<p>AND, OR, and XOR are binary and work position by position on two strings of the same length. AND
-gives 1 only where both bits are 1, which makes it the natural way to isolate or clear particular
-bits. OR gives 1 wherever at least one bit is 1, which is how you force a bit on. XOR gives 1
-exactly where the two bits differ. If the operands are different lengths the shorter one is padded
-on the left with zeros, though contest problems almost always keep them equal.</p>
+<p>AND gives 1 where both input bits are 1. OR gives 1 where at least one is 1. XOR gives 1 where the bits differ. If operands have different lengths, pad the shorter strings on the left with zeros to match the longest before evaluating.</p>
 
 <p>The four movers shift the whole string. LSHIFT-n and RSHIFT-n move every bit n places in the
 named direction, discarding whatever falls off the end and filling in behind with zeros. LCIRC-n
@@ -128,14 +107,9 @@ the wrong length can be discarded without further thought.</p>
 </table>
 
 <h2>Precedence</h2>
-<p>From tightest to loosest: the unary operators first, meaning the tilde and all four movers, then
-AND, then XOR, then OR. Operators at the same level go left to right, except the unary ones, which
-associate right to left because they stack up in front of their operand. Parentheses override
-everything, as usual.</p>
+<p>The ACSL precedence order, highest first, is NOT, then SHIFT and CIRC, then AND, then XOR, then OR. Binary operators at the same level are evaluated left to right. Unary operators bind from right to left. Parentheses specify the grouping explicitly.</p>
 
-<p>So 10110 | 01001 &amp; 11100 means 10110 | (01001 &amp; 11100). The AND gives 01000 and the OR
-then gives 11110. Reading the line strictly left to right instead produces 11111, and that wrong
-answer is among the choices every single time this question is asked, because it is where hurrying lands you.</p>
+<p>For 10110 OR 01001 AND 11100, evaluate AND first: 01001 AND 11100 = 01000. Then 10110 OR 01000 = 11110. Evaluating left to right would instead give (10110 OR 01001) AND 11100 = 11100.</p>
 
 <h2>Shortcuts worth knowing</h2>
 <p>On a string of length L, LCIRC-n and RCIRC-(L minus n) are the same operation, so circulating a
@@ -157,9 +131,7 @@ that right by three brings the trailing 010 round to the front, giving 01011. On
 the complement of 01010 is 10101, and 10101 AND 11011 is 10001. The exclusive or of 01011 and 10001
 is 11010.</p>
 
-<p>Whenever a step combines two strings, write them one directly above the other and work down the
-columns. It takes about five seconds and it removes an entire category of mistake, which is a very
-good trade when six questions have to fit into thirty minutes.</p>
+<p>When combining two strings, write one above the other with their positions aligned. Compute each output bit from the two bits in that column.</p>
 
 <h2>Solving for the unknown string</h2>
 <p>The harder problems in this category give you an equation and ask how many bit strings satisfy
@@ -179,14 +151,9 @@ none.</p>
 <h2>Precedence first, then the two confusions</h2>
 <p>Evaluate the precedence explicitly before you touch a bit. Write the expression out with
 brackets around every operation in the order it happens, then work outward from the innermost. Going
-left to right instead is the single largest source of wrong answers here, and bracketing first is
-what rules it out.</p>
+left to right without respecting precedence can change the answer.</p>
 
-<p>Then two confusions worth naming, because they look alike on paper. A shift discards the bits that
-fall off the end and pads with zeros; a circulate brings them round to the other side. And LCIRC moves
-bits toward the front, with whatever falls off the front reappearing at the back. One more thing to
-watch: the symbol ^ means exclusive or here and exponentiation in What Does This Program Do, so check
-which category you are in before you read it.</p>
+<p>A shift discards bits that fall off the end and fills the open positions with zeros. A circulate moves those bits to the other end. LCIRC moves bits left, so the old leftmost bit becomes the rightmost. The symbol ^ means XOR in this category but exponentiation in What Does This Program Do?</p>
 `
 
 });

@@ -1,5 +1,5 @@
 /* SFHS ACSL Guide
-   Hash routed, no framework. State that matters: which division you are studying for,
+   Path routed, no framework. State that matters: which division you are studying for,
    which topic you are on, and per problem code kept in localStorage. */
 
 (function () {
@@ -369,8 +369,11 @@ function guideIndex() {
   var html = '<div class="wrap-wide">' +
     '<div class="eyebrow">' + division + " division</div>" +
     "<h1>Study guide</h1>" +
-    "<p class=\"note\">Twelve categories across four contests. Each page is the material plus " +
-    "the checks to run before you write an answer down.</p>";
+    "<p class=\"note\">An independent study guide for ACSL Junior and Senior divisions. " +
+    "Choose your division above, then work through the three topics for each contest.</p>" +
+    '<p class="note">Preparing for Intermediate or another division? Use the ' +
+    '<a href="https://www.acsl.org/get-started/study-materials">official study materials</a> ' +
+    'to check your syllabus. This site is not affiliated with ACSL.</p>';
   var lastContest = null;
   list.forEach(function (t) {
     if (t.contest !== lastContest) {
@@ -403,6 +406,17 @@ function adoptDivisionFor(t) {
   renderTopicBar(route().section, t.id);
 }
 
+function wikiTitle(topicId) {
+  if (isWdtpd(topicId)) return "What_Does_This_Program_Do?";
+  return {
+    "number-systems": "Computer_Number_Systems", "recursive-functions": "Recursive_Functions",
+    "prefix-postfix": "Prefix/Infix/Postfix_Notation", "bit-string-flicking": "Bit-String_Flicking",
+    "lisp": "LISP", "boolean-algebra": "Boolean_Algebra", "data-structures": "Data_Structures",
+    "fsa-regex": "FSAs_and_Regular_Expressions", "graph-theory": "Graph_Theory",
+    "digital-electronics": "Digital_Electronics", "assembly": "Assembly_Language_Programming"
+  }[topicId];
+}
+
 function guidePage(topicId) {
   var t = topicById(topicId);
   if (t) adoptDivisionFor(t);
@@ -431,9 +445,25 @@ function guidePage(topicId) {
               + "</a>" : "<span></span>") +
       "</nav>";
   }
-  el("main").innerHTML = '<div class="wrap">' +
+  el("main").innerHTML = '<article class="wrap lesson">' +
     '<div class="eyebrow">' + CONTEST_NAMES[t.contest] + " &middot; " + division + " division</div>" +
-    "<h1>" + esc(t.name) + "</h1>" + GUIDE[topicId] + foot + "</div>";
+    "<h1>" + esc(t.name) + "</h1>" +
+    '<div class="lesson-tools"><a class="btn btn-primary" href="/practice/' + topicId
+      + '">Practice this topic</a><a href="https://www.categories.acsl.org/wiki/index.php?title='
+      + encodeURIComponent(wikiTitle(topicId)) + '">Official ACSL topic reference</a></div>' +
+    '<nav class="lesson-toc" aria-label="On this page"><b>On this page</b><ul></ul></nav>' +
+    GUIDE[topicId] + foot + "</article>";
+  var toc = el("main").querySelector(".lesson-toc ul");
+  el("main").querySelectorAll(".lesson h2").forEach(function (h) {
+    h.id = "section-" + h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
+    var li = document.createElement("li"), a = document.createElement("a");
+    a.href = "#" + h.id;
+    a.textContent = h.textContent;
+    li.appendChild(a);
+    toc.appendChild(li);
+  });
+  var anchor = document.getElementById(location.hash.slice(1));
+  if (anchor) anchor.scrollIntoView();
 }
 
 // ------------------------------------------------------------------ practice
@@ -518,6 +548,15 @@ function setMode(endless) {
   drawQuestion();
 }
 
+function questionReport(q) {
+  var title = "Question " + q.id + ": correction";
+  var body = "Question ID: " + q.id + "\nPage: " + location.origin + location.pathname
+    + "\n\nWhat seems wrong:\n\nSuggested correction or source:\n";
+  return '<a href="https://github.com/citroniumthe4th/SFHS-ACSL-Guide/issues/new?title='
+    + encodeURIComponent(title) + '&amp;body=' + encodeURIComponent(body)
+    + '" target="_blank" rel="noopener noreferrer">Report an issue</a>';
+}
+
 function drawQuestion() {
   var missedMode = quiz.topic === "__missed";
   fillAhead();
@@ -544,9 +583,12 @@ function drawQuestion() {
           '<span class="note">' + (quiz.endless
             ? "Generated fresh each time, so you are very unlikely to see the same one twice. "
               + "These do not go in your missed list."
-            : "Written by hand. " + questionsFor(quiz.topic, quiz.division).length
+            : "Fixed question bank. " + questionsFor(quiz.topic, quiz.division).length
               + " of them, and your score is kept.") + "</span></div>"
       : "") +
+    '<p class="question-meta">' + esc(q.id) + " &middot; "
+      + (q.exam === false ? "Extension beyond the core syllabus" : q.check || quiz.endless ? "Practice problem" : "Concept check")
+      + ' &middot; ' + questionReport(q) + "</p>" +
     '<div class="qtext">' + q.q + "</div>" +
     '<div class="choices" id="choices"></div>' +
     '<div id="after"></div></div>';
@@ -644,7 +686,7 @@ function buildExam(contest) {
 
   topics.forEach(function (t) {
     shuffle(questionsFor(t.id, div).slice())
-      .filter(function (q) { return ids.indexOf(q.id) < 0; })
+      .filter(function (q) { return q.check && q.exam !== false && ids.indexOf(q.id) < 0; })
       .slice(0, PER_TOPIC)
       .forEach(function (q) { picked.push(q); ids.push(q.id); });
   });
@@ -729,7 +771,9 @@ function examIndex() {
     "<h1>Mock exam</h1>" +
     '<p class="note">Two questions from each of the contest\'s three topics, six in all, in ' +
     "thirty minutes. That is the format acsl.org publishes. No feedback while the clock runs, " +
-    "and you get every explanation at the end.</p>";
+    "and you get every explanation at the end.</p>" +
+    '<p class="note">These exams use this site\'s practice questions. Concept checks and extension ' +
+    "questions stay in practice. The score is not calibrated to an official ACSL exam.</p>";
 
   if (running && !running.submitted && running.division === division) {
     html += '<div class="banner">You have an exam in progress for Contest ' + running.contest +
@@ -780,7 +824,7 @@ function examPage(contestArg) {
   drawExamQuestion();
 }
 
-function drawExamQuestion() {
+function drawExamQuestion(focusTarget) {
   stopClock();
   var q = examQ(exam.at);
   var html = '<div class="wrap">' +
@@ -793,7 +837,7 @@ function drawExamQuestion() {
       '<span class="clock">' + (exam.at + 1) + " / " + exam.ids.length + "</span></div>" +
       '<div class="palette" id="palette"></div>' +
     "</div>" +
-    '<div class="qtext">' + q.q + "</div>" +
+    '<div class="qtext" id="exam-question" tabindex="-1">' + q.q + "</div>" +
     '<div class="choices" id="choices"></div>' +
     '<div class="btn-row">' +
       '<button class="btn" id="prev"' + (exam.at === 0 ? " disabled" : "") + ">Previous</button>" +
@@ -807,13 +851,14 @@ function drawExamQuestion() {
   var box = el("choices");
   q.choices.forEach(function (c, idx) {
     var b = document.createElement("button");
-    b.className = "choice" + (exam.answers[exam.at] === idx ? " right" : "");
+    b.className = "choice" + (exam.answers[exam.at] === idx ? " selected" : "");
+    b.setAttribute("aria-pressed", String(exam.answers[exam.at] === idx));
     b.innerHTML = '<span class="key">' + "ABCDE".charAt(idx) + '</span><span class="val">' +
       esc(c) + "</span>";
     b.addEventListener("click", function () {
       exam.answers[exam.at] = exam.answers[exam.at] === idx ? null : idx;
       saveExam();
-      drawExamQuestion();
+      drawExamQuestion(idx);
     });
     box.appendChild(b);
   });
@@ -824,21 +869,26 @@ function drawExamQuestion() {
     b.textContent = i + 1;
     b.className = (i === exam.at ? "on" : "") + (exam.answers[i] !== null ? " done" : "");
     b.title = "Question " + (i + 1);
-    b.addEventListener("click", function () { exam.at = i; saveExam(); drawExamQuestion(); });
+    b.setAttribute("aria-label", b.title + (exam.answers[i] === null ? ", unanswered" : ", answered"));
+    if (i === exam.at) b.setAttribute("aria-current", "step");
+    b.addEventListener("click", function () { exam.at = i; saveExam(); drawExamQuestion("question"); });
     pal.appendChild(b);
   });
 
   el("prev").addEventListener("click", function () {
-    if (exam.at > 0) { exam.at--; saveExam(); drawExamQuestion(); }
+    if (exam.at > 0) { exam.at--; saveExam(); drawExamQuestion("question"); }
   });
   el("next").addEventListener("click", function () {
-    if (exam.at < exam.ids.length - 1) { exam.at++; saveExam(); drawExamQuestion(); }
+    if (exam.at < exam.ids.length - 1) { exam.at++; saveExam(); drawExamQuestion("question"); }
   });
   el("finish").addEventListener("click", function () {
     var blank = exam.answers.filter(function (x) { return x === null; }).length;
     var msg = blank ? "You have " + blank + " unanswered. Finish anyway?" : "Finish the exam?";
     if (confirm(msg)) finishExam();
   });
+
+  if (focusTarget === "question") el("exam-question").focus();
+  else if (typeof focusTarget === "number") box.children[focusTarget].focus();
 
   clockTimer = setInterval(function () {
     var left = secondsLeft();
@@ -886,6 +936,7 @@ function drawExamResults() {
       '</span><span class="verdict ' + (ok ? "ok" : "no") + '">' +
       (ok ? "Correct" : exam.answers[i] === null ? "Left blank" : "Not quite") + "</span>" +
       '<span class="n">' + esc(t ? t.name : q.topic) + "</span></div>" +
+      '<p class="question-meta">' + esc(q.id) + " &middot; " + questionReport(q) + "</p>" +
       '<div class="qtext">' + q.q + "</div>" +
       '<div class="choices">';
     q.choices.forEach(function (c, idx) {
@@ -985,6 +1036,7 @@ function problemPage(pid) {
           '<button class="btn btn-primary" id="submit" title="Run all twelve' + META
             + '-Shift-Enter">Submit</button>' +
         "</div>" +
+        '<p class="editor-hint" id="editor-hint">Tab indents code. Escape moves focus to the toolbar.</p>' +
         '<div class="editor-host" id="editor-host"></div>' +
         '<div class="custom-input" id="custom-input" hidden>' +
           '<label for="stdin-box">Your own input</label>' +
@@ -1000,14 +1052,6 @@ function problemPage(pid) {
           "</button>" +
           '<div class="console" id="console"></div>' +
         "</div>" +
-      "</div>" +
-      '<div class="ws-needs-desk">' +
-        "<h2>Open this one on a computer</h2>" +
-        "<p>The editor needs a keyboard and room to see your code beside the problem, so it is " +
-        "switched off at this width. The statement, the sample data, and the visible test cases " +
-        "are all above, and they read fine here.</p>" +
-        "<p>Anything you write is saved in the browser you write it in, so come back to this " +
-        "problem on a laptop or desktop and start there.</p>" +
       "</div>" +
     "</div>";
 
@@ -1030,6 +1074,8 @@ function problemPage(pid) {
 
   el("reset").addEventListener("click", function () {
     if (!confirm("Replace the editor with the original starter code?")) return;
+    cancelRun();
+    el("results").hidden = true;
     cm.setValue(curProblem.starter[curLang]);
     stash();
   });
@@ -1060,6 +1106,7 @@ function problemPage(pid) {
     mode: LANGS.filter(function (l) { return l.id === curLang; })[0].mode,
     theme: theme === "dark" ? "material-darker" : "default",
     lineNumbers: true,
+    screenReaderLabel: "Source code editor",
     indentUnit: 4,
     tabSize: 4,
     indentWithTabs: false,
@@ -1080,6 +1127,7 @@ function problemPage(pid) {
     // should shorten the code, not hide it behind a scrollbar.
     lineWrapping: true,
     extraKeys: {
+      Esc: function () { (el("run").disabled ? el("lang") : el("run")).focus(); },
       Tab: function (c) {
         if (c.somethingSelected()) c.indentSelection("add");
         else c.replaceSelection("    ", "end");
@@ -1097,6 +1145,8 @@ function problemPage(pid) {
       "Shift-Cmd-Enter": function () { var b = el("submit"); if (b && !b.disabled) b.click(); }
     }
   });
+  cm.getInputField().setAttribute("aria-label", "Source code editor");
+  cm.getInputField().setAttribute("aria-describedby", "editor-hint");
   window.__cm = cm;
   applyFontSize();
   wireFontSize();
@@ -1194,6 +1244,8 @@ function stash() {
 }
 
 function loadCode() {
+  cancelRun();
+  el("results").hidden = true;
   var saved = store(codeKey(curProblem.id, curLang), null);
   cm.setOption("mode", LANGS.filter(function (l) { return l.id === curLang; })[0].mode);
   cm.setValue(saved === null ? curProblem.starter[curLang] : saved);
@@ -1323,53 +1375,77 @@ function showResults(summary, detail) {
 // being rate limited was told their correct program failed every test.
 function runnerResponse(r) {
   if (r.ok) return r.json();
-  if (r.status === 429 || r.status === 403) {
+  if (r.status === 429) {
     return { status: "error", message: "Too many runs from your network in a short space of "
              + "time. The limit is shared by everyone on the same connection, so if your whole "
              + "class is submitting at once, give it a minute and try again." };
   }
+  if (r.status === 403) {
+    return { status: "error", message: "The runner refused this request. Open the problem on "
+             + "this site and try again." };
+  }
   return { status: "error", message: "The code runner could not be reached just now (HTTP "
            + r.status + "). Try again in a moment." };
+}
+
+// A result belongs to the editor, language, and problem that submitted it.
+var activeRun = null;
+
+function runButtons(disabled) {
+  ["run", "submit", "run-custom"].forEach(function (id) {
+    var b = el(id);
+    if (b) b.disabled = disabled;
+  });
+}
+
+function cancelRun() {
+  if (activeRun) activeRun.controller.abort();
+  activeRun = null;
+  runButtons(false);
+}
+
+function requestRun(stdin, done) {
+  cancelRun();
+  var run = { controller: new AbortController(), editor: cm,
+              problem: curProblem, lang: curLang };
+  activeRun = run;
+  runButtons(true);
+  function current() {
+    return activeRun === run && cm === run.editor
+      && curProblem === run.problem && curLang === run.lang;
+  }
+  return fetch("/api/run", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal: run.controller.signal,
+    body: JSON.stringify({ lang: run.lang, code: run.editor.getValue(), stdin: stdin })
+  }).then(runnerResponse)
+    .then(function (res) { if (current()) done(res); })
+    .catch(function (e) {
+      if (!current() || e.name === "AbortError") return;
+      showResults('<span class="st no">Error</span><span>could not reach the code runner</span>',
+                  '<div class="res-detail">' + esc(e.message) + "</div>");
+    })
+    .finally(function () {
+      if (current()) { activeRun = null; runButtons(false); }
+    });
 }
 
 function execute(full) {
   var p = curProblem;
   var cases = full ? p.tests : p.tests.slice(0, 6);
   var stdin = cases.map(function (c) { return c["in"].join("\n"); }).join("\n") + "\n";
-  el("run").disabled = true;
-  el("submit").disabled = true;
   showResults('<span class="muted">Compiling and running ' + cases.length
               + " test cases...</span>", "");
-
-  fetch("/api/run", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ lang: curLang, code: cm.getValue(), stdin: stdin })
-  }).then(runnerResponse)
-    .then(function (res) { report(res, cases, full); })
-    .catch(function (e) {
-      showResults('<span class="st no">Error</span><span>could not reach the code runner</span>',
-                  '<div class="res-detail">' + esc(e.message) + "</div>");
-    })
-    .then(function () { el("run").disabled = false; el("submit").disabled = false; });
+  return requestRun(stdin, function (res) { report(res, cases, full); });
 }
 
 function runCustom() {
   var text = el("stdin-box").value;
   if (!text.trim()) return showResults('<span class="st no">Nothing to run</span>'
                                        + "<span>the input box is empty</span>", "");
-  el("run").disabled = true;
-  el("submit").disabled = true;
-  el("run-custom").disabled = true;
   showResults('<span class="muted">Running your own input...</span>', "");
-
-  fetch("/api/run", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ lang: curLang, code: cm.getValue(),
-                           stdin: text.replace(/\s+$/, "") + "\n" })
-  }).then(runnerResponse)
-    .then(function (res) {
+  return requestRun(text.replace(/\s+$/, "") + "\n", function (res) {
       if (res.status === "compile_error") {
         return showResults('<span class="st no">Compile error</span>'
                            + "<span>the compiler rejected this</span>",
@@ -1390,15 +1466,6 @@ function runCustom() {
       showResults('<span class="st ' + (res.status === "ok" ? "ok" : "no") + '">'
                   + (res.status === "ok" ? "Ran" : "Runtime error") + "</span>"
                   + "<span>your own input, nothing checked</span>", body);
-    })
-    .catch(function (e) {
-      showResults('<span class="st no">Error</span><span>could not reach the code runner</span>',
-                  '<div class="res-detail">' + esc(e.message) + "</div>");
-    })
-    .then(function () {
-      el("run").disabled = false;
-      el("submit").disabled = false;
-      el("run-custom").disabled = false;
     });
 }
 
@@ -1505,14 +1572,17 @@ function report(res, cases, full) {
       "</div>";
   }
 
-  // With the panel collapsed the bar is all you see, so it has to mention a crash.
-  showResults('<span class="st ' + (pass === cases.length ? "ok" : "no") + '">' + pass + " / "
+  var accepted = res.status === "ok" && pass === cases.length && lines.length === cases.length;
+  // The summary must distinguish matching output from a successful submission.
+  showResults('<span class="st ' + (accepted ? "ok" : "no") + '">' + pass + " / "
               + cases.length + "</span><span>"
               + (full ? "all twelve test cases" : "the six visible test cases")
+              + (res.status !== "ok" ? ", runtime error" : "")
+              + (lines.length > cases.length ? ", extra output" : "")
               + (res.stderr ? ", and the program wrote to stderr" : "") + "</span>",
               html);
 
-  if (full && pass === cases.length && store("frq:" + curProblem.id, null) !== "gaveup") {
+  if (full && accepted && store("frq:" + curProblem.id, null) !== "gaveup") {
     save("frq:" + curProblem.id, "solved");
   }
 }
@@ -1536,6 +1606,7 @@ function notFound(detail) {
 // ------------------------------------------------------------------ render
 
 function render() {
+  cancelRun();
   var r = route();
   if (SECTIONS.indexOf(r.section) < 0) r.section = "404";
   var m = metaFor(r);
@@ -1583,7 +1654,7 @@ document.getElementById("wipe").addEventListener("click", function () {
 
 // Anything shared while the site was hash routed points at #/guide/x. The fragment never
 // reaches the server, so only this can rescue those links.
-if (/^#\/?./.test(location.hash)) {
+if (/^#\/?(guide|practice|exam|missed|problems|problem)(\/|$)/.test(location.hash)) {
   history.replaceState(null, "", "/" + location.hash.replace(/^#\/?/, ""));
 } else if (location.hash === "#" || location.hash === "#/") {
   history.replaceState(null, "", "/");
