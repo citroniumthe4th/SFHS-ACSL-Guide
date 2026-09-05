@@ -178,7 +178,11 @@ collapses to a single number is when k is a perfect square, so the lockers left 
 open locker is that count squared. At N of 20 the square root is about 4.47, giving a count of 4 and a
 highest locker of 16.</p>
 
-<p>The reference solutions check the square-root estimate with integer multiplication. After correction, r must satisfy r squared at most N and (r + 1) squared greater than N. An integer square-root function can compute r directly where the language provides one.</p>
+<p>Take the integer part of the square root, then correct it with multiplication: while (r + 1)
+squared is at most N add one to r, and while r squared is larger than N take one away. At this
+size the square root is exact either way, so the correction is cheap insurance rather than a
+fix, but it does mean you never have to think about how your language rounded. Some languages
+ship an integer square root that does the same job in one call.</p>
 
 <p>Any N of 1 or more leaves locker 1 open, so the NONE branch never actually fires. Write it anyway,
 since the output specification asks for it and a defensive branch costs nothing.</p>

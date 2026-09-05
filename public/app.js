@@ -41,6 +41,10 @@ function save(key, val) {
   }
 }
 
+function forget(key) {
+  try { localStorage.removeItem("acsl:" + key); } catch (e) { /* nothing to forget */ }
+}
+
 var warned = false;
 function warnOnce(text) {
   if (warned) return;
@@ -749,7 +753,11 @@ function answer(idx) {
   quiz.picked = idx;
   quiz.seen++;
   if (idx === q.ans) quiz.right++;
-  save("q:" + q.id, idx === q.ans);
+  // A generated question keeps its record only while you still owe it. Nothing reads the
+  // true: the category counters walk the fixed bank, so a right answer in endless mode was
+  // writing a key that every later visit to Practice or Missed would scan and throw away.
+  if (q.generated && idx === q.ans) forget("q:" + q.id);
+  else save("q:" + q.id, idx === q.ans);
   paintAnswer();
 }
 

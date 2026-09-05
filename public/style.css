@@ -922,6 +922,9 @@ details.reveal > div { padding: 0 14px 14px; }
 .footer-links a { color: var(--text-dim); }
 .footer-links a:hover { color: var(--text); }
 
+/* The footer is a wrapping flex row, so the notice claims a line of its own under the rest. */
+.footer-note { flex-basis: 100%; }
+
 /* Study tools use the same controls and spacing as the existing pages. */
 .guide-search { display: block; width: 100%; max-width: 42rem; margin: 8px 0; padding: 12px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
 .bookmark { margin-bottom: 18px; }

@@ -42,7 +42,10 @@ what a later comparison sees.</p>
 
 <h2>How to trace one</h2>
 <p>Number the lines before you start, then keep a table with a column for the accumulator and one
-for each memory word. Add a row whenever an instruction changes a value, and record each branch destination. This keeps the current accumulator separate from values stored in memory.</p>
+for each memory word. Add a row for every instruction that changes something, and write down
+where each branch goes. Do not skip rows to save time. These programs loop, and by the fourth
+pass an untracked variable has usually stopped matching whatever you were holding in your head.
+The accumulator gets its own column so you never confuse it with the word you last stored to.</p>
 
 <p>This program multiplies a running product by N, N - 1, and so on down to 1. For positive N, it computes N! using the machine's modulo 1,000,000 arithmetic:</p>
 <pre><code>       READ  N
@@ -63,7 +66,11 @@ OUT    PRINT F
 with N at 3, then F at 12 with N at 2, then F at 24 with N at 1, then F still 24 with N at 0, at
 which point the BE fires and the program prints 24.</p>
 
-<p>The loop reloads N before testing whether it is zero. With N starting at 4, the body runs for N = 4, 3, 2, and 1. It stops when N reaches 0. For this input, describing it as a loop that runs while N is positive gives the same trace.</p>
+<p>Read the test rather than the intent. The loop reloads N and branches on zero, so with N of 4
+the body runs for 4, 3, 2, and 1 and stops when the reload finds 0. Calling it a loop that runs
+while N is positive happens to give the same trace here, because the body only ever counts down
+by one. Trace the reload anyway. As soon as a program changes a counter somewhere other than the
+bottom of the loop, the intent and the instructions stop agreeing.</p>
 
 <h2>Idioms worth recognizing on sight</h2>
 <p>Comparing two values is LOAD A, SUB B, then BG or BL, since the sign of the difference is the
