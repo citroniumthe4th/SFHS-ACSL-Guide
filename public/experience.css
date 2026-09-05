@@ -99,8 +99,14 @@ p { text-wrap: pretty; }
 .shell { max-width: 1540px; margin: auto; min-height: calc(100dvh - 88px); }
 .sidebar { flex-basis: 240px; width: 240px; background: transparent; border: 0; padding: 30px 14px 40px 26px; height: calc(100dvh - 100px); top: 88px; }
 .side-head { padding: 22px 12px 8px; font-size: 10px; }
-.side-link { padding: 9px 12px; border: 0; font-size: 13px; }
-.side-link.on { background: var(--panel); box-shadow: inset 3px 0 var(--accent); }
+.side-link { padding: 9px 12px; border: 0; font-size: 13px; position: relative; }
+/* The marker is its own short bar rather than an inset shadow. A shadow is clipped by the
+   link's corner radius, which bent both of its ends inward like a bracket. */
+.side-link.on { background: var(--panel); box-shadow: none; }
+.side-link.on::before {
+  content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 52%; border-radius: 0 2px 2px 0; background: var(--accent);
+}
 .main { padding: 34px 36px 80px; }
 .wrap, .wrap-wide { margin-inline: auto; }
 .wrap { max-width: 860px; }
