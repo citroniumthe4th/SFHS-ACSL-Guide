@@ -1727,11 +1727,12 @@ function drawStatement() {
     "The last 6 are hidden. The test cases vary in difficulty, and you should make up sample " +
     "data of your own to test your program properly.</p>" +
 
-    '<h2 class="sec">Hints</h2><p class="note">They get more specific, and opening one closes the other. Neither marks the solution as viewed.</p>' +
+    '<h2 class="sec">Hints</h2><p class="note">The second is more specific than the first. Open ' +
+    'either, or both. Neither marks the solution as viewed.</p>' +
     (p.hints || []).map(function (hint, i) {
-      return '<details class="hint" name="hint"><summary>Hint ' + (i + 1) + '</summary><p>' + esc(hint) + '</p></details>';
+      return '<details class="hint"><summary>Hint ' + (i + 1) + '</summary><p>' + esc(hint) + '</p></details>';
     }).join("") +
-    '<div class="btn-row"><button class="btn" id="giveup">' +
+    '<div class="btn-row hint-end"><button class="btn" id="giveup">' +
     (gaveUp ? "Solution shown below" : "Show the solution") + "</button></div>" +
     '<div id="solution"></div>';
 

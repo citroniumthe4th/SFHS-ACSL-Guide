@@ -220,6 +220,9 @@ html[data-theme="dark"] .cm-s-material-darker.CodeMirror,
 html[data-theme="dark"] .cm-s-material-darker .CodeMirror-gutters { background: var(--code-bg); }
 .hint { padding: 8px 0; }
 .hint summary { font-weight: 550; }
+/* Give up is a different kind of decision from opening a hint, so it does not sit right
+   against the last one. */
+.hint-end { margin-top: 26px; }
 .footer { margin: 0 auto; max-width: 1504px; background: transparent; padding: 32px 36px; font-size: 11px; line-height: 1.8; gap: 18px; }
 .footer > span:first-child { max-width: 85ch; }
 .footer-links { margin-left: 0; gap: 12px 20px; }
