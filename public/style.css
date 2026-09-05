@@ -918,3 +918,14 @@ details.reveal > div { padding: 0 14px 14px; }
 .footer-links { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; margin-left: auto; }
 .footer-links a { color: var(--text-dim); }
 .footer-links a:hover { color: var(--text); }
+
+/* Study tools use the same controls and spacing as the existing pages. */
+.guide-search { display: block; width: 100%; max-width: 42rem; margin: 8px 0; padding: 12px; font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; }
+.bookmark { margin-bottom: 18px; }
+.bookmark[aria-pressed="true"] { border-color: var(--accent); }
+.hint { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.hint summary { cursor: pointer; padding: 8px 0; }
+.hint p { margin-bottom: 0; }
+.jump-editor { display: none; }
+#editor-host { scroll-margin-top: 80px; }
+@media (max-width: 1000px) { .jump-editor { display: inline-flex; margin-bottom: 16px; } }

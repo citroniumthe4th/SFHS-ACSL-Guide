@@ -256,16 +256,9 @@ from minus one to one, skip the pair where both are zero, discard anything falli
 add one for every asterisk. Getting that right once means you never have to think about the eight
 directions again.</p>
 
-<p>For the spread, use a queue rather than recursion. Push the clicked square, then repeatedly pop one,
-skipping it if it is already uncovered and otherwise uncovering it and recording its count. Only when
-that count is zero do you push its eight neighbours, and that single condition is the whole rule, since
-a square with a mine beside it is uncovered but is a dead end. Recursion works too, but a 20 by 20 field
-of open ground goes 400 frames deep, which is comfortable in C++ and Java and close enough to Python's
-default limit to be worth avoiding.</p>
+<p>For the spread, put the clicked square in a queue. Remove a square, skip it if already uncovered, and otherwise uncover it and record its neighboring mine count. Add its safe neighbors only when that count is zero. A numbered square opens but does not spread the search.</p>
 
-<p>Check whether a square is already uncovered when you pop it rather than when you push it. Squares get
-pushed repeatedly from different directions, and filtering only at push time still lets duplicates
-through and can send the search round in circles.</p>
+<p>The reference solution marks squares when removing them from the queue and skips duplicate entries. Marking a square as visited when first adding it is also correct and prevents those duplicates. Either approach must ensure each square is processed only once.</p>
 
 <p>Two things about printing. A mine is never uncovered by a legal click, so it keeps whatever it looked
 like before, which in this problem is a covered square printing as a period. And an uncovered square
@@ -641,8 +634,7 @@ the well has to be modelled square by square. A solution that adjusts the height
 clear gets the first sample right and then drifts.</p>
 
 <p>Parsing is a split on the space, then the first character for the shape, everything between it and
-the colon for the length, and everything after the colon for the column. A bar can be up to 8 long, so
-the length is not always a single digit once you start writing test data of your own.</p>
+the colon for the length, and everything after the colon for the column. The stated lengths are 1 through 8.</p>
 """,
     sol=dict(
         python_helpers="""

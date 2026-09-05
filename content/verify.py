@@ -9,6 +9,7 @@ computed value has to be absent from choices A through D instead.
 Checks are questions, and a question is data. Each one runs under a wall clock alarm and a
 memory cap so a runaway expression fails loudly rather than taking the machine down.
 """
+import ast
 import json
 import os
 import random
@@ -41,7 +42,21 @@ def _alarm(signum, frame):
     raise CheckTimeout()
 
 
+def only(values):
+    if len(values) != 1:
+        raise ValueError("expected exactly one matching choice, found %d" % len(values))
+    return values[0]
+
+
+ENV["only"] = only
+
+
 def run_check(src, scope):
+    # Reject checks that merely return an option by position.
+    for node in ast.walk(ast.parse(src)):
+        if (isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name)
+                and node.value.id == "CHOICES" and not isinstance(node.slice, ast.Slice)):
+            raise ValueError("derive the answer independently, do not index CHOICES")
     signal.signal(signal.SIGALRM, _alarm)
     signal.alarm(CHECK_TIMEOUT)
     try:
@@ -142,6 +157,11 @@ def main():
         if len((q.get("why") or "").strip()) < 60:
             bad.append((qid, "explanation is missing or a stub"))
 
+        if q.get("kind") not in ("problem", "concept", "extension"):
+            bad.append((qid, "missing explicit question kind"))
+        if (q.get("kind") == "extension") != (q.get("exam") is False):
+            bad.append((qid, "extension kind and exam exclusion disagree"))
+
         if "check" not in q:
             continue
         checked += 1
@@ -165,7 +185,7 @@ def main():
     check_positions(bank)
 
     none_ans = sum(1 for q in bank if q["choices"][q["ans"]] == NONE)
-    print("%d questions, %d machine checked, %d conceptual, %d answer None of the above (%.0f%%)"
+    print("%d questions, %d machine checked, %d manually reviewed, %d answer None of the above (%.0f%%)"
           % (len(bank), checked, len(bank) - checked, none_ans,
              100.0 * none_ans / max(len(bank), 1)))
     for qid, msg in bad:

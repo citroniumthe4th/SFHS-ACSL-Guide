@@ -72,7 +72,7 @@ item on this list you can rule out before you begin.</p>
 
 <p>Then three checks on the work. Confirm you grouped the exponent from the right, since that is the
 one operator here that does not associate leftward. Check the operand order on every minus and
-divide, where the first value popped is the right-hand operand. And confirm the operator stack is
+divide: in postfix, the first value popped is the right operand. In prefix scanned right to left, it is the left operand. And confirm the operator stack is
 empty, since anything still on it when the scan ends belongs on the output.</p>
 `,
 

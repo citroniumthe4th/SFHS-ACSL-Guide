@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="/vendor/codemirror/lib/codemirror.css?v=97f897fa">
 <link rel="stylesheet" href="/vendor/codemirror/theme/material-darker.css?v=e2d34217">
 <link rel="stylesheet" href="/vendor/codemirror/addon/dialog/dialog.css?v=f870660a">
-<link rel="stylesheet" href="/style.css?v=aa3d7f14">
+<link rel="stylesheet" href="/style.css?v=313cd671">
 </head>
 <body>
 
@@ -61,8 +61,12 @@
   stored and what is sent</a>.</span>
   <span class="footer-links">
     <a href="mailto:contact@sfhsacsl.org">Found a mistake? Write an email to contact@sfhsacsl.org</a>
+    <button class="linkish" id="export-progress">Export progress</button>
+    <button class="linkish" id="import-progress">Import progress</button>
+    <input type="file" id="backup-file" accept=".json,application/json" hidden>
     <button class="linkish" id="wipe">Clear my progress</button>
   </span>
+  <span id="backup-status" role="status"></span>
 </footer>
 
 <script src="/vendor/codemirror/lib/codemirror.js?v=3c07a1e0"></script>
@@ -79,26 +83,26 @@
 <script src="/data/topics.js?v=cc004c45"></script>
 <script src="/data/guide1.js?v=8acd124e"></script>
 <script src="/data/guide2.js?v=d5244706"></script>
-<script src="/data/guide3.js?v=52c783e8"></script>
+<script src="/data/guide3.js?v=e3eb2c0f"></script>
 <script src="/data/guide4.js?v=9edac2e5"></script>
 <script src="/data/guide5.js?v=55b917b3"></script>
 <script src="/data/guide6.js?v=a0ad322e"></script>
-<script src="/data/guide7.js?v=ad630e4c"></script>
-<script src="/data/guide8.js?v=3d586414"></script>
-<script src="/data/mcq1.js?v=9e13c826"></script>
-<script src="/data/mcq2.js?v=9c4e42b6"></script>
-<script src="/data/mcq3.js?v=789bdd74"></script>
-<script src="/data/mcq4.js?v=5b6d6c95"></script>
-<script src="/data/mcq5.js?v=3ea8637f"></script>
-<script src="/data/mcq6.js?v=7993ddf2"></script>
-<script src="/data/mcq7.js?v=e6845b40"></script>
-<script src="/data/mcq8.js?v=c4ab29e0"></script>
-<script src="/data/mcq9.js?v=005f9f75"></script>
-<script src="/data/mcq10.js?v=449fa427"></script>
-<script src="/data/mcq11.js?v=cd8186c7"></script>
-<script src="/data/mcq12.js?v=711ff197"></script>
-<script src="/data/gen.js?v=93b605df"></script>
-<script src="/data/frq.js?v=a7a99329"></script>
-<script src="/app.js?v=2c46b332"></script>
+<script src="/data/guide7.js?v=eb5fb826"></script>
+<script src="/data/guide8.js?v=8e728f48"></script>
+<script src="/data/mcq1.js?v=fa4bb3c3"></script>
+<script src="/data/mcq2.js?v=30f5d05b"></script>
+<script src="/data/mcq3.js?v=22704338"></script>
+<script src="/data/mcq4.js?v=a055e80f"></script>
+<script src="/data/mcq5.js?v=9be6a88e"></script>
+<script src="/data/mcq6.js?v=bba1a5bb"></script>
+<script src="/data/mcq7.js?v=8a3838d9"></script>
+<script src="/data/mcq8.js?v=c8f7361b"></script>
+<script src="/data/mcq9.js?v=91210d6a"></script>
+<script src="/data/mcq10.js?v=1c520cb5"></script>
+<script src="/data/mcq11.js?v=5a8ef8f1"></script>
+<script src="/data/mcq12.js?v=b20eeda2"></script>
+<script src="/data/gen.js?v=7d67721c"></script>
+<script src="/data/frq.js?v=65791197"></script>
+<script src="/app.js?v=cf061d56"></script>
 </body>
 </html>

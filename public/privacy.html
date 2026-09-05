@@ -10,7 +10,7 @@
 <link rel="canonical" href="https://www.sfhsacsl.org/privacy">
 <meta name="robots" content="index,follow">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128187;</text></svg>">
-<link rel="stylesheet" href="/style.css?v=aa3d7f14">
+<link rel="stylesheet" href="/style.css?v=313cd671">
 </head>
 <body>
 
@@ -26,7 +26,7 @@
     <div class="wrap">
       <div class="eyebrow">Privacy</div>
       <h1>What is stored and what is sent</h1>
-      <p class="note">Last updated 4 September 2026.</p>
+      <p class="note">Last updated 5 September 2026.</p>
 
       <p>This is a study site for the American Computer Science League. There are no accounts, no
       sign in, and no advertising. Most of what it knows about you never leaves your own browser,
@@ -35,19 +35,26 @@
       <h2>Kept in your browser</h2>
       <p>The following is written to <code>localStorage</code> on the device you are using. It stays
       on that device, is not sent to us, and does not follow you to another browser or another
-      computer.</p>
+      computer unless you export and import a backup.</p>
       <ul>
         <li>Which division you are studying for, Junior or Senior</li>
         <li>Your light or dark theme choice, and which programming language you last used</li>
         <li>Whether you answered each practice question correctly, which is what fills the missed
             questions list</li>
-        <li>Whether you have solved a programming problem or viewed its solution</li>
+        <li>Questions you bookmark, including the seed needed to recreate a generated question</li>
+        <li>Whether you solved a programming problem before or after viewing its solution</li>
         <li>The code you write for each problem in each language, and any custom test input</li>
         <li>A mock exam in progress, including its questions, your answers so far, and its deadline</li>
       </ul>
       <p>The <strong>Clear my progress</strong> button in the footer deletes all of it. Clearing site
-      data in your browser does the same thing. Neither is recoverable, because there is no copy
-      anywhere else.</p>
+      data in your browser does the same thing. You can recover that work only if you previously exported a backup.</p>
+
+      <h2>Exporting and importing progress</h2>
+      <p><strong>Export progress</strong> downloads a JSON file containing your saved study data,
+      including code and custom input. <strong>Import progress</strong> reads that file on your
+      device and restores matching entries after asking you to confirm. Neither action uploads
+      the file to us. You can move it to another browser or device yourself. Anyone you share the
+      file with can read its contents.</p>
 
       <h2>No cookies</h2>
       <p>The site sets no cookies and runs no analytics, tracking pixels, or third party scripts.

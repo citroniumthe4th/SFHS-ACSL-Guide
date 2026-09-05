@@ -11,19 +11,20 @@ the page.
 
 ## What is in it
 
-Lessons link to their official ACSL topic references and have section navigation. Three reused
+Lessons link to their official ACSL topic references and have section navigation. Five reused
 diagrams have source credits, alt text, and license links. See
 [diagram credits](public/assets/diagrams/ATTRIBUTION.md).
 
 The question bank labels conceptual and extension questions. New mock exams omit these
 foundational definition questions and the two extensions using bases outside the four core bases.
 They use this site's practice bank, so the score is not calibrated to an official ACSL exam.
-Question IDs and issue links make corrections easier to report.
+Question IDs, individual question links, and issue links make corrections easier to report.
+Bookmarks save questions for later, and generated questions retain their seeds in missed review.
 
 **Guide.** Sixteen pages, one per category per division, covering the material and ending with
-the checks to run before writing an answer down.
+the checks to run before writing an answer down. Full-text search covers both divisions.
 
-**Practice.** 223 short answer questions in the format ACSL uses on the contest: five choices
+**Practice.** 229 multiple-choice practice questions: five choices
 with "None of the above" as E, which is the correct answer about 10 percent of the time. Choices
 are shuffled on the way to the screen, so the position of the right answer carries no
 information. Every question shows its reasoning once you answer. Anything you get wrong lands in
@@ -48,7 +49,9 @@ written the way the finals problems are written: a narrative statement, a worked
 and output spec, three sets of sample data, twelve test cases with the last six hidden, a named
 function to complete, and constraints. You write inside the function, a visible driver reads the
 test data and prints what you return, and the editor really compiles and runs your code in
-Python, Java, or C++.
+Python, Java, or C++. Two progressively more specific hints precede each solution. Viewing a
+solution after solving no longer removes independent completion, and mobile readers can jump
+directly to the editor.
 
 The last six cases render nothing at all until you ask for the solution. Submitting tells you
 which of them pass without showing the inputs or the answers. They are hidden in the interface
@@ -333,3 +336,32 @@ reason the guides carry ACSL's conventions: both are worth rechecking each Septe
 The site content, problems, questions, and code are released under the MIT License, see
 [LICENSE](LICENSE). CodeMirror is vendored under `public/vendor/codemirror` and carries its own
 MIT license, included there.
+
+## Backups and verification
+
+Use Export progress and Import progress in the footer to move saved code, answers, bookmarks,
+settings, and exam progress between browsers. Files stay on your device. Import validates all
+entries before writing and attempts to restore previous values if browser storage fills up.
+
+The explanation floor in `content/verify.py` remains 60 characters. Explicit question kinds
+control mock eligibility independently of machine-check coverage. Choice-matching checks require
+exactly one answer, and verification rejects checks that return a choice by position.
+
+Run the checks with:
+
+```sh
+python3 content/verify.py
+python3 content/test_verify.py
+python3 content/checkgen.py
+node content/test_runtime.js
+python3 content/build.py
+python3 content/stamp.py
+npm ci --ignore-scripts
+npx playwright install chromium
+npm run test:browser
+```
+
+The programming build needs Python, a Java JDK, and a C++17 compiler. Playwright is a development
+only dependency. The static site does not load it. Browser tests use fresh, disposable storage
+and do not call the production code runner. Automatic GitHub Actions verification remains pending
+because the token used for this update cannot create workflow files.

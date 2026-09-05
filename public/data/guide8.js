@@ -9,8 +9,7 @@ mentions. The accumulator starts at zero. DC declarations supply the initial val
 elsewhere.</p>
 
 <p>Each line has up to three fields separated by spaces: an optional label, an opcode, and an
-optional operand. A label is any name that is not itself an opcode, and it marks the line so that a
-branch can jump to it. An operand is either the name of a memory word or an immediate value written
+optional operand. Labels begin in the first column, start with a letter, contain only letters and digits, and are case sensitive. A label cannot be an opcode. It marks a line so a branch can jump to it. An operand is either the name of a memory word or an immediate value written
 with a leading equals sign, so LOAD X reads the word X while LOAD =7 loads the number seven
 itself.</p>
 
@@ -33,19 +32,17 @@ itself.</p>
 <tr><td>END</td><td>stop</td></tr>
 </table>
 
-<p>The accumulator is the left operand: SUB X computes ACC - X. DIV keeps the signed integer part of the quotient, so it truncates toward zero. BG, BE, and BL compare ACC with zero. To compare two stored values, load one, subtract the other, and branch on the sign of the result.</p>
+<p>The accumulator is the left operand: SUB X computes ACC - X. DIV keeps the signed integer part of the quotient, so it truncates toward zero. BG, BE, and BL compare ACC with zero. To compare two stored values, load one, subtract the other, and branch on the sign of the result, provided the subtraction does not wrap.</p>
 
-<p>The fourth is easy to miss because nothing on screen announces it: <strong>READ, ADD, SUB and
+<p><strong>READ, ADD, SUB, and
 MULT all work modulo 1,000,000</strong>. A sum that would reach 1,000,000 wraps to 0, and a value
 read in is reduced the same way. DIV is the exception, taking the integer part of the quotient with
-no wrap. Reduce after every arithmetic instruction rather than at the end, since the wrap changes
+no wrap. Reduce after READ, ADD, SUB, and MULT rather than at the end, since the wrap changes
 what a later comparison sees.</p>
 
 <h2>How to trace one</h2>
 <p>Number the lines before you start, then keep a table with a column for the accumulator and one
-for each memory word, adding a row for every instruction that changes something. Do not skip rows to
-save time. These programs loop, and a loop with an untracked variable becomes unreadable after four
-passes.</p>
+for each memory word. Add a row whenever an instruction changes a value, and record each branch destination. This keeps the current accumulator separate from values stored in memory.</p>
 
 <p>This program multiplies a running product by N, N - 1, and so on down to 1. For positive N, it computes N! using the machine's modulo 1,000,000 arithmetic:</p>
 <pre><code>       READ  N
@@ -66,13 +63,11 @@ OUT    PRINT F
 with N at 3, then F at 12 with N at 2, then F at 24 with N at 1, then F still 24 with N at 0, at
 which point the BE fires and the program prints 24.</p>
 
-<p>Notice that the loop test sits at the top and reloads N before branching. A common misreading is
-to assume the loop runs while N is greater than zero and to stop one pass early, and the only
-defence is to trace the reload rather than the intent.</p>
+<p>The loop reloads N before testing whether it is zero. With N starting at 4, the body runs for N = 4, 3, 2, and 1. It stops when N reaches 0. For this input, describing it as a loop that runs while N is positive gives the same trace.</p>
 
 <h2>Idioms worth recognising on sight</h2>
 <p>Comparing two values is LOAD A, SUB B, then BG or BL, since the sign of the difference is the
-comparison. A count down loop is LOAD counter, BE exit, do the work, then LOAD counter, SUB =1,
+comparison when the subtraction does not wrap. A count down loop is LOAD counter, BE exit, do the work, then LOAD counter, SUB =1,
 STORE counter, BU top. A running total is LOAD sum, ADD item, STORE sum. Absolute value is LOAD X,
 BG done, MULT =-1, then store.</p>
 
@@ -148,8 +143,7 @@ character moved and the whole answer flipped, so the order of concatenation chan
 <h2>Program shapes that keep coming back</h2>
 <p>A reversal either builds backwards by prepending, or loops from the last index down to 0 and
 appends. A palindrome check compares s[i] with s[len - 1 - i] as i runs to the middle, and the minus
-1 is there because indexing starts at 0, so dropping it is the most common error in the whole
-category. Counting occurrences is a loop with a condition and a counter. Taking every other character
+1 is there because indexing starts at 0. Without it, the first comparison tries to read past the end of the string. Counting occurrences is a loop with a condition and a counter. Taking every other character
 is a loop with step 2, where the starting index decides which half you get. And a Caesar shift
 converts a character to a number, adds a shift, wraps with a modulo, and converts back, so check
 whether the wrap uses 26 and where the alphabet is taken to start.</p>

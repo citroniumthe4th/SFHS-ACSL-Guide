@@ -582,8 +582,8 @@ function graphTheory(r) {
        + "simply list them.</p>"
        + steps(found.length ? found : ["there are none"])
        + "<p>That is " + want + " walk" + (want === 1 ? "" : "s") + ". Note that this counts "
-       + "walks and not paths: repeating a vertex is allowed, which is why the answer is "
-       + "often larger than it first looks.</p>",
+       + "sequences that may repeat vertices and edges. ACSL calls these paths and uses "
+       + "simple paths when no vertex may repeat.</p>",
     check: "str(walks(" + n + ", " + k + ", " + py(names[u]) + ", " + py(names[v]) + ", "
          + py(bits) + "))"
   };

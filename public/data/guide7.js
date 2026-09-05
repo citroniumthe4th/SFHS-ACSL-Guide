@@ -3,6 +3,9 @@ window.GUIDE = Object.assign(window.GUIDE || {}, {
 "graph-theory": `
 <p class="lead">A graph consists of vertices and edges connecting them. In this category, practise reading directed and undirected graphs, building adjacency matrices, and counting routes of a given length.</p>
 
+<figure class="diagram"><img src="/assets/diagrams/graph.svg" width="333" height="220" alt="Undirected graph on vertices 1 through 6. Edges join 1 to 2 and 5, 2 to 3 and 5, 3 to 4, and 4 to 5 and 6." loading="lazy"><figcaption><a href="https://commons.wikimedia.org/wiki/File:6n-graf.svg">AzaToth, based on the graph by Booyabazooka</a>. Public domain.</figcaption></figure>
+<p>In this graph, vertex 4 has neighbors 3, 5, and 6. With rows and columns ordered 1 through 6, row 4 of its adjacency matrix is 0 0 1 0 1 1.</p>
+
 <h2>Vocabulary, stated precisely</h2>
 <p>In an undirected graph an edge works in both directions, while in a directed graph, or digraph,
 each edge points one way. The degree of a vertex is the number of edges touching it, and in a
@@ -62,6 +65,9 @@ of M, which is one row against one column instead of a full multiplication.</p>
 <p class="lead">This category is Boolean algebra drawn as a picture. A circuit diagram is an
 expression written in a different notation, and once you have written it back out as an expression,
 everything from the Boolean Algebra category applies unchanged.</p>
+
+<figure class="diagram"><img src="/assets/diagrams/half-adder.svg" width="360" height="200" alt="A and B each feed both gates. The upper XOR gate outputs S, and the lower AND gate outputs C." loading="lazy"><figcaption><a href="https://commons.wikimedia.org/wiki/File:Half_Adder.svg">Inductiveload, SVG condensed by Aflafla1</a>. Public domain.</figcaption></figure>
+<p>Both gates receive A and B. The XOR gate produces S, while the AND gate produces C. A connection dot joins wires. A crossing without a dot does not.</p>
 
 <h2>The eight gates</h2>
 <figure class="diagram"><div class="diagram-scroll" tabindex="0" role="region" aria-label="Gate symbols, scroll horizontally on small screens"><img src="/assets/diagrams/logic-gates.svg" width="908" height="110" loading="lazy" alt="From left to right: AND has a flat left edge and a rounded right edge. OR has a curved left edge and a pointed right edge. NOT is a triangle with a small circle on its output."></div><figcaption>AND, OR, and NOT symbols by Vaughan Pratt. <a href="https://commons.wikimedia.org/wiki/File:LogicGates.svg">Source</a>, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Unmodified. The symbols &and;, &or;, and &not; mean AND, OR, and NOT.</figcaption></figure>

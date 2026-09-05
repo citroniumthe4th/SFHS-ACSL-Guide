@@ -17,3 +17,10 @@ Original downloads:
 
 No endorsement by the artists or ACSL is implied. The public-domain dedications and
 the CC BY license apply to these images independently of the repository's own license.
+
+## Additional diagrams in the second audit
+
+Downloaded unmodified on September 5, 2026, with source links and credits beside their uses.
+
+- `half-adder.svg`: [Half Adder.svg](https://commons.wikimedia.org/wiki/File:Half_Adder.svg), by Inductiveload. SVG condensed by Aflafla1, May 31, 2014 revision. Public-domain dedication with an unrestricted fallback grant. [Original SVG](https://upload.wikimedia.org/wikipedia/commons/d/d9/Half_Adder.svg).
+- `graph.svg`: [6n-graf.svg](https://commons.wikimedia.org/wiki/File:6n-graf.svg), by AzaToth, based on Booyabazooka's graph. March 7, 2007, 17:02 revision. Commons classifies this simple diagram as public domain because it contains no copyrightable authorship. [Original SVG](https://upload.wikimedia.org/wikipedia/commons/5/5b/6n-graf.svg).
