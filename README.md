@@ -55,9 +55,9 @@ directly to the editor.
 
 The driver ships inside the editable template, so it becomes part of whatever a student saves.
 Changing it in `codegen.py` reaches new templates and the reference solutions, and never touches
-code somebody has already written; **Reset code** is the only way to pick up a newer driver, at the
-cost of the work in the box. That trade is deliberate, but it does mean the drivers in the wild are
-not all the same.
+code somebody has already written. **Reset code** restores the current template at the cost of
+the work in the box; copying only the current driver from the reference solution preserves the
+student's function. The notice updates as the driver is edited. Saved drivers are not all the same.
 
 The last six cases render nothing at all until you ask for the solution. Submitting tells you
 which of them pass without showing the inputs or the answers. They are hidden in the interface
@@ -161,19 +161,22 @@ all three languages against the twelve shipped test cases before it was wired in
 differ but the answers do not.
 
 Falling through is for the runner's failures, not the program's. A non-2xx reply, a connection
-error, or a response that does not parse moves to the next service. A timeout or a program that
+error, or an invalid or failed service response moves to the next service. A timeout or a program that
 floods its output stops there, because neither will go better elsewhere and trying doubles the
-wait. When every service fails, the student is told it is not their code.
+wait. Explicit timeout and truncated-output flags also stop grading. Judge0's queued and internal
+error statuses are service failures, not student runtime errors. C++ uses `-std=c++17 -O2` on
+all three services. When every service fails, the student is told it is not their code.
 
 Compiler Explorer needs two things Wandbox does not: its diagnostics arrive with ANSI color
 escapes, and it compiles to a file of its own naming, so both are rewritten before the text
-reaches the page.
+reaches the page. Judge0 needs a third: it answers HTTP 400 for any output it cannot read as
+UTF-8 unless the transfer is base64, so its source, stdin and three output streams are encoded
+both ways. Without that, a program printing one accented character looks like a total outage.
 
 `vercel.json` caps the function at 20 seconds. The handler holds itself to 16 across all attempts
 and 10 for any one of them, so a dead first choice cannot eat the budget the second needs. The
-platform cap is a backstop for an invocation that wedges somewhere the abort cannot reach. If a
-deploy ever rejects `maxDuration`, dropping the `functions` block is safe, since Hobby's 10 second
-default still clears a normal compile.
+platform cap is a backstop for an invocation that wedges somewhere the abort cannot reach. Keep
+the platform timeout above the handler's 16-second budget so fallback attempts can finish.
 
 `RUNNER_URL` still overrides the first entry's address for a Wandbox-compatible host.
 
