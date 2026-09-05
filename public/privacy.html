@@ -10,7 +10,7 @@
 <link rel="canonical" href="https://www.sfhsacsl.org/privacy">
 <meta name="robots" content="index,follow">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128187;</text></svg>">
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/style.css?v=f2dc9c9a">
 </head>
 <body>
 
@@ -59,8 +59,7 @@
       sends three things to our endpoint at <code>/api/run</code>: the language you chose, the full
       contents of the editor, and the test input for that run. That is the whole request body. The
       request also carries the ordinary HTTP metadata described in the next section, as every web
-      request does. Browsing the guides, answering practice questions, and taking mock exams send
-      nothing at all.</p>
+      request does. Your practice answers and mock-exam progress are not uploaded. Loading pages still sends ordinary request metadata to the host.</p>
 
       <p>We cannot compile or run anything ourselves, so that request is forwarded to
       <a href="https://wandbox.org/">Wandbox</a>, a free public compiler service operated by a third

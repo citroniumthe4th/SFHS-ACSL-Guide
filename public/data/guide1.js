@@ -1,31 +1,17 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "number-systems": `
-<p class="lead">Read 3204 in base 5 as 3&nbsp;&times;&nbsp;125 + 2&nbsp;&times;&nbsp;25
-+ 0&nbsp;&times;&nbsp;5 + 4&nbsp;&times;&nbsp;1, which is 429. Each digit is worth itself multiplied
-by a power of the base, and which power depends on how far left the digit sits.</p>
+<p class="lead">Read 3204 in base 8 as 3 &times; 512 + 2 &times; 64 + 0 &times; 8 + 4 &times; 1, which is 1668. Each digit contributes its value multiplied by a power of the base.</p>
 
-<p>That one line is the whole category. Every conversion, and every piece of arithmetic done without
-leaving a base, is an application of it, so if a question stops making sense, expand the number that
-way and work from there.</p>
+<p>Place value is the starting point for converting numbers and doing arithmetic in another base. If a conversion is unclear, expand the number as a sum of digits times powers of the base.</p>
 
 <h2>Place value</h2>
-<p>In base b, a digit sitting k places to the left of the point is worth that digit multiplied by
-b raised to the k. Nothing else is going on. The number 3204 in base 5 means three 125s, two 25s,
-no 5s, and four 1s, which comes to 375 + 50 + 0 + 4, or 429 in decimal.</p>
+<p>Number the positions from the right, starting at 0 for the units digit. In base b, the digit at position k contributes its value times b<sup>k</sup>. For example, 3204<sub>8</sub> = 3 &times; 8<sup>3</sup> + 2 &times; 8<sup>2</sup> + 0 &times; 8 + 4 = 1668<sub>10</sub>.</p>
 
-<p>ACSL works in four bases, and you should be equally comfortable in all of them. Base 2 uses
-only 0 and 1, base 8 uses 0 through 7, base 10 is the one you grew up with, and base 16 runs 0
-through 9 and then borrows the letters A through F to stand for ten through fifteen. The letters
-are the only genuinely new notation here, and they are usually the easy part. Most marks in this
-category go on the conversion or the arithmetic, not on the notation.</p>
+<p>ACSL focuses on binary, octal, decimal, and hexadecimal. They use digits 0 through 1, 7, 9, and 15 respectively, with A through F standing for 10 through 15 in hexadecimal. This site also includes a few extension questions in other bases, marked separately in practice.</p>
 
 <h2>What to have memorized</h2>
-<p>Thirty minutes for six problems does not leave room to derive things you could have known. Come
-in knowing the powers of 2 at least as far as 4096, and preferably to 65536, along with the powers
-of 8 and 16 over the same range. Know the six hex letters in both directions without pausing. Most
-important of all, know that each octal digit is exactly three bits and each hex digit is exactly
-four, because that single fact is what makes the conversions fast.</p>
+<p>The ACSL wiki recommends knowing powers of 2 and 8 through 4096, powers of 16 through 65,536, and the binary values of octal and hexadecimal digits. Each octal digit corresponds to three bits, and each hexadecimal digit to four. Start with the table below and practise converting small numbers without looking.</p>
 
 <table class="tbl">
 <tr><th>Hex</th><th>Binary</th><th>Dec</th><th>Hex</th><th>Binary</th><th>Dec</th></tr>
@@ -51,23 +37,16 @@ three bits gives 011 110 111 110. Those same twelve bits regrouped into fours fr
 0111, 1011, and 1110, which read as 7, B, and E. The answer is 7BE, and you never had to think
 about what the number actually is.</p>
 
-<p>Students routinely convert 3676 to 1982 in decimal and then convert 1982 to hex, which takes
-three times as long and gives arithmetic three separate chances to go wrong. Decimal is a detour
-whenever both bases are powers of two.</p>
+<p>Converting through decimal is valid, but grouping bits avoids that extra conversion when both bases are powers of two.</p>
 
 <h2>Decimal in and decimal out</h2>
-<p>When decimal genuinely is one of the two bases, you have no shortcut and you fall back on
-division. Divide by the target base repeatedly, writing down each remainder, and then read the
-remainders from the bottom upward, since they come out least significant first.</p>
+<p>To convert a nonnegative integer from decimal, divide repeatedly by the target base and record each remainder. Read the remainders from bottom to top because the least significant digit comes out first.</p>
 <pre><code>1000 / 16 = 62 remainder 8
   62 / 16 =  3 remainder 14 (E)
    3 / 16 =  0 remainder 3
 answer, read upward: 3E8</code></pre>
 
-<p>Coming back the other way, most people write out the powers and add, but Horner's method is
-faster and much harder to botch. Start with the leading digit, then repeatedly multiply by the
-base and add the next digit. For 3E8 that is 3, then 3 times 16 plus 14 is 62, then 62 times 16
-plus 8 is 1000. You never write down a power and you never lose your place.</p>
+<p>To convert to decimal, expand the place values or use Horner's method: start with the leading digit, then multiply by the base and add the next digit. For 3E8<sub>16</sub>, the running values are 3, then 3 &times; 16 + 14 = 62, then 62 &times; 16 + 8 = 1000.</p>
 
 <h2>Arithmetic without leaving the base</h2>
 <p>Addition and subtraction behave exactly as they do in decimal, except that you carry when a
@@ -94,10 +73,7 @@ one third in decimal is 0.333 forever, so a problem asking for a fixed number of
 how many.</p>
 
 <h2>What the questions actually look like</h2>
-<p>Straight conversions are the most common, and they are almost always between two bases that are
-both powers of two, which is the setter telling you to use the grouping shortcut. After those come
-arithmetic problems, usually hexadecimal subtraction with borrows, since that is where the letters
-and the borrowing interfere with each other most.</p>
+<p>Practise conversions between bases and arithmetic within a base. For conversions between binary, octal, and hexadecimal, grouping bits is useful. For subtraction, write each borrow above the column it changes.</p>
 
 <p>A third kind gives you an equation and asks for the base. If 34 in base b equals 28, then
 3b + 4 = 28, so b is 8, and you should confirm that every digit used is legal in the base you
@@ -108,28 +84,19 @@ three pairs and treat each pair as its own number between 0 and 255.</p>
 `,
 
 "recursive-functions": `
-<p class="lead">These questions test careful tracing rather than insight. You are given a function
-defined in terms of itself and asked for one value: expand the calls until you reach a case that
-answers itself, then substitute the results back in, one line at a time.</p>
+<p class="lead">A recursive function defines some values in terms of other values of the same function. To evaluate it, follow the applicable rule until you reach a base case, then substitute the results back into the pending calls.</p>
 
-<p>There is no code to write and nothing hidden to spot. What decides the answer is whether your
-paper stays legible enough to substitute back without dropping a term.</p>
+<p>Keep each call and its pending arithmetic on a separate line. This makes it possible to check both the arguments and the return values.</p>
 
 <h2>Reading the definition</h2>
 <p>ACSL writes a recursive function as a set of rules with a condition attached to each one, like
 this:</p>
 <pre><code>f(x) = f(x - 3) + 2      if x &gt; 0
 f(x) = 3x                otherwise</code></pre>
-<p>You read the conditions from the top and take the first one that fits. Most definitions are
-written so that exactly one rule can ever apply, but you should not count on that, and where two
-could apply the earlier line wins. Before computing anything, look hard at the inequality signs,
-because whether a rule says greater than or greater than or equal to decides where the whole chain
-stops.</p>
+<p>Choose the rule whose condition is satisfied. In a mathematical piecewise definition, overlapping conditions must give consistent values unless the problem explicitly states a priority. Check the inequality signs before tracing: x > 0 and x >= 0 differ at x = 0.</p>
 
 <h2>Unwinding and winding back</h2>
-<p>Write the chain of calls downward, one per line, until you reach a value the definition answers
-outright, and only then start filling values in on the way back up. The discipline of writing every
-line is what stops you from losing a term, and it costs you perhaps twenty seconds.</p>
+<p>To evaluate f(11), expand each call until its argument meets the base case. Keep the pending additions beside their calls, then work back up:</p>
 <pre><code>f(11) = f(8) + 2
 f(8)  = f(5) + 2
 f(5)  = f(2) + 2
@@ -140,14 +107,9 @@ f(2)  = -3 + 2 = -1
 f(5)  = -1 + 2 = 1
 f(8)  =  1 + 2 = 3
 f(11) =  3 + 2 = 5</code></pre>
-<p>Notice where the chain stopped. The condition was x greater than 0, so 0 itself would have
-fallen to the second rule, and the chain kept going until -1. Had the condition read greater than
-or equal to 0, the answer would have come out differently, which is why reading the inequality
-first is not fussiness.</p>
+<p>This trace reaches -1 without visiting 0, so changing the condition to x >= 0 would not change f(11). To see the difference, evaluate f(3): the original definition gives f(0) + 2 = 2. With x >= 0, it gives f(-3) + 2 + 2 = -5.</p>
 
-<p>The other thing this trace shows is that the plus 2 appears four times, once per level. Adding
-it once at the end is the single most common way to get these wrong, and it happens because the
-constant looks like part of the definition and not part of each step.</p>
+<p>The +2 appears four times in this trace, once for each call that used the recursive rule. Add it at every level on the way back up.</p>
 
 <h2>Two arguments instead of one</h2>
 <p>Nothing changes when a second variable appears except that you now have two numbers to keep
@@ -191,12 +153,7 @@ below 1 or when it reaches 1 changes the answer by an entire level, and because 
 geometrically, that last level is often where most of the quantity being asked about lives.</p>
 
 <h2>A note on when to stop tracing</h2>
-<p>If a problem asks for a value that would take more than about fifteen lines to unwind, that is
-a deliberate signal that you are meant to find a pattern instead. Compute the first four or five
-values, look for a closed form, then test the form against a value you already worked out by hand.
-The definitions that reward this are common: doubling at each step, adding a fixed amount at each
-step, or summing the integers up to n all have closed forms that turn a page of tracing into one
-multiplication.</p>
+<p>For a long trace, compute a few values and look for a pattern, such as a constant increase, repeated doubling, or a cycle. Check any proposed shortcut against the definition and base cases before using it. A long trace alone does not guarantee a simple formula.</p>
 `
 
 });

@@ -1,10 +1,7 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "fsa-regex": `
-<p class="lead">A finite state automaton and a regular expression are two ways of describing the
-same thing, namely a set of strings, and the fact that they are equivalent is one of the genuinely
-deep results in computer science. ACSL asks you to translate between them, or to decide which
-strings a given description accepts.</p>
+<p class="lead">A finite state automaton and a regular expression can describe the same set of strings. ACSL asks you to translate between them, compare descriptions, or determine which strings they accept.</p>
 
 <h2>The operators</h2>
 <p>Writing two patterns next to each other concatenates them, so ab means an a followed by a b. A
@@ -27,17 +24,13 @@ state, double circles for accepting states, and labelled arrows for transitions.
 in one character at a time, follow the arrow that matches, and accept if you are standing on a
 double circle when the string runs out.</p>
 
-<p>Before tracing anything, check two things. Does every state have a transition for every
-character, or can the machine get stuck partway through a string? And is the start state itself
-accepting? If it is, the machine accepts the empty string, and any regular expression you write for
-it has to accept the empty string too, which usually means a star somewhere at the top level.</p>
+<p>Check the start state and its transitions before tracing. If the start state is accepting, the machine accepts the empty string. Any equivalent regular expression must accept it too. If there is no transition for the next input character, the machine rejects that string.</p>
+
+<figure class="diagram"><img src="/assets/diagrams/dfa.svg" width="500" height="299" loading="lazy" alt="Two-state automaton. S1 is the start and only accepting state. A 0 switches between S1 and S2. A 1 loops at either state."><figcaption>Automaton by Cepheus, with arrow cleanup by Interiot. <a href="https://commons.wikimedia.org/wiki/File:DFAexample.svg">Source and public-domain dedication</a>. Unmodified.</figcaption></figure>
+<p>Each 0 switches states, while a 1 leaves the state unchanged. The machine accepts exactly the binary strings with an even number of zeros, including no zeros. For 010, the states are S1, S2, S2, S1, so it accepts. For 01, it ends at S2 and rejects. The empty string is accepted because S1 is already an accepting state.</p>
 
 <h2>Turning a machine into an expression</h2>
-<p>For the small machines ACSL uses, the most reliable approach is to describe the paths from the
-start state to each accepting state and then account for the loops along the way. Find the shortest
-route to an accepting state and write down its labels as a skeleton, then for every loop hanging off
-a state on that route, insert a starred expression at that point. If more than one route reaches an
-accepting state, join the descriptions with a vertical bar.</p>
+<p>Describe the routes from the start state to each accepting state, including loops and returns to earlier states. A self-loop labelled a contributes a*. A multi-state round trip must be grouped before adding a star. Combine alternative routes with a vertical bar, and check that the expression includes every allowed round trip.</p>
 
 <p>Suppose a machine has states S and F, with S as the start and F as the only accepting state. From
 S, reading 0 goes to F. At F, reading 1 stays at F, and reading 0 goes back to S. The trip out is a
@@ -53,15 +46,12 @@ anywhere in that list is a counterexample, and one counterexample settles the qu
 descriptions are not equivalent, and you are done.</p>
 
 <p>Agreement is the case to be careful with. Matching on every string up to length four tells you
-that you have not yet found a difference, which is not the same as there being none, and no finite
-number of examples ever proves two languages equal. Under contest time the short tests are still the
+that you have not yet found a difference, which is not the same as there being none, and a handful of examples does not prove two languages equal. Under contest time the short tests are still the
 right first move, because a difference usually shows up early. If they all match and you need to be
 sure, argue about structure instead: put both descriptions in the same form, or say directly what
 each one accepts and check the two descriptions say the same thing.</p>
 
-<p>Always test the empty string. It is the single most common difference between two otherwise
-identical expressions, since a* accepts it and a+ does not, and it costs about two seconds to
-check.</p>
+<p>Test the empty string as well as nonempty examples. It distinguishes a* from a+: the first accepts zero copies, while the second requires at least one.</p>
 
 <h2>Simplifying expressions</h2>
 <p>A handful of identities cover most contest simplifications: (a*)* is a*, a*a* is a*, a|a is a,
@@ -71,33 +61,19 @@ insists that every a come before every b. For the same reason (ab)* is not a*b*.
 memorising specifically as false.</p>
 
 <h2>Counting matches</h2>
-<p>Some problems ask how many strings of a given length a pattern accepts, and the method is to
-multiply the choices position by position. Where a pattern has several starred parts, you have to
-split by how many characters each part takes and add the products for each split, which is fiddly
-enough that being systematic about listing the splits matters more than the arithmetic.</p>
+<p>When counting accepted strings, count distinct strings, not different ways to match them. You can split by repetition counts only when the resulting groups do not overlap. For example, a*a* accepts just one string of length 2, aa, although its two stars can split those characters in three ways.</p>
 
 
-<p>Applying a star to more than the token in front of it is the most common error, closely followed
-by forgetting that a star includes zero copies and so admits the empty string. Reading ab|cd as
-a(b|c)d is next. On the machine side, the two failures are missing a transition while tracing, so
-that you accept a string the machine actually gets stuck on, and treating the state you happen to
-finish on as accepting when it is drawn with a single circle.</p>
+<p>Check the scope of each operator. In ab*, the star applies only to b, so the whole expression still requires an a. In ab|cd, the alternatives are ab and cd. When tracing a machine, follow one labelled transition per input character and check that the final state is accepting. A missing transition rejects that input.</p>
 `,
 
 "wdtpd-arrays": `
-<p class="lead">Contest 3 for Junior. Arrays add one thing to loop tracing, which is the index, and
-nearly every question in this category turns on knowing precisely which slot you are reading and
-which one you are writing.</p>
+<p class="lead">Contest 3 for Junior adds arrays to program tracing. Track the index of each read and write, along with the value stored at that index.</p>
 
 <h2>One dimensional arrays</h2>
-<p>An array is a numbered row of boxes, and a(3) or a[3] refers to the box at index 3. Read the
-problem to find out whether the indexing starts at 0 or at 1, because ACSL uses both and the
-statement always makes it clear, usually in the declaration or in the bounds of the first loop.</p>
+<p>An array is a numbered sequence of storage locations. Check the declaration and bounds to find whether its indices start at 0 or 1. Draw and label those indices before tracing the loop.</p>
 
-<p>Draw the array as a row of boxes with the index written underneath each one before you trace
-anything, and update values by crossing out rather than erasing so you can retrace. Holding six
-numbers in your head across ten passes of a loop does not work, and the people who score well in
-this category are the ones who stopped trying.</p>
+<p>Draw the array with an index under each element. After each assignment, write the changed value beside the old one so you can see whether later reads use the original value or an updated one.</p>
 
 <h2>The patterns that keep coming back</h2>
 <p>A fill loop writes a(i) for every i, usually from a formula in i, and sometimes from a formula
@@ -111,7 +87,7 @@ direction of the loop rather than on the body.</p>
 <p>Suppose a holds 1, 2, 3, 4, 5 and the program runs for i = 1 to 4 with the body a(i) = a(i + 1).
 Because the loop moves left to right, each read happens before the value it wants has been
 overwritten, so the array becomes 2, 3, 4, 5, 5, which is a correct left shift. Run that identical
-assignment from i = 4 down to 1 and you get 2, 2, 2, 2, 5, because every read now sees a slot that
+assignment from i = 4 down to 1 and you get 5, 5, 5, 5, 5, because every read now sees a slot that
 was already changed. Same body, opposite results, and the loop direction is the entire question.</p>
 
 <p>Reversal has the same flavour. Swapping a(i) with a(n + 1 - i) as i runs across the array
@@ -137,13 +113,10 @@ touches one fewer, which is exactly right for a loop comparing a(i) with a(i + 1
 subscript arithmetic, where a(i + 1) on the final pass has to still be inside the array. And it
 hides in the base of the array, since a(n) runs off the end when indexing starts at 0.</p>
 
-<p>When a program appears to read past the end of an array, the explanation is nearly always that
-you misread the starting index rather than that the problem is broken.</p>
+<p>If an index appears to be outside the array, check the starting index, loop bounds, and subscript expression. Do not invent a value for an invalid access.</p>
 
 
-<p>Shifting in the wrong loop direction and reporting the smeared array instead of the shifted one,
-or the other way round. Reversing with a loop that runs the whole way across. Reading a row index as
-a column index in two dimensions. And, above all, tracing in your head. Draw the boxes.</p>
+<p>Check the loop direction when shifting elements, the stopping point when reversing, and the row and column order in two-dimensional arrays. Keep the current array visible so each read uses the value stored at that step.</p>
 `
 
 });

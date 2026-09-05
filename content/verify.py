@@ -130,7 +130,9 @@ def main():
         if not 0 <= q["ans"] < 5:
             bad.append((qid, "answer index out of range"))
             continue
-        if not q.get("why") or len(q["why"]) < 120:
+        # A floor, not a target. Every explanation currently clears it with room to spare,
+        # so it costs nothing to keep and it catches a question shipped with a stub.
+        if len((q.get("why") or "").strip()) < 120:
             bad.append((qid, "explanation is missing or too thin"))
 
         if "check" not in q:

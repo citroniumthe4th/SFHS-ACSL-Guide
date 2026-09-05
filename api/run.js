@@ -2,7 +2,7 @@
 //
 // Vercel's Node runtime has no JDK and no g++, so the actual compiling happens on a
 // remote sandbox. Wandbox is the default because it needs no API key. Point RUNNER_URL
-// at your own Piston instance if you'd rather not lean on a free community service.
+// at another Wandbox-compatible endpoint to use a different host.
 
 const WANDBOX = process.env.RUNNER_URL || "https://wandbox.org/api/compile.json";
 
@@ -24,15 +24,44 @@ function shimJava(code) {
 
 const MAX_CODE = 200000;
 const MAX_STDIN = 100000;
+const MAX_RESPONSE = 1024 * 1024;
 
-// Best effort throttle. Vercel keeps an instance warm between requests, so this catches a
-// flood from one address; across a cold start or a second instance it starts over. That is
-// the point at which somebody is deliberately abusing this rather than fat fingering a
-// loop, and the honest fix then is a shared counter.
-// ponytail: per-instance Map, move to Vercel KV if the abuse gets organised.
-// The ceiling is deliberately loose. A school NAT puts an entire computer lab behind one
-// address, so a limit tuned to a single student would lock out the class it was written
-// for. What it has to stop is a script, and a script runs thousands a minute.
+// Bound the upstream body before parsing it, including output from printing loops.
+async function readRunnerResponse(response) {
+  const reader = response.body.getReader();
+  const chunks = [];
+  let length = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      length += value.byteLength;
+      if (length > MAX_RESPONSE) {
+        await reader.cancel();
+        const error = new Error("Runner response exceeds limit");
+        error.code = "OUTPUT_LIMIT";
+        throw error;
+      }
+      chunks.push(Buffer.from(value));
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const data = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    throw new Error("Invalid runner response");
+  }
+  for (const key of ["compiler_error", "program_output", "program_error"]) {
+    if (data[key] !== undefined && typeof data[key] !== "string") {
+      throw new Error("Invalid runner stream");
+    }
+  }
+  return data;
+}
+
+// Best-effort throttle shared by callers on one school network. This resets across
+// cold starts and counts separately on each instance. Site-wide enforcement needs
+// an edge rule or a shared counter.
 const WINDOW_MS = 60000;
 const MAX_PER_WINDOW = 120;
 const HITS = new Map();
@@ -40,6 +69,7 @@ const HITS = new Map();
 function throttled(who) {
   const now = Date.now();
   const recent = (HITS.get(who) || []).filter((t) => now - t < WINDOW_MS);
+  if (recent.length >= MAX_PER_WINDOW) return true;
   recent.push(now);
   HITS.set(who, recent);
   if (HITS.size > 5000) HITS.clear(); // the map is a cache, not a ledger
@@ -52,10 +82,8 @@ module.exports = async (req, res) => {
     return res.status(405).json({ status: "error", message: "POST only" });
   }
 
-  // The editor posts from this site and nowhere else. A cross site post is either a
-  // mistake or someone borrowing the runner for free compute. Browsers that omit the
-  // header, and anything that is not a browser, fall through to the rate limit below,
-  // which is the only check a determined caller cannot simply decline to send.
+  // Fetch Metadata blocks cross-site browser requests. Non-browser callers can omit
+  // or forge it, so it is not authentication.
   const from = req.headers["sec-fetch-site"];
   if (from && from !== "same-origin" && from !== "none") {
     return res.status(403).json({ status: "error", message: "Cross site requests are not served." });
@@ -99,10 +127,8 @@ module.exports = async (req, res) => {
     "compiler-option-raw": spec.raw || "",
   };
 
-  // Twelve seconds. A correct submission on these problems finishes in about two, so anything
-  // still running is almost always an infinite loop, and making a student wait 45 seconds to be
-  // told that is its own bug. Giving up on the request does not stop the work already running at
-  // Wandbox; it only stops us waiting for it.
+  // This bounds our wait, including queueing and compilation. Aborting the request does
+  // not stop work already running at Wandbox.
   //
   // vercel.json caps the function itself at 20s. That is deliberately a little above this abort
   // rather than equal to it: this timer is the normal way a slow run ends, and the platform cap
@@ -118,49 +144,50 @@ module.exports = async (req, res) => {
       signal: ctl.signal,
     });
     if (!r.ok) {
-      // The upstream body can carry its own diagnostics, which are not this student's business
-      // and are not useful to them either. Keep it in the log and say something stable.
-      console.error("wandbox %d: %s", r.status, (await r.text()).slice(0, 500));
+      console.error("runner HTTP status:", r.status);
+      if (r.body) await r.body.cancel();
       return res.status(200).json({
         status: "error",
         message: "The compile service is not answering properly right now. Try again in a moment.",
       });
     }
-    data = await r.json();
+    data = await readRunnerResponse(r);
   } catch (e) {
-    if (e.name !== "AbortError") console.error("runner fetch failed:", e);
+    if (e.name !== "AbortError") console.error("runner response failed:", e.code || e.name);
     return res.status(200).json({
-      status: "error",
+      status: e.name === "AbortError" ? "timeout" : "error",
       message:
         e.name === "AbortError"
-          ? "That took longer than twelve seconds, so it was cut off. Usually that means a loop "
-            + "that never ends. Check your stopping condition and run it again."
-          : "Could not reach the compile service. Check your connection and try again.",
+          ? "The compile service did not finish within twelve seconds. It may be busy, or your "
+            + "program may be taking too long. Check your loops and try again."
+          : e.code === "OUTPUT_LIMIT"
+            ? "The program returned too much output. Remove debug printing and check your loops."
+            : "Could not read a result from the compile service. Try again in a moment.",
     });
   } finally {
     clearTimeout(timer);
   }
 
   // Wandbox names the file after its own runner. Point errors back at what the student sees.
-const rename = (t) =>
-  String(t || "")
-    .replace(/\bprog\.java\b/g, "Solution.java")
-    .replace(/\bprog\.(cc|cpp)\b/g, "solution.cpp")
-    .replace(/\bprog\.py\b/g, "solution.py");
+  const rename = (t) =>
+    String(t || "")
+      .replace(/\bprog\.java\b/g, "Solution.java")
+      .replace(/\bprog\.(cc|cpp)\b/g, "solution.cpp")
+      .replace(/\bprog\.py\b/g, "solution.py");
 
-// A program that prints in a loop can return megabytes, which then has to travel to the browser
-// and be escaped into the page. Keep each stream to something a person could actually read, and
-// say so rather than silently ending mid-line.
-const MAX_STREAM = 64 * 1024;
-const cap = (t) => {
-  const s = String(t || "");
-  if (s.length <= MAX_STREAM) return s;
-  return s.slice(0, MAX_STREAM)
-    + "\n\n[... truncated. The program produced more than 64 KB here, which usually means it is "
-    + "printing inside a loop that does not stop.]";
-};
+  // A program that prints in a loop can return megabytes, which then has to travel to the browser
+  // and be escaped into the page. Keep each stream to something a person could actually read, and
+  // say so rather than silently ending mid-line.
+  const MAX_STREAM = 64 * 1024;
+  const cap = (t) => {
+    const s = String(t || "");
+    if (s.length <= MAX_STREAM) return s;
+    return s.slice(0, MAX_STREAM)
+      + "\n\n[... truncated. The program produced more than 64 KB here, which usually means it is "
+      + "printing inside a loop that does not stop.]";
+  };
 
-const compileErr = (data.compiler_error || "").trim();
+  const compileErr = (data.compiler_error || "").trim();
   if (compileErr && !data.program_output && !data.program_error && data.status !== "0") {
     return res.status(200).json({
       status: "compile_error",

@@ -11,7 +11,7 @@ fact behind that particular number: the diagonal entry of the squared adjacency 
 degree of that vertex, which is exactly what a there-and-back walk counts.` },
 
 { id:"gt-02", topic:"graph-theory", level:"b",
-  q:`In the same triangle on A, B, and C, how many walks of length 2 go from A to B?`,
+  q:`In an undirected triangle on A, B, and C, how many walks of length 2 go from A to B?`,
   choices:["1","2","3","0","None of the above"], ans:0,
   check:`str(walks(3,2,'A','B','011101110'))`,
   why:`Two steps from A to B means passing through exactly one middle vertex adjacent to both,
@@ -114,12 +114,10 @@ steps. No odd cycle can survive that. The converse holds as well, which is why t
 an if and only if rather than in one direction only.` },
 
 { id:"gt-13", topic:"graph-theory", level:"b",
-  q:`What is the difference between a walk and a path?`,
-  choices:["a path cannot repeat a vertex, a walk can","a walk must be shorter than a path","a path must be a cycle, a walk need not be","there is no difference","None of the above"], ans:0,
+  q:`In ACSL terminology, what distinguishes a simple path from a path that may repeat vertices?`,
+  choices:["a simple path cannot repeat a vertex","a walk must be shorter than a path","a path must be a cycle, a walk need not be","there is no difference","None of the above"], ans:0,
   why:`A walk is any sequence of edges laid end to end, with vertices and edges free to repeat,
-while a path is a walk that never visits a vertex twice. The distinction matters most when you reach
-for matrix powers, because those count walks and not paths. A question asking for paths of a given
-length in a small graph is nearly always inviting you to enumerate them by hand instead.` },
+and the ACSL wiki calls this a path. A simple path cannot repeat a vertex. Matrix powers count paths with repetition allowed, so they cannot directly count simple paths.` },
 
 { id:"gt-14", topic:"graph-theory", level:"s",
   q:`Six vertices A through F form a cycle in alphabetical order, with F joined back to A. How

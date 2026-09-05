@@ -115,7 +115,7 @@ function numberSystems(r) {
     return {
       q: "<p>Convert " + sub(src, from) + " to " + baseName(to) + ".</p>",
       choices: o.choices, ans: o.ans,
-      why: "<p>Go through base ten. Each " + baseName(from) + " digit is worth its place "
+      why: "<p>One way to check the conversion is through base ten. Each " + baseName(from) + " digit is worth its place "
          + "value, so " + sub(src, from) + " is " + v + " in base ten.</p>"
          + "<p>Now divide repeatedly by " + to + " and read the remainders upward.</p>"
          + steps(chain.concat(["", "reading the remainders from the bottom up: " + want]))
@@ -146,9 +146,7 @@ function numberSystems(r) {
     q: "<p>Work in " + baseName(b) + ". What is " + sub(sx, b) + " " + op + " "
      + sub(sy, b) + "?</p><p>Give the answer in " + baseName(b) + ".</p>",
     choices: oo.choices, ans: oo.ans,
-    why: "<p>You can carry and borrow directly in base " + b + ", but the safest route "
-       + "under contest pressure is to convert, do the arithmetic in base ten, and convert "
-       + "back.</p>"
+    why: "<p>You can carry and borrow directly in base " + b + ", or convert to base ten, do the arithmetic, and convert back. Choose the method you can check reliably.</p>"
        + steps([sx + " (base " + b + ")  =  " + x,
                 sy + " (base " + b + ")  =  " + y,
                 x + " " + (plus ? "+" : "-") + " " + y + " = " + res,

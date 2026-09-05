@@ -1,14 +1,11 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "assembly": `
-<p class="lead">ACSL defines its own assembly language for a machine with a single accumulator. You
-will never run it on anything, and you are never asked to write a program in it. You read a short
-program and say what it prints or what a memory word holds when it stops, which makes this a tracing
-category with an unfamiliar vocabulary rather than a programming one.</p>
+<p class="lead">ACSL defines its own assembly language for a machine with a single accumulator. Questions give you a short program to trace and ask what it prints, what a memory location holds, or what calculation it performs.</p>
 
 <h2>The machine</h2>
 <p>There is one register, called the accumulator, and as many named memory words as the program
-mentions. Everything starts at zero. Execution runs top to bottom unless a branch sends it
+mentions. The accumulator starts at zero. DC declarations supply the initial values of named memory words. Execution runs top to bottom unless a branch sends it
 elsewhere.</p>
 
 <p>Each line has up to three fields separated by spaces: an optional label, an opcode, and an
@@ -36,11 +33,7 @@ itself.</p>
 <tr><td>END</td><td>stop</td></tr>
 </table>
 
-<p>Four details decide most answers. The accumulator is always the left operand, so SUB X means the
-accumulator minus X rather than the other way round. DIV stores the signed integer part of the
-quotient, so it truncates toward zero rather than flooring, which matters as soon as anything goes
-negative. The branch instructions test the accumulator against zero and nothing else, so comparing
-two values means subtracting one from the other first and reading the sign of the result.</p>
+<p>The accumulator is the left operand: SUB X computes ACC - X. DIV keeps the signed integer part of the quotient, so it truncates toward zero. BG, BE, and BL compare ACC with zero. To compare two stored values, load one, subtract the other, and branch on the sign of the result.</p>
 
 <p>The fourth is easy to miss because nothing on screen announces it: <strong>READ, ADD, SUB and
 MULT all work modulo 1,000,000</strong>. A sum that would reach 1,000,000 wraps to 0, and a value
@@ -54,8 +47,7 @@ for each memory word, adding a row for every instruction that changes something.
 save time. These programs loop, and a loop with an untracked variable becomes unreadable after four
 passes.</p>
 
-<p>Here is factorial, which is the example worth knowing by heart because so many contest programs
-are variations on it:</p>
+<p>This program multiplies a running product by N, N - 1, and so on down to 1. For positive N, it computes N! using the machine's modulo 1,000,000 arithmetic:</p>
 <pre><code>       READ  N
        LOAD  =1
        STORE F
@@ -99,17 +91,13 @@ before carrying the value forward?</p>
 `,
 
 "wdtpd-strings": `
-<p class="lead">Contest 4 for Junior. Strings in ACSL pseudocode index from zero and take
-substrings with a bracket notation of their own, which is not the one Python uses. Almost all of
-the difficulty in this category is index arithmetic, so the work is in writing the positions down.</p>
+<p class="lead">Contest 4 for Junior covers strings. ACSL pseudocode indexes strings from zero and has its own substring notation. Label the character positions, then check whether each bracket form specifies one index, two endpoints, or a starting index and a count.</p>
 
 <h2>Indexing and substrings</h2>
 <p>Positions start at 0. For S equal to "PROGRAM" the characters sit at positions 0 through 6, so
 S[0] is P and S[6] is M, and there is no position 7. Reading a single character is the easy half.</p>
 
-<p>The bracket notation for substrings is the half worth slowing down for, because ACSL defines it
-differently from the languages you have probably written in. Here are the three forms, using the
-string from the official topic page, S = "ACSL WDTPD", which has length 10.</p>
+<p>ACSL uses three substring forms. The examples below use S = "ACSL WDTPD", a ten-character string from the official topic page.</p>
 
 <table class="ex">
 <tr><th>Written</th><th>Means</th><th>Result</th></tr>
@@ -130,10 +118,7 @@ Python reads S[4:] as everything from index 4 and S[2:6] as stopping before inde
 before you rely on a habit: for S = "PROGRAM", S[2:5] is positions 2, 3, 4 and 5, which is OGRA.</p>
 
 <h2>The operations you will meet</h2>
-<p>Concatenation uses a plus sign, so "AB" + "CD" is "ABCD". Length is written len(s) or LEN(s)
-depending on the problem. Searching is a loop comparing s[i] against a character and either counting
-or recording the index. Replacing is done by building a new string, since a single character cannot
-be assigned in place.</p>
+<p>Concatenation uses a plus sign, so "AB" + "CD" is "ABCD". The function len(s) gives the length. A search can loop through characters and record a matching index or count. To replace characters, follow the assignments in the problem, or build a new string one character at a time.</p>
 
 <p>The operation that matters most is building a string inside a loop, because two nearly identical
 lines behave oppositely. Writing t = t + s[i] appends and preserves the order, while t = s[i] + t
@@ -158,8 +143,7 @@ output t</code></pre>
 <tr><td>3</td><td>L</td><td>LSCA</td></tr>
 </table>
 <p>The program prints LSCA. Change the body to t = t + s[i] and it prints ACSL instead. One
-character moved and the whole answer flipped, which is the entire lesson of this category compressed
-into two lines.</p>
+character moved and the whole answer flipped, so the order of concatenation changes the result.</p>
 
 <h2>Program shapes that keep coming back</h2>
 <p>A reversal either builds backwards by prepending, or loops from the last index down to 0 and

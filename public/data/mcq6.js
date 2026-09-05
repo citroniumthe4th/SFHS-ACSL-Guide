@@ -99,10 +99,10 @@ two arguments, so if you ever want 100 divided by 4 and then by 2, nest it as (D
 ((2 1) 4 3).` },
 
 { id:"lp-12", topic:"lisp", level:"s",
-  q:`Which of these returns a list rather than an atom, no matter what nonempty list L holds?`,
+  q:`Which of these always returns a list for every nonempty list L?`,
   choices:["(CDR L)","(CAR L)","(CADR L)","(CAAR L)","None of the above"], ans:0,
   why:`CDR removes the first element and returns everything that remains, and what remains is
-always a list even when it is empty, so its type never depends on the contents. CAR returns an element
+always a list. For a one-element input, it is NIL, which is both an atom and the empty list. CAR returns an element
 instead, and that element might be an atom or might itself be a list. CADR and CAAR both finish with a
 CAR, so they inherit the same uncertainty.` },
 

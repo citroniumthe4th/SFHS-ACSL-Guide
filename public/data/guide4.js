@@ -1,13 +1,10 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "lisp": `
-<p class="lead">LISP is one of the oldest programming languages still in use, and its defining
-idea is that a program and the data it works on have exactly the same shape: a parenthesised list.
-ACSL uses a small dialect of it, and you are never asked to write a program. You are given one
-expression and asked what it evaluates to.</p>
+<p class="lead">ACSL uses a small LISP dialect for evaluating expressions. Lists, arithmetic, and function calls all use parentheses, so part of the work is distinguishing a list of data from an expression that should be evaluated.</p>
 
-<h2>Everything is a list</h2>
-<p>An expression is a list whose first element names a function and whose remaining elements are
+<h2>Atoms, lists, and evaluation</h2>
+<p>A function call is a list whose first element names a function and whose remaining elements are
 the arguments to it. Evaluation works from the inside out, so you reduce every nested call to a
 value before applying the function that contains it.</p>
 
@@ -22,10 +19,7 @@ two.</p>
 (ADD 1 2 3 4) is 10. SUB and DIV take exactly two, written (SUB a b) and (DIV a b), so nest instead of reaching for a third argument when you need to subtract twice: 20 minus 5 minus 3 is
 (SUB (SUB 20 5) 3).</p>
 
-<p>DIV is ordinary division and keeps the fractional part. (DIV 7 2) is 3.5, not 3. This is the
-single most common place to lose a LISP question, because every language most students have written
-in gives 3 for integer operands. If a problem wants the integer part it will say so. SQUARE takes one
-argument, and EXP takes a base and an exponent, so (EXP 2 5) is 32.</p>
+<p>DIV uses ordinary division: (DIV 7 2) is 3.5. Java and C++ divide integer operands differently, so do not import that rule into ACSL LISP. SQUARE takes one argument, and EXP takes a base and an exponent: (EXP 2 5) is 32.</p>
 
 <p>Working inside out is not optional advice, it is how the language is defined, and the fastest
 way to do it on paper is to find the innermost complete pair of parentheses, replace the whole
@@ -62,35 +56,27 @@ than applying the operations from the rightmost letter inward.</p>
 CAR of that gives B. Trying to do it in one leap is how people end up one element off.</p>
 
 <h2>Variables and definitions</h2>
-<p>SETQ binds a name to a value, as in (SETQ x '(a b c)), after which x stands for that list
-wherever it appears. SET does the same with its first argument evaluated first. ATOM asks whether
-something is a single item and not a list, and EQ tests equality.</p>
+<p>SETQ assigns a value without evaluating the variable name, as in (SETQ x '(a b c)). SET evaluates its first argument, so the corresponding form is (SET 'x '(a b c)). ATOM returns true for an atom and NIL for a nonempty list. NIL, also written (), is the exception: it is both an atom and the empty list.</p>
 
-<p>DEF, sometimes written DEFUN, defines a function, so after (DEF f (x) (MULT x x)) the expression
-(f 5) is 25. Problems that use DEF nearly always define a small recursive function and ask for one
-value, at which point you are back in the Recursive Functions category and should unwind it the
-same way.</p>
+<p>DEF, sometimes written DEFUN, defines a function. After (DEF f (x) (MULT x x)), the expression (f 5) evaluates to 25. If a function calls itself, track its arguments and base case as in the Recursive Functions category.</p>
 
+<h2>Evaluating stored expressions and testing signs</h2>
+<p>After (SETQ p '(ADD 2 3)), p holds the list (ADD 2 3). (EVAL p) evaluates that list and returns 5. (EVAL 'p) instead resolves the quoted name p and returns its stored list. Quoting determines whether an argument is evaluated before EVAL receives it.</p>
+<p>POS and NEG test a number's sign: (POS 3) is true, (NEG -2) is true, and both (POS 0) and (NEG 0) return NIL. (ATOM NIL) is true, while (ATOM '(1 2)) is NIL. EQ tests equality: (EQ 3 3) is true and (EQ 3 4) is NIL.</p>
 <h2>Counting your brackets</h2>
-<p>Losing or gaining a layer of parentheses is the most common error, and it is worth a deliberate
-check, since ((4 5)) and (4 5) are different answers. Next comes returning an element where a list
-was wanted or the reverse, which is the CAR and CDR trap in a different costume. After those:
-reversing the contents of a nested list when REVERSE only ever touches the top level, folding SUB
-or DIV from the right instead of the left, and reading a CADDR chain left to right.</p>
+<p>Check the final parentheses: ((4 5)) is a list containing one list, while (4 5) contains two numbers. CAR returns the first element, while CDR returns the remaining list. REVERSE changes only the top-level order. Keep the two arguments of SUB and DIV in their original order, and read a composed selector such as CADDR from right to left.</p>
 `,
 
 "wdtpd-looping": `
 <p class="lead">Contest 2 for Junior. This is the same tracing skill as branching, with the
 difficulty moved into how many times a loop body runs and what the variables look like at the
-moment it stops. Almost every wrong answer in this category is off by exactly one pass.</p>
+moment it stops. Record the loop condition and count every iteration, including the last one.</p>
 
 <h2>Counted loops</h2>
 <pre><code>for i = 1 to 5
     statements
 next i</code></pre>
-<p>The counter takes the values 1, 2, 3, 4, and 5, because both bounds are inclusive. That is five
-passes, not four, and it is worth saying out loud once so that it stops being a thing you have to
-work out.</p>
+<p>The counter takes the values 1, 2, 3, 4, and 5. Both bounds are inclusive, so the body runs five times.</p>
 
 <p>Adding a step changes the counter by that amount each time, and the loop stops as soon as the
 next value would go past the limit. So for i = 1 to 10 step 3 gives 1, 4, 7, and 10, which is four
@@ -99,9 +85,7 @@ negative step counts downward, so for i = 10 to 1 step -3 gives 10, 7, 4, and 1.
 for i = 5 to 1 never runs at all, since the step defaults to 1 and 5 is already past the limit
 before the first pass.</p>
 
-<p>When you want the count without listing the values, take the difference between the bounds,
-divide by the step, throw away the fraction, and add one. For a loop from a to b with a positive
-step s, that is int((b - a) / s) + 1.</p>
+<p>For a loop from a to b with positive step s, the number of iterations is max(0, floor((b - a) / s) + 1). The maximum with 0 handles a starting value beyond the bound. For example, a = 5, b = 1, s = 1 gives zero iterations.</p>
 
 <p>What the counter holds once the loop has finished is a different question, and one the ACSL
 reference does not answer. Many languages leave it one step past the limit, so that for i = 1 to 5

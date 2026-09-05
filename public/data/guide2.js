@@ -1,10 +1,7 @@
 window.GUIDE = Object.assign(window.GUIDE || {}, {
 
 "wdtpd": `
-<p class="lead">You are handed a short program and asked what it prints or what a variable holds
-when it stops. Nothing has to be written and nothing has to be debugged, so the entire skill is
-tracing accurately while a clock runs, which is a narrower and more mechanical talent than it
-first appears.</p>
+<p class="lead">These questions give you a short program and ask what it prints or what value a variable holds. Track assignments and conditions in order, using the ACSL pseudocode rules below.</p>
 
 <h2>The dialect</h2>
 <p>ACSL pseudocode is deliberately close to Python, Java, and C without committing to any of them,
@@ -27,11 +24,7 @@ there and you may have skimmed past it. Remember while you are checking that int
 negative intermediate value lands one lower than truncation would put it.</p>
 
 <h2>Trace on paper, not in your head</h2>
-<p>This is the single habit that separates people who score well in this category from people who
-know exactly as much and score badly. Draw a column for every variable the program touches, add a
-row for each pass, and fill it in. It feels slow for the first two rows and is faster than any
-alternative from the third onward, because you never have to remember a value you have already
-written down.</p>
+<p>Draw a column for each variable and a row for each loop iteration. Record the condition as well, including the final failed test. This keeps the stopping point separate from the last iteration that changed a value.</p>
 <pre><code>A = 50
 B = 10
 while A &gt; 0
@@ -47,10 +40,7 @@ output A</code></pre>
 <tr><td>4</td><td>14</td><td>yes</td><td>-2</td><td>18</td></tr>
 <tr><td>5</td><td>-2</td><td>no</td><td>-</td><td>-</td></tr>
 </table>
-<p>The program prints -2. Almost everyone who traces this in their head answers 14, because 14 is
-the last value that still looks like it belongs, and the pass that drives A negative feels like it
-should not have happened. Giving the condition its own column is what makes that pass impossible
-to skip.</p>
+<p>The program prints -2. Stopping at 14 skips the final iteration: A is still greater than 0, so the body runs again and subtracts 16. The next test is false.</p>
 
 <h2>Loop mechanics that decide answers</h2>
 <p>A loop written for i = 1 to 5 runs with i equal to 1, 2, 3, 4, and 5, since both bounds are
@@ -73,9 +63,7 @@ suspiciously like the starting value, check whether the loop ever ran at all bef
 made an arithmetic error.</p>
 
 <h2>Arrays</h2>
-<p>Read the problem to find out where the indexing starts, because ACSL uses both conventions and
-always tells you which one applies, usually in the declaration or in the bounds of the first
-loop.</p>
+<p>Check the declaration and loop bounds to determine where array indexing starts. ACSL pseudocode uses both zero-based and one-based arrays.</p>
 
 <p>Two dimensional arrays are written with the row first, so A(i, j) means row i and column j. When
 a program walks a matrix and swaps A(i, j) with A(j, i) it is transposing, and the loop bounds
@@ -106,15 +94,11 @@ Then write down the initial values, build the trace table with a column for the 
 and finally answer exactly the question that was asked. Some problems want the final value of a
 variable, some want the number of times a loop ran, and some want what was printed inside the loop instead of after it, and those are three different answers to the same trace.</p>
 
-<p>If the loop is clearly going to run thirty or more times, stop tracing and look for the pattern.
-These problems are written so that a shortcut exists, and it is nearly always an arithmetic
-sequence, a doubling, or a value that settles into a short cycle after three or four passes.</p>
+<p>If a trace is long, look for a running sum, repeated multiplication, or a repeating state. A pattern can shorten the calculation, but check that conditions and assignments do not change it partway through.</p>
 `,
 
 "wdtpd-branching": `
-<p class="lead">Contest 1 for Junior. The programs here are short, and all of the difficulty lives
-in the conditions and in which branch actually runs. Get the conditions right and the arithmetic
-takes care of itself.</p>
+<p class="lead">Contest 1 for Junior focuses on branching. Evaluate each condition using the values the variables hold at that point, then trace only the branch that runs.</p>
 
 <h2>The shape of a branch</h2>
 <pre><code>if condition then
@@ -148,7 +132,7 @@ if the problem is printed with sloppy indentation, redraw it before you trace it
 else
     z = 3
 end if</code></pre>
-<p>There are three outcomes here, and the second else belongs to the inner if. With x equal to 5
+<p>There are three outcomes here, and the first else belongs to the inner if and the second belongs to the outer if. With x equal to 5
 and y equal to 50, z comes out as 3, because the outer condition failed and the inner if never ran
 at all, which makes the value of y irrelevant no matter how tempting it looks. Answering 2 means
 you attached that inner else to the outer if.</p>
@@ -158,7 +142,7 @@ statements. In the chain at most one branch ever runs. In a run of separate ifs 
 one after another, and an earlier one can change the very value a later one is about to test.</p>
 
 <h2>Order of assignment and test</h2>
-<p>That last distinction matters more than it sounds, so it is worth seeing:</p>
+<p>Compare two separate IF statements with an IF followed by ELSE IF:</p>
 <pre><code>a = 5
 if a &gt; 3 then
     a = a - 4
@@ -189,8 +173,7 @@ that each condition was evaluated against the value the variable held at that mo
 started with. And confirm that every not covers only the thing immediately after it, unless
 parentheses widen it.</p>
 
-<p>These are reading errors rather than gaps in understanding, so knowing the material is not what
-protects you from them. Running the four checks is.</p>
+<p>Keep the conditions and their results beside your trace so you can check where each branch was taken.</p>
 `
 
 });
