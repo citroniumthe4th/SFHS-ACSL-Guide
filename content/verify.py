@@ -130,10 +130,17 @@ def main():
         if not 0 <= q["ans"] < 5:
             bad.append((qid, "answer index out of range"))
             continue
-        # A floor, not a target. Every explanation currently clears it with room to spare,
-        # so it costs nothing to keep and it catches a question shipped with a stub.
-        if len((q.get("why") or "").strip()) < 120:
-            bad.append((qid, "explanation is missing or too thin"))
+        # Set low on purpose. Length cannot judge whether an explanation is any good, so the
+        # only thing this can honestly detect is a field left essentially empty: "TODO",
+        # "See the guide", a stray full stop. Every one of those is under thirty characters.
+        #
+        # The shortest real explanation in the bank is 129 characters, and it is complete:
+        # ds-18 names the leaves, counts them, and heads off the likely mistake. It is short
+        # because its question is short. A floor near that number would put honest brevity one
+        # word away from failing and quietly reward padding, which is the opposite of what the
+        # explanations are for. Sixty leaves it seventy characters of room.
+        if len((q.get("why") or "").strip()) < 60:
+            bad.append((qid, "explanation is missing or a stub"))
 
         if "check" not in q:
             continue
