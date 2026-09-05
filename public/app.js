@@ -63,9 +63,12 @@ function warnOnce(text) {
 // way a fresh visitor would be treated rather than carrying a bad value through the app.
 var division = store("division", "senior");
 if (division !== "junior" && division !== "senior") division = "senior";
-var theme = store("theme", "dark");
+var theme = store("theme", document.documentElement.dataset.theme || "dark");
 if (theme !== "dark" && theme !== "light") theme = "dark";
 document.documentElement.setAttribute("data-theme", theme);
+// appearance.js already set this before paint. Repeat it in case a bad stored value sent the
+// two down different paths.
+if (window.applyThemeColor) window.applyThemeColor(theme);
 
 // ------------------------------------------------------------------ helpers
 
@@ -317,9 +320,29 @@ el("theme-btn").addEventListener("click", function () {
   theme = theme === "dark" ? "light" : "dark";
   save("theme", theme);
   document.documentElement.setAttribute("data-theme", theme);
+  if (window.applyThemeColor) window.applyThemeColor(theme);
   paintThemeButton();
   if (window.__cm) window.__cm.setOption("theme", theme === "dark" ? "material-darker" : "default");
 });
+
+// Ambient movement is optional and follows the operating system's reduced-motion setting.
+var motion = store("motion", true) !== false;
+var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+function paintMotion() {
+  var enabled = motion && !reducedMotion.matches;
+  document.documentElement.dataset.motion = enabled ? "on" : "off";
+  var button = el("motion-btn");
+  button.textContent = reducedMotion.matches ? "System motion reduction on" : enabled ? "Pause background" : "Animate background";
+  button.setAttribute("aria-pressed", String(!enabled));
+  button.disabled = reducedMotion.matches;
+}
+el("motion-btn").addEventListener("click", function () {
+  motion = !motion;
+  save("motion", motion);
+  paintMotion();
+});
+reducedMotion.addEventListener("change", paintMotion);
+paintMotion();
 
 function paintChrome(section) {
   var links = el("section-tabs").querySelectorAll("a");
@@ -410,17 +433,15 @@ function renderSidebar(section, active) {
 // ------------------------------------------------------------------ guide
 
 function guideIndex() {
-  var html = '<div class="wrap-wide">' +
-    '<div class="eyebrow">' + division + " division</div>" +
-    "<h1>Study guide</h1>" +
-    "<p class=\"note\">An independent study guide for ACSL Junior and Senior divisions. " +
-    "Choose your division above, then work through the three topics for each contest.</p>" +
-    '<p class="note">Preparing for Intermediate or another division? Use the ' +
-    '<a href="https://www.acsl.org/get-started/study-materials">official study materials</a> ' +
-    'to check your syllabus. This site is not affiliated with ACSL.</p>';
-  html += '<label for="guide-search">Search all lessons</label>'
-    + '<input id="guide-search" class="guide-search" type="search" autocomplete="off" placeholder="Try CDR or external path length">'
-    + '<p class="note" id="search-count" role="status"></p><div id="guide-results"></div></div>';
+  var html = '<div class="wrap-wide guide-home">' +
+    '<section class="lesson-library" id="lesson-library" aria-labelledby="library-title">' +
+    '<div class="library-head"><div><div class="eyebrow">' + division + ' division</div><h1 id="library-title">Study guide</h1>' +
+    '<p class="note">Three topics per contest. Read the examples, then try the practice questions.</p></div>' +
+    '<div class="search-field"><label for="guide-search">Search all lessons</label>' +
+    '<input id="guide-search" class="guide-search" type="search" autocomplete="off" placeholder="Try CDR or external path length"></div></div>' +
+    '<p class="note" id="search-count" role="status"></p><div id="guide-results"></div>' +
+    '<p class="syllabus-note note">An independent guide for ACSL Junior and Senior divisions. Preparing for Intermediate or another division? Check the ' +
+    '<a href="https://www.acsl.org/get-started/study-materials">official study materials</a> for your syllabus. This site is not affiliated with ACSL.</p></section></div>';
   el("main").innerHTML = html;
   var search = el("guide-search");
   search.value = new URLSearchParams(location.search).get("search") || "";
@@ -444,7 +465,7 @@ function guideIndex() {
       if (t.contest !== lastContest) {
         if (lastContest !== null) html += "</div>";
         lastContest = t.contest;
-        html += "<h2>" + CONTEST_NAMES[t.contest] + '</h2><div class="grid">';
+        html += '<h2 class="contest-heading"><span>0' + t.contest + '</span>' + CONTEST_NAMES[t.contest] + '</h2><div class="grid">';
       }
       var at = term ? lesson.body.toLowerCase().indexOf(term) : -1;
       var snippet = at >= 0 ? (at > 60 ? "…" : "") + lesson.body.slice(Math.max(0, at - 60), at + 150)
@@ -524,6 +545,17 @@ function guidePage(topicId) {
       + encodeURIComponent(wikiTitle(topicId)) + '">Official ACSL topic reference</a></div>' +
     '<nav class="lesson-toc" aria-label="On this page"><b>On this page</b><ul></ul></nav>' +
     GUIDE[topicId] + foot + "</article>";
+  // A wide reference table should scroll locally, not widen the reading surface on phones.
+  el("main").querySelectorAll(".lesson table").forEach(function (table) {
+    if (table.parentElement.classList.contains("tbl-scroll")) return;
+    var box = document.createElement("div");
+    box.className = "tbl-scroll";
+    box.tabIndex = 0;
+    box.setAttribute("role", "region");
+    box.setAttribute("aria-label", "Scrollable reference table");
+    table.before(box);
+    box.appendChild(table);
+  });
   var toc = el("main").querySelector(".lesson-toc ul");
   el("main").querySelectorAll(".lesson h2").forEach(function (h) {
     h.id = "section-" + h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-$/, "");
@@ -562,7 +594,8 @@ function practiceIndex() {
       '<span class="chip">' + qs.length + " questions</span>" +
       (GEN.has(t.id) ? '<span class="chip">endless</span>' : "") +
       (right ? '<span class="chip ok">' + right + " correct</span>" : "") +
-      "</div></a>";
+      '<progress class="topic-progress" max="' + qs.length + '" value="' + right +
+      '" aria-label="' + esc(t.name) + ': ' + right + ' of ' + qs.length + ' correct"></progress></div></a>';
   });
   html += "</div>";
   var probs = problemsFor(division);
@@ -1776,6 +1809,8 @@ function render() {
   cancelRun();
   var r = route();
   if (SECTIONS.indexOf(r.section) < 0) r.section = "404";
+  document.body.dataset.section = r.section;
+  document.body.dataset.view = r.arg ? "detail" : "index";
   var m = metaFor(r);
   setMeta(m[0], m[1], m[2]);
   stopClock();
@@ -1812,6 +1847,7 @@ function render() {
 function validSavedEntry(key, value) {
   if (key === "division") return value === "junior" || value === "senior";
   if (key === "theme") return value === "dark" || value === "light";
+  if (key === "motion") return typeof value === "boolean";
   if (key === "lang") return LANGS.some(function (lang) { return lang.id === value; });
   if (key === "editor-font") return Number.isInteger(value) && value >= 11 && value <= 22;
   if (key === "ws-split") return typeof value === "number" && value >= 0.2 && value <= 0.75;

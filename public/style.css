@@ -955,7 +955,8 @@ details.reveal > div { padding: 0 14px 14px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
-::-webkit-scrollbar-corner { background: transparent; }
+/* Transparent leaves a white square in macOS Safari's bottom right corner. */
+::-webkit-scrollbar-corner { background: var(--bg); }
 
 /* Narrower again inside the workspace, where the panes are already tight. */
 .ws ::-webkit-scrollbar { width: 7px; height: 7px; }
