@@ -105,7 +105,7 @@ p { text-wrap: pretty; }
 .side-link.on { background: var(--panel); box-shadow: none; }
 .side-link.on::before {
   content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-  width: 3px; height: 52%; border-radius: 0 2px 2px 0; background: var(--accent);
+  width: 3px; height: 52%; border-radius: 2px; background: var(--accent);
 }
 .main { padding: 34px 36px 80px; }
 .wrap, .wrap-wide { margin-inline: auto; }
