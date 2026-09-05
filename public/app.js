@@ -48,7 +48,10 @@ function forget(key) {
 // The browser's own confirm box is a modal that stops the world, cannot be styled, and
 // says the hostname at the top. This is the same question asked in the site's own voice.
 // Returns a promise so callers read the same way the old synchronous calls did.
+var cancelAsk = null;
+var renderVersion = 0;
 function ask(opts) {
+  if (cancelAsk) cancelAsk();
   var d = el("ask");
   // Any browser without <dialog> still gets the question, just the plain one.
   if (!d || typeof d.showModal !== "function") {
@@ -71,6 +74,7 @@ function ask(opts) {
     function finish(yes) {
       if (settled) return;
       settled = true;
+      cancelAsk = null;
       form.removeEventListener("submit", onSubmit);
       d.removeEventListener("cancel", onCancel);
       d.removeEventListener("close", onClose);
@@ -78,9 +82,13 @@ function ask(opts) {
       if (d.open) d.close();
       resolve(yes);
     }
-    function onSubmit(e) { finish(!!e.submitter && e.submitter.value === "yes"); }
-    function onCancel() { finish(false); }
-    function onClose() { finish(d.returnValue === "yes"); }
+    function onSubmit(e) {
+      e.preventDefault();
+      finish(!!e.submitter && e.submitter.value === "yes");
+    }
+    function onCancel(e) { e.preventDefault(); finish(false); }
+    // close is queued: an event from the previous question must not dismiss a new one.
+    function onClose() { if (!d.open) finish(d.returnValue === "yes"); }
     // The form fills the dialog, so a click that lands on the dialog itself landed outside
     // the content.
     function onBackdrop(e) { if (e.target === d) finish(false); }
@@ -88,6 +96,7 @@ function ask(opts) {
     d.addEventListener("cancel", onCancel);
     d.addEventListener("close", onClose);
     d.addEventListener("click", onBackdrop);
+    cancelAsk = function () { finish(false); };
     d.showModal();
     // Something irreversible should not be one stray Return away, so the safe button holds
     // the focus for those.
@@ -1077,6 +1086,7 @@ function examIndex() {
 }
 
 async function examPage(contestArg) {
+  var version = renderVersion;
   var contest = parseInt(contestArg, 10);
   if (!(contest >= 1 && contest <= 4)) return examIndex();
 
@@ -1094,17 +1104,22 @@ async function examPage(contestArg) {
     // The index warns that starting a new paper discards the old one, but the warning was
     // the whole of the protection: clicking another contest simply did it. Half an hour of
     // work deserves a question first.
-    if (saved && !saved.submitted && !(await ask({
-      title: "Discard the paper you are part way through?",
-      body: "Contest " + saved.contest + " is still open. Starting Contest " + contest
-        + " throws away the answers you have given so far.",
-      yes: "Start Contest " + contest,
-      no: "Keep Contest " + saved.contest,
-      danger: true,
-    }))) {
-      // Back to the paper being protected, rather than to the index. Declining is a decision
-      // to carry on with it.
-      return go("/exam/" + saved.contest);
+    if (saved && !saved.submitted) {
+      var replace = await ask({
+        title: "Discard the paper you are part way through?",
+        body: "Contest " + saved.contest + " is still open. Starting Contest " + contest
+          + " throws away the answers you have given so far.",
+        yes: "Start Contest " + contest,
+        no: "Keep Contest " + saved.contest,
+        danger: true,
+      });
+      if (version !== renderVersion) return;
+      if (!replace) {
+        // Keep the saved paper's division too, or this route would ask the same question again.
+        division = saved.division;
+        save("division", division);
+        return go("/exam/" + saved.contest);
+      }
     }
     exam = buildExam(contest);
     saveExam();
@@ -1197,6 +1212,7 @@ function drawExamQuestion(focusTarget) {
 }
 
 function finishExam() {
+  if (cancelAsk) cancelAsk();
   stopClock();
   exam.submitted = true;
   // Only now does anything get recorded, which is what keeps the misses bank honest.
@@ -1747,8 +1763,8 @@ function drawStatement() {
   gb.addEventListener("click", async function () {
     if (!await ask({
       title: "Show the reference solution?",
-      body: "All twelve test cases become visible, and this problem is marked as solved with "
-        + "the solution rather than on your own.",
+      body: "All twelve test cases become visible, and this records that you viewed the solution. "
+        + "Any independent completion you already earned is preserved.",
       yes: "Show me",
       no: "Not yet",
       danger: true,
@@ -2038,6 +2054,8 @@ function notFound(detail) {
 // ------------------------------------------------------------------ render
 
 function render() {
+  renderVersion++;
+  if (cancelAsk) cancelAsk();
   cancelRun();
   var r = route();
   if (SECTIONS.indexOf(r.section) < 0) r.section = "404";

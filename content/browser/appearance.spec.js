@@ -16,7 +16,9 @@ test('background can be paused and reduced motion overrides it', async ({ page }
   await page.reload();
   await openA11y(page);
   await expect(page.locator('#a11y-motion')).toBeChecked();
-  expect(await page.evaluate(() => getComputedStyle(document.querySelector('.ambient span')).animationPlayState)).toBe('paused');
+  // The setting stops animation outright rather than pausing it, and reaches transitions too.
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector('.ambient span')).animationName)).toBe('none');
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector('.card')).transitionDuration)).toMatch(/^0s(, 0s)*$/);
 
   await page.locator('#a11y-motion').uncheck();
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');

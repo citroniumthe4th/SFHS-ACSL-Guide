@@ -1,3 +1,18 @@
+# Fifth sanity check: dialogs and accessibility
+
+Branch: `experimental/guide-audit-fixes`
+Base: `c8d65c4` on main
+Date: September 5, 2026
+
+- Confirmations now close when navigation leaves their page. Pending actions cannot reset a different editor or redirect back to an abandoned exam. Reusing the dialog ignores delayed close events from its previous question.
+- An exam reaching its deadline closes the pending finish confirmation and shows the results.
+- Keeping a saved exam after switching divisions restores the paper's original division, instead of repeatedly asking whether to discard it.
+- “Larger text” now increases question text from 17px to 19px rather than shrinking it to 16px. Lesson text also grows to 18px.
+- Saved contrast, transparency, text-size, and underline preferences apply before paint on every page, including privacy and 404 pages.
+- The solution confirmation accurately describes viewing progress and preserves the explanation of independent completion. Dialog descriptions are associated with their screen-reader labels.
+
+Six new browser regressions run on desktop and mobile. The existing content, generated-question, runtime, and programming-reference checks also pass. The 60-character explanation floor, compiler fallbacks, question bank, and independently opening hints are unchanged.
+
 # Fourth sanity check: compiler fallbacks
 
 Branch: `experimental/guide-audit-fixes`
