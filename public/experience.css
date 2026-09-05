@@ -127,7 +127,7 @@ body[data-section="guide"][data-view="index"] .main { padding-top: 26px; }
 .guide-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 #search-count:empty { display: none; }
 #guide-results { display: grid; grid-template-columns: 135px minmax(0,1fr); margin-top: 12px; }
-#guide-results { --contest-rule: 1.5px solid color-mix(in srgb, var(--text-faint) 45%, var(--line)); }
+:root { --contest-rule: 1.5px solid color-mix(in srgb, var(--text-faint) 45%, var(--line)); }
 #guide-results > .contest-heading { font-size: 13px; margin: 0; padding: 24px 0;
   border-top: var(--contest-rule); }
 .contest-heading > span { display: block; font-size: 24px; font-weight: 400; color: var(--text-faint); margin-bottom: 8px; letter-spacing: -.04em; }
@@ -469,3 +469,13 @@ a.card:hover::before { border-color: var(--accent-dim); }
 /* The guide rows have no surface of their own, only the rule under each one. */
 #guide-results .card::before { background: transparent; border: 0; }
 #guide-results .card:hover::before { background: var(--panel); }
+
+
+/* A contest band on the practice and programming pages. The guide sets its number in a column
+   of its own; there is no column here, so the number reads as part of the heading. */
+.contest-band { display: flex; align-items: baseline; gap: 12px; margin: 34px 0 0;
+  padding-bottom: 10px; border-bottom: var(--contest-rule);
+  font-size: 15px; font-weight: 600; letter-spacing: .01em; color: var(--text-dim); }
+.contest-band > span { font: 400 22px/1 var(--sans); letter-spacing: -.04em;
+  color: var(--text-faint); }
+.contest-band + .grid { margin-top: 16px; }

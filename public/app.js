@@ -706,8 +706,16 @@ function practiceIndex() {
   }
   html += '<p class="note">Six of these categories can also generate questions on demand, '
         + "marked endless below. Those are built fresh each time from a random seed.</p>";
-  html += '<div class="grid">';
+  // Three categories to a contest, the same grouping the guide uses. TOPICS is already in
+  // contest order, so walking it and opening a band on each change is enough.
+  var lastContest = null;
   list.forEach(function (t) {
+    if (t.contest !== lastContest) {
+      if (lastContest !== null) html += "</div>";
+      lastContest = t.contest;
+      html += '<h2 class="contest-band"><span>0' + t.contest + "</span>"
+            + CONTEST_NAMES[t.contest] + '</h2><div class="grid">';
+    }
     var qs = questionsFor(t.id, division);
     var right = qs.filter(function (q) { return store("q:" + q.id, null) === true; }).length;
     html += '<a class="card" href="/practice/' + t.id + '"><h3>' + esc(t.name) + "</h3>" +
@@ -718,7 +726,7 @@ function practiceIndex() {
       '<progress class="topic-progress" max="' + qs.length + '" value="' + right +
       '" aria-label="' + esc(t.name) + ': ' + right + ' of ' + qs.length + ' correct"></progress></div></a>';
   });
-  html += "</div>";
+  if (lastContest !== null) html += "</div>";
   var probs = problemsFor(division);
   if (probs.length) {
     html += "<h2>Programming problems</h2><div class=\"grid\">";
