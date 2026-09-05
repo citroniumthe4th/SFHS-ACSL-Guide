@@ -7,6 +7,9 @@
 // below carries its own request shape and its own reader.
 //
 // RUNNER_URL still overrides the first entry's address for a Wandbox-compatible host.
+//
+// The third is a courtesy instance the Judge0 project runs for its own documentation, so it
+// sits last on purpose: it is only ever reached when the two ahead of it are both down.
 
 const UA = "sfhs-acsl-guide/1.0";
 
@@ -16,6 +19,7 @@ const COMPILERS = {
     wandbox: "cpython-3.11.10",
     godbolt: "python311",
     godboltLang: "python",
+    judge0: 113,
     source: "solution.py",
   },
   java: {
@@ -23,6 +27,7 @@ const COMPILERS = {
     wandbox: "openjdk-jdk-21+35",
     godbolt: "java2100",
     godboltLang: "java",
+    judge0: 91,
     source: "Solution.java",
   },
   cpp: {
@@ -30,6 +35,7 @@ const COMPILERS = {
     wandbox: "gcc-13.2.0",
     godbolt: "g132",
     godboltLang: "c++",
+    judge0: 105,
     source: "solution.cpp",
     raw: "-std=c++17\n-O2",
     args: "-std=c++17 -O2",
@@ -41,13 +47,14 @@ function unpublic(code) {
   return code.replace(/\bpublic\s+(?=(final\s+|abstract\s+)?class\s+Solution\b)/, "");
 }
 
-// Wandbox writes every submission to prog.java and runs `java prog`, so it needs an entry
-// point of that name as well. Compiler Explorer finds main on its own and needs only the
-// modifier gone.
-function shimJava(code) {
+// Wandbox writes every submission to prog.java and Judge0 writes it to Main.java, and each
+// runs the class its own file is named after, so both need an entry point of that name.
+// Compiler Explorer finds main on its own and needs only the modifier gone.
+function wrapJava(code, entry) {
   return (
     unpublic(code) +
-    "\n\npublic class prog { public static void main(String[] a) throws Exception { Solution.main(a); } }\n"
+    "\n\npublic class " + entry +
+    " { public static void main(String[] a) throws Exception { Solution.main(a); } }\n"
   );
 }
 
@@ -67,7 +74,7 @@ const BACKENDS = [
     url: () => process.env.RUNNER_URL || "https://wandbox.org/api/compile.json",
     body: (spec, lang, code, stdin) => ({
       compiler: spec.wandbox,
-      code: lang === "java" ? shimJava(code) : code,
+      code: lang === "java" ? wrapJava(code, "prog") : code,
       stdin,
       "compiler-option-raw": spec.raw || "",
     }),
@@ -121,6 +128,34 @@ const BACKENDS = [
         stderr: joined(d.stderr),
         built,
         exit: d.code,
+      };
+    },
+  },
+  {
+    name: "judge0",
+    url: () => "https://ce.judge0.com/submissions?base64_encoded=false&wait=true",
+    body: (spec, lang, code, stdin) => ({
+      source_code: lang === "java" ? wrapJava(code, "Main") : code,
+      language_id: spec.judge0,
+      stdin,
+    }),
+    read: (d) => {
+      for (const key of ["stdout", "stderr", "compile_output"]) {
+        if (d[key] !== undefined && d[key] !== null && typeof d[key] !== "string") {
+          throw new Error("Invalid runner stream");
+        }
+      }
+      const status = (d.status && d.status.id) || 0;
+      if (!status) throw new Error("Invalid runner stream");
+      const built = status !== 6; // 6 is Judge0's compilation error
+      return {
+        compileErr: built ? "" : d.compile_output || "",
+        stdout: d.stdout || "",
+        stderr: d.stderr || "",
+        built,
+        // exit_code comes back null even for a program that really did exit non-zero, so
+        // the status stands in for it. The page only asks whether this is zero.
+        exit: status === 3 ? 0 : 1,
       };
     },
   },
@@ -243,12 +278,13 @@ module.exports = async (req, res) => {
   const started = Date.now();
   let data = null;
   let failure = null;
+  let used = -1;
   for (let i = 0; i < BACKENDS.length; i++) {
     const left = DEADLINE_MS - (Date.now() - started);
     if (left < MIN_TRY_MS) break;
     try {
       data = await attempt(BACKENDS[i], spec, lang, code, input, Math.min(PER_TRY_MS, left));
-      if (i > 0) console.log("ran on backup runner:", BACKENDS[i].name);
+      used = i;
       break;
     } catch (e) {
       failure = e;
@@ -257,6 +293,10 @@ module.exports = async (req, res) => {
       if (e.code === "OUTPUT_LIMIT" || e.name === "AbortError") break;
       console.error("runner %s failed: %s", BACKENDS[i].name, e.code || e.name);
     }
+  }
+
+  if (used > 0 && console && typeof console.log === "function") {
+    console.log("ran on backup runner:", BACKENDS[used].name);
   }
 
   if (!data) {
@@ -296,7 +336,10 @@ module.exports = async (req, res) => {
       .replace(/\bprog\.(cc|cpp)\b/g, "solution.cpp")
       .replace(/\bprog\.py\b/g, "solution.py")
       .replace(/<source>/g, spec.source)
-      .replace(/(?:\/app\/)?\boutput\.s\b/g, spec.source);
+      .replace(/(?:\/app\/)?\boutput\.s\b/g, spec.source)
+      .replace(/(?:\/box\/)?\bscript\.py\b/g, spec.source)
+      .replace(/\bMain\.java\b/g, "Solution.java")
+      .replace(/\bmain\.cpp\b/g, "solution.cpp");
 
   // A program that prints in a loop can return megabytes, which then has to travel to the browser
   // and be escaped into the page. Keep each stream to something a person could actually read, and

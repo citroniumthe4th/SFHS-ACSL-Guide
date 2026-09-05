@@ -137,17 +137,28 @@ Push the repo and import it. `vercel.json` points the static host at `public/` a
 up `api/run.js` automatically. No environment variables are required.
 
 Vercel's Node runtime has no JDK and no g++, so `api/run.js` sends submissions to a remote
-sandbox instead. It tries two, in order, and neither needs an API key:
+sandbox instead. It tries three, in order, and none needs an API key:
 
 1. [Wandbox](https://wandbox.org), `cpython-3.11.10`, `openjdk-jdk-21+35`, `gcc-13.2.0`
 2. [Compiler Explorer](https://godbolt.org), `python311`, `java2100`, `g132`
+3. [Judge0](https://judge0.com) on its public `ce.judge0.com`, language ids `113`, `91`, `105`
 
-The second exists because on 5 September 2026 Wandbox spent a day answering every request with
-`Failed to get uid`, and the editor had nothing to fall back on. A backup is only worth having if
-it is a different service, so the two speak different protocols: each entry in `BACKENDS` carries
-its own request body and its own reader, and the handler normalizes both into one shape. Adding a
-third means adding one more entry. Piston is not among them, since its public API became
-whitelist-only in February 2026.
+The second and third exist because on 5 September 2026 Wandbox spent a day answering every request
+with `Failed to get uid`, and the editor had nothing to fall back on. A backup is only worth having
+if it is a different service, so all three speak different protocols: each entry in `BACKENDS`
+carries its own request body and its own reader, and the handler normalizes them into one shape.
+Adding a fourth means adding one more entry, and a line on [/privacy](public/privacy.html).
+
+Two are not on the list. Piston's public API became whitelist-only in February 2026, and Rextester
+refuses the request outright. Judge0's public instance is one the project runs for its own
+documentation rather than a product, which is exactly why it sits last: it is only ever reached
+when both services ahead of it are down, so the traffic it sees from here is close to none. If it
+disappears, the first two still work; if you would rather not lean on it at all, delete the entry.
+
+The three do not agree on version. Judge0 was on Python 3.14, JDK 17 and GCC 14 when it was added,
+against Wandbox's 3.11, 21 and 13.2. All 24 reference solutions were run through each service in
+all three languages against the twelve shipped test cases before it was wired in, so the versions
+differ but the answers do not.
 
 Falling through is for the runner's failures, not the program's. A non-2xx reply, a connection
 error, or a response that does not parse moves to the next service. A timeout or a program that

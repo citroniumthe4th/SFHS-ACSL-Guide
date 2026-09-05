@@ -205,16 +205,21 @@ async function main() {
   // Falling back to a second service. The mock answers by host, so each backend gets the
   // shape it actually speaks and the test can see which ones were asked.
   const asked = [];
-  const godboltOk = Response.json({ code: 0, stdout: [{ text: "4" }, { text: "8" }], stderr: [] });
+  // A Response body can only be read once, so each use needs its own.
+  const godboltOk = () => Response.json({ code: 0, stdout: [{ text: "4" }, { text: "8" }], stderr: [] });
+  const hostOf = (url) => String(url).includes("godbolt") ? "godbolt"
+    : String(url).includes("judge0") ? "judge0" : "wandbox";
+  const dead = (status) => () => ({ ok: false, status, body: { cancel: async () => {} } });
   const route = (handlers) => async (url) => {
-    const host = String(url).includes("godbolt") ? "godbolt" : "wandbox";
+    const host = hostOf(url);
     asked.push(host);
+    if (!handlers[host]) throw new Error("unexpected host " + host);
     return handlers[host]();
   };
 
   api.fetch = route({
-    wandbox: () => ({ ok: false, status: 500, body: { cancel: async () => {} } }),
-    godbolt: () => godboltOk,
+    wandbox: dead(500),
+    godbolt: godboltOk,
   });
   let r = await call();
   assert.equal(r.data.status, "ok", "a dead first service falls through to the second");
@@ -231,20 +236,52 @@ async function main() {
   assert.equal(r.data.status, "compile_error");
   assert.match(r.data.message, /Solution\.java:3/, "the backup's <source> is renamed too");
 
+  // Two down, the third answers. This is the whole point of having a third.
   asked.length = 0;
   api.fetch = route({
-    wandbox: () => ({ ok: false, status: 500, body: { cancel: async () => {} } }),
-    godbolt: () => ({ ok: false, status: 502, body: { cancel: async () => {} } }),
+    wandbox: dead(500),
+    godbolt: dead(503),
+    judge0: () => Response.json({ stdout: "4\n8\n", stderr: null, compile_output: null,
+                                  status: { id: 3, description: "Accepted" } }),
   });
+  r = await call();
+  assert.equal(r.data.status, "ok", "two dead services fall through to the third");
+  assert.equal(r.data.stdout, "4\n8\n");
+  assert.deepEqual(asked, ["wandbox", "godbolt", "judge0"]);
+
+  // Judge0 reports a failed build as status 6 and leaves exit_code null on a crash.
+  asked.length = 0;
+  api.fetch = route({
+    wandbox: dead(500),
+    godbolt: dead(503),
+    judge0: () => Response.json({ compile_output: "Main.java:1: error: bad", stdout: null,
+                                  stderr: null, status: { id: 6, description: "Compilation Error" } }),
+  });
+  r = await call({ lang: "java", code: "public class Solution {}" });
+  assert.equal(r.data.status, "compile_error");
+  assert.match(r.data.message, /Solution\.java:1/, "the third service's filename is renamed too");
+
+  asked.length = 0;
+  api.fetch = route({
+    wandbox: dead(500),
+    godbolt: dead(503),
+    judge0: () => Response.json({ stdout: "partial", stderr: null, compile_output: null,
+                                  exit_code: null, status: { id: 11, description: "Runtime Error" } }),
+  });
+  r = await call();
+  assert.equal(r.data.status, "runtime_error", "a null exit_code still reads as a crash");
+
+  asked.length = 0;
+  api.fetch = route({ wandbox: dead(500), godbolt: dead(502), judge0: dead(500) });
   r = await call();
   assert.equal(r.data.status, "error");
   assert.match(r.data.message, /not a problem with your program/);
-  assert.deepEqual(asked, ["wandbox", "godbolt"], "every service is tried before giving up");
+  assert.deepEqual(asked, ["wandbox", "godbolt", "judge0"], "every service is tried before giving up");
 
   asked.length = 0;
   api.fetch = route({
     wandbox: () => { const e = new Error("timeout"); e.name = "AbortError"; throw e; },
-    godbolt: () => godboltOk,
+    godbolt: godboltOk,
   });
   assert.equal((await call()).data.status, "timeout");
   assert.deepEqual(asked, ["wandbox"], "a program that never finishes will not finish elsewhere");
@@ -255,7 +292,7 @@ async function main() {
       start(ctrl) { ctrl.enqueue(new Uint8Array(1024 * 1024 + 1)); },
       cancel() {},
     })),
-    godbolt: () => godboltOk,
+    godbolt: godboltOk,
   });
   assert.match((await call()).data.message, /too much output/);
   assert.deepEqual(asked, ["wandbox"], "a program that floods output will flood the backup too");
@@ -265,7 +302,7 @@ async function main() {
   const esc = String.fromCharCode(27);
   asked.length = 0;
   api.fetch = route({
-    wandbox: () => ({ ok: false, status: 500, body: { cancel: async () => {} } }),
+    wandbox: dead(500),
     godbolt: () => Response.json({
       code: 1,
       stdout: [],
