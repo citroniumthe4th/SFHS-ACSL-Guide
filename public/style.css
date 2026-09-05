@@ -94,6 +94,9 @@ a:hover { text-decoration: underline; }
 
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 
+/* Names the pair of buttons beside it. It labels the group for a screen reader too, which
+   is why the group carries aria-labelledby rather than an aria-label of its own. */
+.seg-label { color: var(--text-dim); font: 500 12px var(--sans); }
 .seg { display: flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
 .seg button {
   background: transparent;
@@ -700,6 +703,7 @@ details.reveal > div { padding: 0 14px 14px; }
   }
   .brand { order: 1; }
   .brand-name { display: none; }
+  .seg-label { display: none; }
   .topbar-right { order: 2; margin-left: auto; }
 
   /* Second row, full width, and scrollable sideways if the four labels ever outgrow it
