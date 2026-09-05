@@ -121,7 +121,7 @@ body[data-section="guide"][data-view="index"] .main { padding-top: 26px; }
 .guide-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 #search-count:empty { display: none; }
 #guide-results { display: grid; grid-template-columns: 135px minmax(0,1fr); margin-top: 12px; }
-#guide-results { --contest-rule: 2px solid color-mix(in srgb, var(--text-faint) 45%, var(--line)); }
+#guide-results { --contest-rule: 1.5px solid color-mix(in srgb, var(--text-faint) 45%, var(--line)); }
 #guide-results > .contest-heading { font-size: 13px; margin: 0; padding: 24px 0;
   border-top: var(--contest-rule); }
 .contest-heading > span { display: block; font-size: 24px; font-weight: 400; color: var(--text-faint); margin-bottom: 8px; letter-spacing: -.04em; }
