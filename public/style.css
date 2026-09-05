@@ -811,3 +811,84 @@ details.reveal > div { padding: 0 14px 14px; }
 
 /* Label for the language selector in the workspace toolbar. */
 .ws-label { font: 600 11px var(--sans); letter-spacing: 0.09em; text-transform: uppercase; color: var(--text-faint); }
+
+/* Comparing a failed line against the expected one. The two sit in a small grid so the
+   labels stay out of the way and the code lines up under itself. */
+.cmp {
+  display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px;
+  align-items: baseline;
+  margin: 6px 0 12px; padding: 10px 12px;
+  background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--radius);
+  overflow-x: auto;
+}
+.cmp .lbl {
+  font: 600 10px var(--sans); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.cmp code {
+  font: 13px/1.6 var(--mono); color: var(--text);
+  background: none; border: 0; padding: 0; white-space: pre;
+}
+.cmp code.none { color: var(--text-faint); font-style: italic; }
+.cmp .why { font-size: 12px; color: var(--warn); }
+
+/* The characters that actually differ. */
+.cmp mark.d {
+  background: rgba(255, 107, 107, .22);
+  color: var(--text);
+  border-bottom: 2px solid var(--bad);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+/* One side has nothing here, so mark the seam rather than a range. */
+.cmp mark.d.gap {
+  padding: 0; border-bottom: 0;
+  border-left: 2px solid var(--bad);
+  background: none;
+}
+/* A space or tab inside the marked run, which is otherwise invisible and often the answer.
+   Not called .ws: that is the workspace container, and inheriting its display:flex and full
+   viewport height turned every glyph into its own thousand pixel row. */
+.cmp .blank { font-style: normal; opacity: .8; color: var(--bad); }
+
+/* The handle between the problem and the editor. Wider than it looks, because a 1px target
+   is a bad target, and the visible line stays thin. */
+.ws-split {
+  flex: 0 0 9px; margin: 0 -4px; z-index: 5;
+  cursor: col-resize; background: transparent;
+  position: relative; touch-action: none;
+}
+.ws-split::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 4px; width: 1px;
+  background: var(--line);
+}
+.ws-split:hover::after, .ws-split.dragging::after, .ws-split:focus-visible::after {
+  background: var(--accent); width: 2px;
+}
+.ws-split:focus-visible { outline: none; }
+/* Text selection follows the pointer across the panes otherwise, which looks broken. */
+.ws-split.dragging ~ * , body:has(.ws-split.dragging) { user-select: none; }
+
+.fontsize { display: inline-flex; gap: 2px; }
+.fontsize .btn { padding: 5px 8px; font-variant-numeric: tabular-nums; }
+
+/* CodeMirror's search dialog ships light-themed. Match the site instead. */
+.CodeMirror-dialog {
+  background: var(--panel-2);
+  color: var(--text);
+  font: 13px var(--sans);
+  padding: 8px 12px;
+}
+.CodeMirror-dialog-top { border-bottom: 1px solid var(--line); }
+.CodeMirror-dialog-bottom { border-top: 1px solid var(--line); }
+.CodeMirror-dialog input {
+  font: 13px var(--mono); color: var(--text);
+  background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 4px 8px; margin: 0 6px;
+}
+.CodeMirror-dialog input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.CodeMirror-search-hint { color: var(--text-faint); }
+.cm-searching { background: rgba(255, 180, 84, .32); }
+
+/* The workspace stacks on narrow screens, where a vertical split makes no sense. */
+@media (max-width: 780px) { .ws-split { display: none; } }

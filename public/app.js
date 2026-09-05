@@ -966,11 +966,18 @@ function problemPage(pid) {
   el("main").innerHTML =
     '<div class="ws">' +
       '<div class="ws-left" id="ws-left"></div>' +
+      '<div class="ws-split" id="ws-split" role="separator" aria-orientation="vertical" ' +
+        'tabindex="0" aria-label="Resize the editor. Arrow keys move it, Home resets it." ' +
+        'title="Drag to resize. Double click to reset."></div>' +
       '<div class="ws-right">' +
         '<div class="ws-bar">' +
           '<label for="lang" class="ws-label">Language</label>' +
           '<select id="lang"></select>' +
           '<button class="btn btn-ghost" id="reset">Reset code</button>' +
+          '<span class="fontsize"><button class="btn btn-ghost" id="font-down" ' +
+            'aria-label="Smaller text" title="Smaller text">A&minus;</button>' +
+          '<button class="btn btn-ghost" id="font-up" aria-label="Larger text" ' +
+            'title="Larger text">A+</button></span>' +
           '<span class="spacer"></span>' +
           '<button class="btn btn-ghost" id="toggle-input">Custom input</button>' +
           '<button class="btn" id="run" title="Run the six visible tests' + META + '-Enter">' +
@@ -1088,6 +1095,9 @@ function problemPage(pid) {
     }
   });
   window.__cm = cm;
+  applyFontSize();
+  wireFontSize();
+  wireSplit();
   cm.on("change", function () { stash(); });
   loadCode();
   // The editor is inside a flex column, so its height is only final after layout. Capture the
@@ -1095,6 +1105,85 @@ function problemPage(pid) {
   var mine = cm;
   requestAnimationFrame(function () { mine.refresh(); });
   setTimeout(function () { mine.refresh(); }, 150);
+}
+
+// ------------------------------------------------------- editor size and text size
+
+var FONT_MIN = 11, FONT_MAX = 22, FONT_DEFAULT = 13;
+
+function fontSize() {
+  var n = parseInt(store("editor-font", FONT_DEFAULT), 10);
+  return (n >= FONT_MIN && n <= FONT_MAX) ? n : FONT_DEFAULT;
+}
+
+function applyFontSize() {
+  if (!cm) return;
+  cm.getWrapperElement().style.fontSize = fontSize() + "px";
+  cm.refresh();
+}
+
+function wireFontSize() {
+  var step = function (by) {
+    return function () {
+      var n = Math.max(FONT_MIN, Math.min(FONT_MAX, fontSize() + by));
+      save("editor-font", n);
+      applyFontSize();
+    };
+  };
+  el("font-down").addEventListener("click", step(-1));
+  el("font-up").addEventListener("click", step(1));
+}
+
+// The split is stored as a fraction of the workspace, not a pixel count, so it survives a
+// window resize and a different monitor rather than pinning the editor to a width that made
+// sense somewhere else.
+function splitFraction() {
+  var f = parseFloat(store("ws-split", 0.44));
+  return (f >= 0.2 && f <= 0.75) ? f : 0.44;
+}
+
+function applySplit() {
+  var left = el("ws-left");
+  if (!left) return;
+  left.style.flex = "0 0 " + (splitFraction() * 100).toFixed(2) + "%";
+  left.style.maxWidth = "none";
+  if (cm) cm.refresh();
+}
+
+function wireSplit() {
+  applySplit();
+  var bar = el("ws-split"), ws = bar.parentNode, dragging = false;
+
+  var setFromX = function (x) {
+    var box = ws.getBoundingClientRect();
+    var f = (x - box.left) / box.width;
+    save("ws-split", Math.max(0.2, Math.min(0.75, f)));
+    applySplit();
+  };
+
+  bar.addEventListener("pointerdown", function (e) {
+    dragging = true;
+    bar.setPointerCapture(e.pointerId);
+    bar.classList.add("dragging");
+    e.preventDefault();
+  });
+  bar.addEventListener("pointermove", function (e) { if (dragging) setFromX(e.clientX); });
+  var stop = function () { dragging = false; bar.classList.remove("dragging"); };
+  bar.addEventListener("pointerup", stop);
+  bar.addEventListener("pointercancel", stop);
+  bar.addEventListener("dblclick", function () { save("ws-split", 0.44); applySplit(); });
+
+  // Draggable things need to work from the keyboard too.
+  bar.addEventListener("keydown", function (e) {
+    var f = splitFraction();
+    if (e.key === "ArrowLeft") f -= 0.02;
+    else if (e.key === "ArrowRight") f += 0.02;
+    else if (e.key === "Home") f = 0.44;
+    else return;
+    e.preventDefault();
+    save("ws-split", Math.max(0.2, Math.min(0.75, f)));
+    applySplit();
+  });
 }
 
 function stash() {
@@ -1310,6 +1399,69 @@ function runCustom() {
     });
 }
 
+// ------------------------------------------------------- comparing two output lines
+
+// Where the two strings stop agreeing at each end. A failed case is usually a trailing space
+// or one wrong character, which is exactly the difference the eye slides over when the two
+// lines sit above each other.
+function divergence(a, b) {
+  var max = Math.min(a.length, b.length), i = 0;
+  while (i < max && a.charAt(i) === b.charAt(i)) i++;
+  var j = 0;
+  while (j < max - i && a.charAt(a.length - 1 - j) === b.charAt(b.length - 1 - j)) j++;
+  return { from: i, aTo: a.length - j, bTo: b.length - j };
+}
+
+// Spaces and tabs are shown as glyphs, but only inside the marked span, so the rest of the
+// line stays readable. An invisible character is the whole reason a line can look identical
+// and still be wrong.
+function showBlanks(s) {
+  return esc(s).replace(/ /g, '<i class="blank">\u00b7</i>')
+               .replace(/\t/g, '<i class="blank">\u2192</i>');
+}
+
+function markDiff(s, from, to) {
+  if (from >= to) {
+    // Nothing of this string differs, so the other one has extra characters here. Mark the
+    // seam rather than nothing at all, or a missing character shows up as no highlight.
+    return esc(s.slice(0, from)) + '<mark class="d gap"></mark>' + esc(s.slice(from));
+  }
+  return esc(s.slice(0, from)) + '<mark class="d">' + showBlanks(s.slice(from, to)) + "</mark>"
+       + esc(s.slice(to));
+}
+
+// Say the difference in words when it has a name. Someone staring at two lines that look the
+// same needs to be told the reason they look the same.
+function diffHint(exp, got) {
+  if (got === null) return "your program printed no line here at all";
+  if (exp === got) return "";
+  if (got === "") return "your program printed an empty line here";
+  if (exp.trim() === got.trim()) return "the text matches, only the surrounding spaces differ";
+  if (exp.replace(/\s+/g, " ").trim() === got.replace(/\s+/g, " ").trim()) {
+    return "the same values, spaced differently";
+  }
+  if (exp.toLowerCase() === got.toLowerCase()) return "only the letter case differs";
+  if (exp.length !== got.length && (exp.indexOf(got) === 0 || got.indexOf(exp) === 0)) {
+    return got.length < exp.length ? "your line stops early" : "your line has extra on the end";
+  }
+  return "";
+}
+
+function comparison(exp, got) {
+  var hint = diffHint(exp, got);
+  if (got === null) {
+    return '<div class="cmp"><span class="lbl">expected</span><code>' + esc(exp) + "</code>" +
+           '<span class="lbl">got</span><code class="none">nothing</code>' +
+           '<span class="lbl"></span><span class="why">' + hint + "</span></div>";
+  }
+  var d = divergence(exp, got);
+  return '<div class="cmp">' +
+    '<span class="lbl">expected</span><code>' + markDiff(exp, d.from, d.aTo) + "</code>" +
+    '<span class="lbl">got</span><code>' + markDiff(got, d.from, d.bTo) + "</code>" +
+    (hint ? '<span class="lbl"></span><span class="why">' + hint + "</span>" : "") +
+    "</div>";
+}
+
 function report(res, cases, full) {
   if (res.status === "compile_error") {
     return showResults('<span class="st no">Compile error</span>'
@@ -1337,10 +1489,7 @@ function report(res, cases, full) {
       '<span class="st ' + (ok ? "ok" : "no") + '">' + (ok ? "PASS" : "FAIL") + "</span>" +
       "<span>" + (hiddenCase ? '<span class="st hid">hidden</span>'
                               : esc(c["in"].join("  \u00b7  "))) + "</span></div>";
-    if (!ok && !hiddenCase) {
-      html += '<div class="res-detail"><b>expected</b> ' + esc(c.out) +
-        "\n<b>got     </b> " + (got === null ? "(no line produced)" : esc(got)) + "</div>";
-    }
+    if (!ok && !hiddenCase) html += comparison(c.out, got);
   });
 
   if (res.stderr) {

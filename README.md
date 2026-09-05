@@ -48,9 +48,20 @@ is also a custom input box, since every ACSL problem tells you to make up test d
 and it runs your code against whatever you type without checking it against anything.
 
 The editor closes brackets and quotes as you type, matches them, indents for you, comments a
-selection with Ctrl-/ or Cmd-/, and runs on Ctrl-Enter or submits on Ctrl-Shift-Enter. It does not
-complete anything: no method lists, no identifier suggestions, nothing that would answer the
-problem for you. Editing aids yes, hints no.
+selection with Ctrl-/ or Cmd-/, finds with Ctrl-F, and runs on Ctrl-Enter or submits on
+Ctrl-Shift-Enter. Ctrl-F matters more than it sounds: CodeMirror only renders the lines near the
+viewport, so the browser's own find silently misses anything scrolled off. The divider between
+the problem and the editor drags, double clicks back to the middle, and moves with the arrow keys
+when focused; A- and A+ set the text size. Both are remembered, the split as a fraction so it
+survives a different window.
+
+It does not complete anything: no method lists, no identifier suggestions, nothing that would
+answer the problem for you. Editing aids yes, hints no.
+
+A failed test shows the expected and actual lines with the characters that differ marked, spaces
+and tabs drawn as glyphs inside the marked run, and a plain sentence naming the difference when
+it has a name: only the surrounding spaces, only the case, the line stopping early. Most failures
+here are one invisible character, which is exactly what two plain lines above each other hide.
 
 On a screen narrower than 780px the editor is replaced by a note asking you to open the problem
 on a computer. The statement, the samples, and the visible test cases stay readable there.
@@ -281,8 +292,8 @@ public/                the site
   .well-known/         security.txt
   data/                topics, guide text, question bank, generated problems, gen.js
   vendor/codemirror    editor, vendored so the site works offline. Addons are limited to
-                       editing aids: close and match brackets, comment toggle, active line.
-                       show-hint is deliberately absent.
+                       editing aids: close and match brackets, comment toggle, search and
+                       jump to line, active line. show-hint is deliberately absent.
 ```
 
 ## Accessibility
