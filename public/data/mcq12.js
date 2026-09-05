@@ -1,6 +1,6 @@
 window.MCQ = (window.MCQ || []).concat([
 
-{ id:"as-01", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-01", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>A   DC    5
 B   DC    3
     LOAD  A
@@ -15,7 +15,7 @@ execution starts A holds 5 and B holds 3. LOAD then puts 5 in the accumulator, M
 the contents of B, and STORE copies the resulting 15 into C. DC is a directive rather than an executed
 instruction, which is why it never disturbs the accumulator.` },
 
-{ id:"as-02", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-02", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    LOAD  =20
     DIV   =6
     STORE Q
@@ -27,7 +27,7 @@ instruction, which is why it never disturbs the accumulator.` },
 than names of memory words. DIV keeps the signed integer part, so 20 divided by 6 is 3 and the
 remainder is simply discarded. There is no floating point anywhere on this machine.` },
 
-{ id:"as-03", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-03", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    LOAD  =7
     MULT  =-3
     STORE X
@@ -43,7 +43,7 @@ point, so the DIV that follows divides it by 2. The signed integer part of -10.5
 zero, giving -10 rather than -11. Flooring would give -11, which is what Python does by default and
 what the ACSL rule specifically does not.` },
 
-{ id:"as-04", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-04", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    READ  N
     LOAD  N
     SUB   =3
@@ -62,7 +62,7 @@ to BIG, and that block overwrites N with 99 and prints it. The unconditional BU 
 the BIG block when the branch does not fire, and leaving it out is one of the classic bugs in this
 language.` },
 
-{ id:"as-05", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-05", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    READ  N
     LOAD  =1
     STORE F
@@ -84,7 +84,7 @@ then decrements N, exiting once N reaches 0. F therefore becomes 6 times 5 times
 times 1, or 720. Note that the exit test is a BE on N, so the loop stops at zero rather than at one,
 which means the final multiplication by 1 happens and is harmless.` },
 
-{ id:"as-06", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-06", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    READ  A
     READ  B
     LOAD  A
@@ -101,14 +101,14 @@ B and therefore prints 9. The naming is deliberately misleading and worth readin
 says SMALL and the branch does fire when A is the smaller value, but the block prints B, so what the
 program actually reports is the larger of the two.` },
 
-{ id:"as-07", kind: "concept", topic:"assembly", level:"s",
+{ id:"as-07", kind:"concept", topic:"assembly", level:"s",
   q:`In the ACSL machine, what does SUB X do?`,
   choices:["the accumulator becomes the accumulator minus X","the accumulator becomes X minus the accumulator","X becomes X minus the accumulator","X becomes the accumulator minus X","None of the above"], ans:0,
   why:`Every arithmetic instruction puts the accumulator on the left and the operand on the
 right, leaving the result in the accumulator, and nothing in memory changes until a STORE executes.
 Operand order changes the result of SUB and DIV. ADD and MULT give the same result either way.` },
 
-{ id:"as-08", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-08", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    LOAD  =0
     PRINT ZERO
     END</code></pre>What is printed, given that ZERO is never assigned?`,
@@ -119,7 +119,7 @@ an error of any kind. There is a second detail hiding in this program as well: P
 location rather than the accumulator, so the LOAD on the first line has no bearing at all on what gets
 printed.` },
 
-{ id:"as-09", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-09", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    READ  N
     LOAD  =0
     STORE S
@@ -141,7 +141,7 @@ which is 100 times 101 over 2. Recognising the shape of a program lets you reach
 instead of tracing a hundred passes, and that recognition is most of the skill in this category. Since
 5050 is not among the four choices offered, the answer is None of the above.` },
 
-{ id:"as-10", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-10", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    READ  N
 TOP LOAD  N
     BE    OUT
@@ -159,7 +159,7 @@ without printing that 0. The BE at the top of the loop would have caught it too,
 bottom gets there first, which is why both exit tests need reading rather than just the one you notice
 first.` },
 
-{ id:"as-11", kind: "problem", topic:"assembly", level:"s",
+{ id:"as-11", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    READ  A
     READ  B
     READ  C
@@ -178,7 +178,7 @@ first.` },
 27 afterwards, so dividing by 3 gives exactly 9 with nothing discarded. Note that READ consumes the
 input values in the order the READ instructions actually execute, so the first READ takes 5.` },
 
-{ id:"as-12", kind: "concept", topic:"assembly", level:"s",
+{ id:"as-12", kind:"concept", topic:"assembly", level:"s",
   q:`How would you compute the remainder of X divided by Y on a machine with no modulo
 instruction?`,
   choices:["X minus (X divided by Y) times Y","X divided by Y then times Y","Y minus X divided by Y","X minus Y until the result is negative","None of the above"], ans:0,
@@ -187,7 +187,7 @@ multiplying the quotient back by Y and subtracting it from X brings the remainde
 that is LOAD X, DIV Y, MULT Y, STORE T, LOAD X, SUB T. Repeated subtraction of Y nearly works but
 overshoots, since it stops one subtraction after the remainder appears, and it needs a loop besides.` },
 
-{ id:"ws-01", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-01", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "PROGRAM", what is S[2:5]?`,
   choices:["OGR","ROG","OGRA","RO","None of the above"], ans:2,
   check:`substr("PROGRAM", 2, 5)`,
@@ -197,7 +197,7 @@ included, so S[2:5] collects positions 2, 3, 4 and 5, which is OGRA. Four charac
 you counted 5 minus 2 you were using the Python rule, where the second bound stops the substring
 rather than joining it. OGR is what that rule would give.` },
 
-{ id:"ws-02", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-02", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "ACSL", what does this print?
 <pre><code>T = ""
 for I = 0 to 3
@@ -215,7 +215,7 @@ backwards and comes out reversed. Writing t = t + s[i] instead would append and 
 lines look nearly identical on the page and produce opposite answers, which is why the order is worth
 reading deliberately every single time.` },
 
-{ id:"ws-03", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-03", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "COMPUTER", what is S[:3] + S[4:]?`,
   choices:["COMTER","COMPTER","COMUTER","COMPUTER","None of the above"], ans:2,
   check:`substr("COMPUTER", None, 3) + substr("COMPUTER", 4, None)`,
@@ -226,7 +226,7 @@ COMUTER, with P at position 3 the only character dropped. Reading S[4:] as every
 onward is the Python rule and would give the same answer here only by coincidence of length, so check
 it by counting from the right instead.` },
 
-{ id:"ws-04", kind: "concept", topic:"wdtpd-strings", level:"j",
+{ id:"ws-04", kind:"concept", topic:"wdtpd-strings", level:"j",
   q:`For a nonempty string S of length N, what is the index of its last character?`,
   choices:["N - 1","N","N + 1","1","None of the above"], ans:0,
   check:`"N - 1" if "ABCDE"[len("ABCDE")-1] == "E" else "unverified"`,
@@ -234,7 +234,7 @@ it by counting from the right instead.` },
 itself runs off the end of the string. This is the arithmetic sitting underneath the palindrome check,
 where s[i] is compared against s[N - 1 - i]. Without the minus 1, the first comparison reads past the end of the string.` },
 
-{ id:"ws-05", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-05", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "LEVEL", what does this print?
 <pre><code>C = 0
 for I = 0 to 4
@@ -252,7 +252,7 @@ all five passes, including the middle one where i is 2 and the character is comp
 palindrome check written this way counts every match twice, which is exactly why a real check loops
 only as far as the middle.` },
 
-{ id:"ws-06", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-06", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "BANANA", how many times does the letter A appear?`,
   choices:["5", "2", "4", "1", "None of the above"], ans:4,
   check:`str("BANANA".count("A"))`,
@@ -261,7 +261,7 @@ which is three occurrences. A counting loop for this compares s[i] against the t
 counter, running from 0 to the length minus 1. Since 3 is not among the four choices offered, the
 answer is None of the above.` },
 
-{ id:"ws-07", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-07", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "ABCDEFG", what does this print?
 <pre><code>T = ""
 for I = 0 to 6 step 2
@@ -277,7 +277,7 @@ Starting at 1 instead would give BDF, so the starting index alone decides which 
 end up with. Since the body appends rather than prepends, the order in which they were collected is
 preserved.` },
 
-{ id:"ws-08", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-08", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "HELLO", what is S[1:1]?`,
   choices:["the empty string","E","H","EL","None of the above"], ans:1,
   check:`substr("HELLO", 1, 1)`,
@@ -286,7 +286,7 @@ position 1 and collects the single character sitting there, which is E. A substr
 has length 1 rather than length 0. The empty string is the answer under the Python rule, where the
 second bound stops the substring before it starts, and that is the reason it appears here.` },
 
-{ id:"ws-09", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-09", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "STRING", what does this print?
 <pre><code>T = S[3:] + S[:3]
 output T</code></pre>`,
@@ -298,7 +298,7 @@ the circulate from Bit-String Flicking applied to letters rather than bits. Wort
 Python reading of S[3:], everything from position 3 onward, happens to give ING as well here, because
 STRING has exactly six characters. Change the length and the two readings part company.` },
 
-{ id:"ws-10", kind: "problem", topic:"wdtpd-strings", level:"j",
+{ id:"ws-10", kind:"problem", topic:"wdtpd-strings", level:"j",
   q:`For S equal to "AABBA", what does this print?
 <pre><code>C = 0
 for I = 0 to 3

@@ -1,6 +1,6 @@
 window.MCQ = (window.MCQ || []).concat([
 
-{ id:"wd-01", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-01", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>A = 50
 B = 10
 while A &gt; 0
@@ -21,7 +21,7 @@ rather than after, the pass that begins with A holding 14 still runs and is what
 Answering 14 means you stopped at the last value that looked reasonable instead of letting the final
 pass finish.` },
 
-{ id:"wd-02", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-02", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>S = "PROGRAM"
 T = ""
 for I = 0 to 6 step 2
@@ -40,7 +40,7 @@ A at 5, and M at 6. A step of 2 visits indices 0, 2, 4, and 6, collecting P, O, 
 body appends the new character rather than prepending it, the order in which they were collected is
 the order they appear, giving PORM.` },
 
-{ id:"wd-03", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-03", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>N = 0
 for I = 1 to 4
     for J = I to 4
@@ -61,7 +61,7 @@ counter appear in the inner bound, expect a triangular count of this kind rather
 16 that two independent loops would give. Since 10 is not among the four choices offered, the answer
 is None of the above.` },
 
-{ id:"wd-04", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-04", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>A = 1
 B = 1
 for I = 1 to 5
@@ -84,7 +84,7 @@ assignments is doing all the work. Following the pairs (A, B) through the passes
 and write A = B before computing T and you get a different sequence entirely, which is exactly why
 the temporary is there.` },
 
-{ id:"wd-05", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-05", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>X = 100
 C = 0
 while X &gt; 1
@@ -105,7 +105,7 @@ than subtracts finishes in a number of passes close to the logarithm, so it will
 shorter than the starting value suggests. Trace it anyway, because whether the exit test reads
 greater than 1 or greater than 0 changes the count.` },
 
-{ id:"wd-06", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-06", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>A(1) = 3
 A(2) = 1
 A(3) = 4
@@ -127,7 +127,7 @@ neighbour that has not been touched yet. A(1) becomes 3 plus 1, or 4, then A(2) 
 4 plus 6. Had the loop run right to left, the reads would have hit already updated values and the
 array would have come out differently.` },
 
-{ id:"wd-07", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-07", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>S = "ABCDEFG"
 T = S[2:5] + S[:2]
 output T</code></pre>What is printed?`,
@@ -138,7 +138,7 @@ positions 2, 3, 4 and 5, which is CDEF. S[:2] has one bound, so it is a count, t
 characters, AB. Joining them gives CDEFAB. CDEAB is what you get by stopping before position 5, which
 is how Python reads the same notation and is not the rule ACSL uses.` },
 
-{ id:"wd-08", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-08", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>N = 1234
 R = 0
 while N &gt; 0
@@ -159,7 +159,7 @@ the last digit off N with the modulo and pushes it onto R by multiplying R by 10
 greater than 0 rather than greater than 9, since the second version would stop early and drop the
 leading digit.` },
 
-{ id:"wd-09", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-09", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>C = 0
 for I = 1 to 20
     if I % 3 == 0 &amp;&amp; I % 5 != 0 then
@@ -175,7 +175,7 @@ condition has a second half that also demands the number not be a multiple of 5.
 leaves 63 minus 15, or 48. The distractor 63 is what you get by reading only the first half of the
 condition. Since 48 is not among the four choices offered, the answer is None of the above.` },
 
-{ id:"wd-10", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-10", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>A = 7
 B = 3
 A = A + B
@@ -193,7 +193,7 @@ RESULT = A*10 + B`,
 idiom is safer than tracing it, because tracing it blind is easy to get backwards. Afterwards A holds
 3 and B holds 7, so A times 10 plus B is 30 plus 7.` },
 
-{ id:"wd-11", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-11", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>S = "MISSISSIPPI"
 C = 0
 for I = 0 to 9
@@ -211,7 +211,7 @@ with the one after it, which is why it stops at index 9 rather than 10: any furt
 would run off the end. The adjacent matching pairs are the SS at indices 2 and 3, the SS at 5 and 6,
 and the PP at 8 and 9, so the count is 3.` },
 
-{ id:"wd-12", kind: "problem", topic:"wdtpd", level:"s",
+{ id:"wd-12", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>M = 0
 for I = 1 to 3
     for J = 1 to 3
@@ -234,7 +234,7 @@ subscripts are equal, so it picks up A(1, 1) equal to 4, A(2, 2) equal to 8, and
 Those add to 24. Draw the full three by three grid before summing anything, since it costs about ten
 seconds and removes any chance of reaching for the wrong cells.` },
 
-{ id:"wb-01", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-01", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>A = 5
 if A &gt; 3 then
     A = A - 4
@@ -254,7 +254,7 @@ rather than the original 5, and since 1 is not greater than 3 nothing happens, s
 1. Two separate if statements are not the same as an if with an else attached, precisely because the
 first is free to change the value the second is about to test.` },
 
-{ id:"wb-02", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-02", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>X = 5
 Y = 50
 if X &gt; 10 then
@@ -280,7 +280,7 @@ setting Z to 3. The inner branch never runs at all, which makes the value of Y i
 how deliberately the question sets it to 50. Answering 2 means you attached the inner else to the
 outer if rather than to the if directly above it.` },
 
-{ id:"wb-03", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-03", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>A = 4
 B = 1
 C = 0
@@ -299,7 +299,7 @@ of B less than 2 and C equal to 0 both holding. The first part is false, since 4
 is printed. Evaluating the line strictly left to right would give NO instead, which is what the
 question is checking.` },
 
-{ id:"wb-04", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-04", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>N = 17
 if N % 2 == 0 then
     R = N / 2
@@ -321,7 +321,7 @@ fails as well. Control therefore reaches the final else and R becomes 18. In a c
 most one branch ever runs, which is the whole difference between an else if and a run of separate if
 statements.` },
 
-{ id:"wb-05", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-05", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>A = 3
 B = 8
 if !(A &gt; B) then
@@ -339,7 +339,7 @@ RESULT = C`,
 turns that false into a true. The first branch therefore runs and C becomes 11. Overlook the negation
 and you land in the else instead, which would give -5.` },
 
-{ id:"wb-06", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-06", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>S = 0
 for I = 1 to 6
     if I % 2 == 0 then
@@ -361,7 +361,7 @@ That fixed 1 in the else branch is exactly the sort of detail these problems tur
 subtracting I instead would give a very different answer. Since 9 is not among the four choices
 offered, the answer is None of the above.` },
 
-{ id:"wb-07", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-07", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>A = 10
 B = 20
 if A &lt; B then
@@ -385,7 +385,7 @@ and B at 10. The second condition then tests 20 less than 10, which is false, so
 prints A minus B, or 10. Read as a whole, the program is a compact way of printing the positive
 difference between two numbers whichever order they arrived in.` },
 
-{ id:"wb-08", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-08", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>X = 0
 if X == 0 then
     X = 1
@@ -409,7 +409,7 @@ another and X finishes at 3. Rewrite those same three tests as an if followed by
 only the first would ever run, leaving X at 1. Put side by side, this pair of programs is the
 cleanest demonstration of why the distinction is worth keeping straight.` },
 
-{ id:"wb-09", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-09", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>A = 12
 B = 5
 if A % B == 0 then
@@ -430,7 +430,7 @@ RESULT = RESULT`,
 second branch runs and prints that same remainder of 2. The third branch, which would have printed 5
 modulo 12, is never reached at all.` },
 
-{ id:"wb-10", kind: "problem", topic:"wdtpd-branching", level:"j",
+{ id:"wb-10", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>C = 0
 for I = 1 to 5
     for J = 1 to 5
