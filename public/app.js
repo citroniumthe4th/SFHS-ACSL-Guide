@@ -418,15 +418,18 @@ function guideIndex() {
   el("main").innerHTML = html;
   var search = el("guide-search");
   search.value = new URLSearchParams(location.search).get("search") || "";
+  // The name and blurb are searchable, but they already sit on the card, so a snippet is cut
+  // from the lesson body and the blurb stands in when the match was in the heading.
   var lessons = TOPICS.map(function (t) {
     var doc = document.createElement("div");
     doc.innerHTML = GUIDE[t.id] || "";
-    return { topic: t, text: (t.name + " " + t.blurb + " " + doc.textContent).replace(/\s+/g, " ") };
+    return { topic: t, head: (t.name + " " + t.blurb).toLowerCase(),
+             body: doc.textContent.replace(/\s+/g, " ").trim() };
   });
   function results() {
     var term = search.value.trim().toLowerCase();
     var matched = lessons.filter(function (lesson) {
-      return term ? lesson.text.toLowerCase().includes(term)
+      return term ? lesson.head.includes(term) || lesson.body.toLowerCase().includes(term)
         : lesson.topic.div === "both" || lesson.topic.div === division;
     });
     var html = "", lastContest = null;
@@ -437,15 +440,17 @@ function guideIndex() {
         lastContest = t.contest;
         html += "<h2>" + CONTEST_NAMES[t.contest] + '</h2><div class="grid">';
       }
-      var at = term ? lesson.text.toLowerCase().indexOf(term) : -1;
-      var snippet = at >= 0 ? (at > 60 ? "…" : "") + lesson.text.slice(Math.max(0, at - 60), at + 150)
-        + (at + 150 < lesson.text.length ? "…" : "") : t.blurb;
+      var at = term ? lesson.body.toLowerCase().indexOf(term) : -1;
+      var snippet = at >= 0 ? (at > 60 ? "…" : "") + lesson.body.slice(Math.max(0, at - 60), at + 150)
+        + (at + 150 < lesson.body.length ? "…" : "") : t.blurb;
       html += '<a class="card" href="/guide/' + t.id + '"><h3>' + esc(t.name)
         + '</h3><p>' + esc(snippet) + '</p><span class="chip">'
         + (t.div === "both" ? "Junior and Senior" : t.div) + '</span></a>';
     });
     el("guide-results").innerHTML = html + (matched.length ? "</div>" : '<p>No lessons match. Try a shorter term.</p>');
-    el("search-count").textContent = term ? matched.length + " matching lessons across both divisions" : "";
+    el("search-count").textContent = term
+      ? matched.length + " matching lesson" + (matched.length === 1 ? "" : "s")
+        + " across both divisions" : "";
   }
   search.addEventListener("input", function () {
     history.replaceState(null, "", location.pathname + (search.value ? "?search=" + encodeURIComponent(search.value) : ""));
