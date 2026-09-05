@@ -135,7 +135,11 @@ body[data-section="guide"][data-view="index"] .main { padding-top: 26px; }
 #guide-results .card:hover { background: var(--panel); transform: translateX(3px); }
 .syllabus-note { padding: 24px 0; border-top: 1px solid var(--line); margin-top: 0; }
 /* Topic collections, exercises and quiet reading surfaces. */
-.grid { grid-template-columns: repeat(auto-fill, minmax(min(290px,100%), 1fr)); gap: 16px; margin-top: 24px; }
+/* Separated on both sides by the same amount. Without the lower half, the paragraph that
+   follows the missed questions card sat right against it while every other block on the
+   page had room around it. */
+.grid { grid-template-columns: repeat(auto-fill, minmax(min(290px,100%), 1fr)); gap: 16px;
+  margin: 24px 0; }
 .card { border-radius: 18px; padding: 24px; background: var(--panel); border-color: var(--line-soft); }
 .card h3 { font-size: 18px; line-height: 1.35; margin-bottom: 12px; letter-spacing: -.025em; }
 .card p { font-size: 14px; line-height: 1.65; }
@@ -350,3 +354,84 @@ html[data-theme="light"] .btn-danger { color: #fff; }
   .ask[open] { animation: ask-in 140ms ease-out; }
   @keyframes ask-in { from { opacity: 0; transform: translateY(6px); } }
 }
+
+
+/* The saved list. One row per question, its stem readable at a glance and its own way out. */
+.saved-heading { font-size: 15px; letter-spacing: .01em; color: var(--text-dim); margin: 30px 0 0;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line-soft); }
+.saved-list { list-style: none; margin: 0; padding: 0; }
+.saved-list li { display: flex; align-items: baseline; gap: 16px;
+  border-bottom: 1px solid var(--line-soft); }
+.saved-list li:last-child { border-bottom: 0; }
+.saved-list a { flex: 1 1 auto; display: flex; align-items: baseline; gap: 16px;
+  padding: 16px 4px; color: var(--text); min-width: 0; }
+.saved-list a:hover { color: var(--accent); text-decoration: none; }
+.saved-stem { flex: 1 1 auto; font-size: 14px; line-height: 1.6; }
+.saved-id { flex: 0 0 auto; font: 500 11px var(--mono); color: var(--text-faint); }
+.saved-drop { flex: 0 0 auto; font-size: 12px; color: var(--text-faint); }
+.saved-drop:hover { color: var(--bad); }
+@media (max-width: 640px) {
+  .saved-list a { flex-wrap: wrap; gap: 4px 12px; }
+}
+
+/* ------------------------------------------------------- accessibility menu */
+
+.a11y { position: relative; }
+.a11y > summary { list-style: none; display: inline-flex; align-items: center;
+  justify-content: center; cursor: pointer; }
+.a11y > summary::-webkit-details-marker { display: none; }
+.a11y[open] > summary { border-color: var(--accent); color: var(--text); }
+.a11y-menu {
+  position: absolute; right: 0; top: calc(100% + 10px); z-index: 60;
+  width: min(19rem, calc(100vw - 24px));
+  padding: 16px 18px 14px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: var(--shadow); text-align: left;
+}
+.a11y-lead { margin: 0 0 12px; font-size: 11.5px; color: var(--text-faint); line-height: 1.5; }
+.a11y-menu label { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0;
+  font-size: 13px; cursor: pointer; }
+.a11y-menu label small { display: block; margin-top: 2px; font-size: 11.5px;
+  color: var(--text-faint); line-height: 1.5; }
+.a11y-menu input { margin: 2px 0 0; accent-color: var(--accent); width: 15px; height: 15px;
+  flex: 0 0 auto; cursor: pointer; }
+.a11y-menu input:disabled { cursor: default; }
+.a11y-menu input:disabled + span { color: var(--text-faint); }
+#a11y-reset { margin-top: 10px; font-size: 11.5px; color: var(--text-faint); }
+
+/* ------------------------------------------------------- what the settings do */
+
+/* Higher contrast: full-strength text, borders that are actually visible, no dimming. */
+html[data-contrast="on"] {
+  --text-dim: var(--text);
+  --text-faint: var(--text);
+  --line: var(--text-dim);
+  --line-soft: var(--text-dim);
+}
+html[data-contrast="on"] .ambient { display: none; }
+html[data-contrast="on"] .card,
+html[data-contrast="on"] .choice,
+html[data-contrast="on"] .btn { border-width: 2px; }
+html[data-contrast="on"] a { text-decoration: underline; }
+
+/* Reduce transparency: the glass becomes a plain surface. */
+html[data-plain="on"] .topbar,
+html[data-plain="on"] .a11y-menu,
+html[data-plain="on"] .ask {
+  backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
+}
+html[data-plain="on"] .ask::backdrop { backdrop-filter: none; background: rgb(6 12 14 / .8); }
+
+/* Larger text: everything that is sized in rem or inherits from the body grows with it. */
+html[data-bigtext="on"] body { font-size: 17.5px; }
+html[data-bigtext="on"] .note,
+html[data-bigtext="on"] .card p,
+html[data-bigtext="on"] .saved-stem,
+html[data-bigtext="on"] .choice .val,
+html[data-bigtext="on"] .qtext { font-size: 16px; }
+html[data-bigtext="on"] .lesson { font-size: 16.5px; }
+
+/* Underline links, so colour is not the only thing marking one. */
+html[data-underline="on"] .main a:not(.btn):not(.card),
+html[data-underline="on"] .footer a,
+html[data-underline="on"] .lesson a { text-decoration: underline; text-underline-offset: 2px; }

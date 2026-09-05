@@ -381,24 +381,84 @@ el("theme-btn").addEventListener("click", function () {
   if (window.__cm) window.__cm.setOption("theme", theme === "dark" ? "material-darker" : "default");
 });
 
-// Ambient movement is optional and follows the operating system's reduced-motion setting.
-var motion = store("motion", true) !== false;
-var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-function paintMotion() {
-  var enabled = motion && !reducedMotion.matches;
-  document.documentElement.dataset.motion = enabled ? "on" : "off";
-  var button = el("motion-btn");
-  button.textContent = reducedMotion.matches ? "System motion reduction on" : enabled ? "Pause background" : "Animate background";
-  button.setAttribute("aria-pressed", String(!enabled));
-  button.disabled = reducedMotion.matches;
+// Accessibility settings. Each one is a flag on the root element that the stylesheet reads,
+// and each is remembered on its own so a later addition cannot invalidate the others. The
+// operating system is asked first: a machine already set to reduce motion gets that whatever
+// is stored here, and the control says so rather than pretending to be in charge.
+var SYSTEM_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+var A11Y = [
+  { key: "motion", box: "a11y-motion", flag: "motion" },
+  { key: "contrast", box: "a11y-contrast", flag: "contrast" },
+  { key: "plain", box: "a11y-plain", flag: "plain" },
+  { key: "bigtext", box: "a11y-text", flag: "bigtext" },
+  { key: "underline", box: "a11y-underline", flag: "underline" },
+];
+
+// "motion" was stored as true meaning animate. The switch now reads the other way round, so
+// an older value is turned over rather than thrown away.
+function a11yOn(key) {
+  if (key === "motion") return store("motion", true) === false;
+  return store("a11y:" + key, false) === true;
 }
-el("motion-btn").addEventListener("click", function () {
-  motion = !motion;
-  save("motion", motion);
-  paintMotion();
+
+function a11ySet(key, on) {
+  if (key === "motion") save("motion", !on);
+  else save("a11y:" + key, on);
+}
+
+function paintA11y() {
+  var root = document.documentElement;
+  A11Y.forEach(function (s) {
+    var on = a11yOn(s.key);
+    if (s.key === "motion" && SYSTEM_MOTION.matches) on = true;
+    // The stylesheet asks whether to animate, which is the opposite of reducing motion.
+    if (s.key === "motion") root.dataset.motion = on ? "off" : "on";
+    else root.dataset[s.flag] = on ? "on" : "off";
+    var box = el(s.box);
+    if (box) {
+      box.checked = on;
+      if (s.key === "motion") {
+        box.disabled = SYSTEM_MOTION.matches;
+        el("a11y-motion-note").textContent = SYSTEM_MOTION.matches
+          ? "Your system already asks for this."
+          : "Stops the drifting symbols behind the page.";
+      }
+    }
+  });
+}
+
+A11Y.forEach(function (setting) {
+  var box = el(setting.box);
+  if (!box) return;
+  box.addEventListener("change", function () {
+    a11ySet(setting.key, this.checked);
+    paintA11y();
+  });
 });
-reducedMotion.addEventListener("change", paintMotion);
-paintMotion();
+
+if (el("a11y-reset")) {
+  el("a11y-reset").addEventListener("click", function () {
+    A11Y.forEach(function (s) { a11ySet(s.key, false); });
+    paintA11y();
+  });
+}
+
+// Close the menu on Escape or on a click anywhere else, the way a menu is expected to behave.
+document.addEventListener("click", function (e) {
+  var menu = el("a11y");
+  if (menu && menu.open && !menu.contains(e.target)) menu.open = false;
+});
+document.addEventListener("keydown", function (e) {
+  var menu = el("a11y");
+  if (e.key === "Escape" && menu && menu.open) {
+    menu.open = false;
+    menu.querySelector("summary").focus();
+  }
+});
+
+SYSTEM_MOTION.addEventListener("change", paintA11y);
+paintA11y();
 
 function paintChrome(section) {
   var links = el("section-tabs").querySelectorAll("a");
@@ -831,7 +891,8 @@ function paintAnswer() {
   if (rb) rb.addEventListener("click", function () {
     var was = quiz.topic;
     quiz = null;
-    if (was === "__missed" || was === "__bookmarks") missedPage(was === "__bookmarks");
+    if (was === "__bookmarks") bookmarksPage();
+    else if (was === "__missed") missedPage(false);
     else practicePage(q.topic);
   });
 }
@@ -1175,30 +1236,96 @@ function drawExamResults() {
 
 // ------------------------------------------------------------------ missed bank
 
+// A saved question is something you chose to come back to, so the page shows what is on the
+// list and lets you pick. Missed questions are a queue to work through, so that one still
+// starts straight away.
+function bookmarksPage() {
+  var saved = bookmarkedFor(division);
+  if (!saved.length) {
+    el("main").innerHTML = '<div class="wrap"><div class="eyebrow">' + division +
+      ' division</div><h1>Bookmarked questions</h1>' +
+      '<p class="empty">Nothing saved yet. Use <strong>Bookmark question</strong> while you are ' +
+      'practicing and it will wait for you here.</p>' +
+      '<div class="btn-row"><a class="btn" href="/practice">Back to practice</a></div></div>';
+    return;
+  }
+
+  var byTopic = {};
+  saved.forEach(function (q) {
+    (byTopic[q.topic] = byTopic[q.topic] || []).push(q);
+  });
+
+  var html = '<div class="wrap-wide"><div class="eyebrow">' + division + " division</div>" +
+    "<h1>Bookmarked questions</h1>" +
+    '<p class="note">' + saved.length + (saved.length === 1 ? " question" : " questions") +
+    " you saved. Open one on its own, or work through the whole list.</p>" +
+    '<div class="btn-row"><button class="btn btn-primary" id="review-all">Review all ' +
+    saved.length + "</button></div>";
+
+  TOPICS.forEach(function (t) {
+    var list = byTopic[t.id];
+    if (!list) return;
+    html += '<h2 class="saved-heading">' + esc(t.name) + "</h2><ul class=\"saved-list\">";
+    list.forEach(function (q) {
+      // The stem can be a diagram or a code block, so take the words rather than the markup.
+      var doc = document.createElement("div");
+      doc.innerHTML = q.q;
+      var stem = doc.textContent.replace(/\s+/g, " ").trim();
+      html += '<li><a href="' + questionLink(q) + '">' +
+        '<span class="saved-stem">' + esc(stem.length > 150 ? stem.slice(0, 150) + "…" : stem) +
+        '</span><span class="saved-id">' + esc(q.id) + "</span></a>" +
+        '<button class="linkish saved-drop" data-id="' + esc(q.id) +
+        '" aria-label="Remove ' + esc(q.id) + ' from bookmarks">Remove</button></li>';
+    });
+    html += "</ul>";
+  });
+
+  el("main").innerHTML = html + "</div>";
+
+  el("review-all").addEventListener("click", function () {
+    quiz = null;
+    startReview(true);
+  });
+
+  el("main").querySelectorAll(".saved-drop").forEach(function (b) {
+    b.addEventListener("click", function () {
+      forget("bookmark:" + this.getAttribute("data-id"));
+      bookmarksPage();
+    });
+  });
+}
+
+function startReview(bookmarks) {
+  var topic = bookmarks ? "__bookmarks" : "__missed";
+  var list = bookmarks ? bookmarkedFor(division) : missedFor(division);
+  if (!list.length) return bookmarks ? bookmarksPage() : missedPage(false);
+  var reviewIds = list.map(function (q) { return q.id; }).sort().join(",");
+  if (!quiz || quiz.topic !== topic || quiz.division !== division || quiz.reviewIds !== reviewIds) {
+    quiz = { topic: topic, division: division, reviewIds: reviewIds,
+             list: shuffle(list.slice()).map(presented), i: 0,
+             picked: null, right: 0, seen: 0 };
+  }
+  drawQuestion();
+}
+
 function missedPage(bookmarks) {
   // /missed?view=bookmarks was the address for about a day. Send it to its own page.
   if (!bookmarks && new URLSearchParams(location.search).get("view") === "bookmarks") {
     return go("/bookmarks");
   }
-  var topic = bookmarks ? "__bookmarks" : "__missed";
-  var missed = bookmarks ? bookmarkedFor(division) : missedFor(division);
+  if (bookmarks) return bookmarksPage();
+  var missed = missedFor(division);
   if (!missed.length) {
     var elsewhere = missedElsewhere(division);
     el("main").innerHTML = '<div class="wrap"><div class="eyebrow">' + division +
-      " division</div><h1>" + (bookmarks ? "Bookmarked questions" : "Missed questions") + "</h1>" +
-      '<p class="empty">' + (bookmarks ? "No bookmarks in this division yet. Use Bookmark question while practicing to save one here."
-        : "Questions you get wrong in practice or on a mock exam land here. Getting one right removes it.") +
-      (!bookmarks && elsewhere ? " You do have " + elsewhere + " missed in the other division." : "") +
+      " division</div><h1>Missed questions</h1>" +
+      '<p class="empty">Questions you get wrong in practice or on a mock exam land here. ' +
+      "Getting one right removes it." +
+      (elsewhere ? " You do have " + elsewhere + " missed in the other division." : "") +
       '</p><div class="btn-row"><a class="btn" href="/practice">Back to practice</a></div></div>';
     return;
   }
-  var reviewIds = missed.map(function (q) { return q.id; }).sort().join(",");
-  if (!quiz || quiz.topic !== topic || quiz.division !== division || quiz.reviewIds !== reviewIds) {
-    quiz = { topic: topic, division: division, reviewIds: reviewIds,
-             list: shuffle(missed.slice()).map(presented), i: 0,
-             picked: null, right: 0, seen: 0 };
-  }
-  drawQuestion();
+  startReview(false);
 }
 
 // ------------------------------------------------------------------ problems
@@ -1939,6 +2066,10 @@ function validSavedEntry(key, value) {
   if (key === "division") return value === "junior" || value === "senior";
   if (key === "theme") return value === "dark" || value === "light";
   if (key === "motion") return typeof value === "boolean";
+  if (key.indexOf("a11y:") === 0) {
+    return typeof value === "boolean"
+      && A11Y.some(function (s) { return "a11y:" + s.key === key; });
+  }
   if (key === "lang") return LANGS.some(function (lang) { return lang.id === value; });
   if (key === "editor-font") return Number.isInteger(value) && value >= 11 && value <= 22;
   if (key === "ws-split") return typeof value === "number" && value >= 0.2 && value <= 0.75;
