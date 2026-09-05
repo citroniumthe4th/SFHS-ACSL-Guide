@@ -968,6 +968,7 @@ function drawExamQuestion(focusTarget) {
     b.innerHTML = '<span class="key">' + "ABCDE".charAt(idx) + '</span><span class="val">' +
       esc(c) + "</span>";
     b.addEventListener("click", function () {
+      if (secondsLeft() === 0) return finishExam();
       exam.answers[exam.at] = exam.answers[exam.at] === idx ? null : idx;
       saveExam();
       drawExamQuestion(idx);
@@ -1082,8 +1083,9 @@ function missedPage(bookmarks) {
       '</p><div class="btn-row"><a class="btn" href="/practice">Back to practice</a></div></div>';
     return;
   }
-  if (!quiz || quiz.topic !== topic || quiz.division !== division) {
-    quiz = { topic: topic, division: division,
+  var reviewIds = missed.map(function (q) { return q.id; }).sort().join(",");
+  if (!quiz || quiz.topic !== topic || quiz.division !== division || quiz.reviewIds !== reviewIds) {
+    quiz = { topic: topic, division: division, reviewIds: reviewIds,
              list: shuffle(missed.slice()).map(presented), i: 0,
              picked: null, right: 0, seen: 0 };
   }

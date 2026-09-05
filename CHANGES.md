@@ -1,3 +1,29 @@
+# Third sanity check
+
+Branch: `experimental/guide-audit-fixes`
+Base: `fc13e2f` on `main`
+Date: September 5, 2026
+
+## Bugs and question corrections
+
+- **lp-05:** Removed a second correct answer. ACSL treats `NIL` and `()` as the same empty list; the replacement distractor is `(())`.
+- **pp-07:** Corrected `8 3 - 2 /` from 2 to **2.5**. No integer division was specified. The postfix checker now preserves fractions too.
+- **as-08:** Replaced a question that assumed unassigned memory starts at zero. The new question initializes memory with `DC` and tests the distinction between that memory and the accumulator.
+- C++ input drivers now trim and skip whitespace-only lines consistently with Python and Java. All three drivers reject incomplete parameter groups instead of silently dropping them. Existing saved student code is preserved; the updated drivers appear in fresh templates and reference solutions.
+- Returning to bookmarks or missed review rebuilds the question list when its membership changes.
+- Clicking an answer after a mock exam's deadline submits the exam without saving that late answer, even if the timer callback has been delayed.
+
+## Verification
+
+- Added 41 independently derived boundary expectations across all 24 programming problems. Python, Java, and C++ all pass them, along with the existing samples and tests.
+- Added driver checks for whitespace, CRLF input, parameter order, multiple cases, missing final newlines, and incomplete cases in all three languages.
+- Strengthened question verification to reject equivalent LISP choices, unsupported LISP functions, and reads of uninitialized assembly memory.
+- Passed 210 machine-checked bank answers, seven verifier regression tests, 2,400 generated-question checks, and the existing runtime checks, including 160 mock exams.
+- All 16 desktop/mobile browser tests passed, including completed-exam grading, explanation colors, bookmark removal, and delayed timers.
+- These checks run through the existing CI workflow. The intentional 60-character explanation floor is unchanged.
+
+Question corrections follow the official ACSL wiki references for [LISP](https://www.categories.acsl.org/wiki/index.php?title=LISP), [prefix/infix/postfix notation](https://www.categories.acsl.org/wiki/index.php?title=Prefix%2FInfix%2FPostfix_Notation), and [assembly](https://www.categories.acsl.org/wiki/index.php?title=Assembly_Language_Programming).
+
 # Second audit updates
 
 Branch: `experimental/guide-audit-fixes`

@@ -109,15 +109,15 @@ right, leaving the result in the accumulator, and nothing in memory changes unti
 Operand order changes the result of SUB and DIV. ADD and MULT give the same result either way.` },
 
 { id:"as-08", kind:"problem", topic:"assembly", level:"s",
-  q:`<pre><code>    LOAD  =0
-    PRINT ZERO
-    END</code></pre>What is printed, given that ZERO is never assigned?`,
-  choices:["0","nothing","an error","the accumulator value","None of the above"], ans:0,
-  check:`machine("LOAD =0; PRINT ZERO; END#")`,
-  why:`Every memory word starts at 0, so reading one that was never written gives 0 rather than
-an error of any kind. There is a second detail hiding in this program as well: PRINT takes a memory
-location rather than the accumulator, so the LOAD on the first line has no bearing at all on what gets
-printed.` },
+  q:`<pre><code>VALUE DC    5
+      LOAD  =0
+      PRINT VALUE
+      END</code></pre>What is printed?`,
+  choices:["5","nothing","an error","0","None of the above"], ans:0,
+  check:`machine("VALUE DC 5; LOAD =0; PRINT VALUE; END#")`,
+  why:`DC gives VALUE its initial value of 5. LOAD =0 changes the accumulator, but it does not
+write to VALUE. PRINT reads VALUE, so the output is 5. The accumulator starts at zero under ACSL's
+rules, but that does not make every unassigned memory word zero.` },
 
 { id:"as-09", kind:"problem", topic:"assembly", level:"s",
   q:`<pre><code>    READ  N

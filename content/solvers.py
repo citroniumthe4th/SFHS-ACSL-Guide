@@ -117,10 +117,12 @@ def postfix_eval(tokens):
         if len(t) == 1 and t in "+-*/":
             b, a = st.pop(), st.pop()
             st.append(a + b if t == "+" else a - b if t == "-"
-                      else a * b if t == "*" else _idiv(a, b))
+                      else a * b if t == "*" else a / b)
         else:
             st.append(int(t))
-    return st[-1]
+    if len(st) != 1:
+        raise ValueError("postfix expression must leave exactly one value")
+    return _numstr(st[0])
 
 
 # ------------------------------------------------------------- bit-string flicking
@@ -292,7 +294,9 @@ def lisp(expr):
             return wrap(elems(args[0])[1:])
         if fn == "CONS":
             return wrap([args[0]] + elems(args[1]))
-        return wrap(list(reversed(elems(args[0]))))
+        if fn == "REVERSE":
+            return wrap(list(reversed(elems(args[0]))))
+        raise ValueError("unsupported LISP function: " + fn)
 
     return ev(expr)
 
@@ -571,7 +575,7 @@ def machine(prog):
         code.append((op, arg))
 
     def val(a):
-        return int(a[1:]) if a[0] == "=" else mem.get(a, 0)
+        return int(a[1:]) if a[0] == "=" else mem[a]
 
     # READ, ADD, SUB and MULT are all modulo 1,000,000 in the ACSL reference; DIV is not, and
     # stores the signed integer part of the quotient. The reference does not spell out what the
@@ -606,7 +610,7 @@ def machine(prog):
             mem[arg] = wrap(int(data[di]))
             di += 1
         elif op == "PRINT":
-            out.append(str(mem.get(arg, 0)))
+            out.append(str(mem[arg]))
         elif op == "BU" or (op == "BG" and acc > 0) or (op == "BE" and acc == 0) \
                 or (op == "BL" and acc < 0):
             pc = labels[arg]
@@ -638,6 +642,12 @@ def _selfcheck():
     assert trav(ops, "height") == 3
     assert trav(ops, "ipl") == 15
     assert letters(trav(ops + ["-%d" % ord("M")], "in")) == "A A C E I N R"
+
+    # Postfix and prefix arithmetic keeps the fraction, and prints 4 rather than 4.0. The
+    # official page never divides inexactly, so this follows the rule ACSL does state for LISP
+    # rather than the one it states for assembly. Pinned so it cannot drift back quietly.
+    assert postfix_eval("8 3 - 2 /".split()) == "2.5", postfix_eval("8 3 - 2 /".split())
+    assert postfix_eval("8 2 /".split()) == "4", postfix_eval("8 2 /".split())
 
     # LISP: DIV is ordinary division, and SUB and DIV take exactly two arguments.
     assert lisp("(DIV 100 8)") == "12.5"

@@ -53,6 +53,12 @@ Python, Java, or C++. Two progressively more specific hints precede each solutio
 solution after solving no longer removes independent completion, and mobile readers can jump
 directly to the editor.
 
+The driver ships inside the editable template, so it becomes part of whatever a student saves.
+Changing it in `codegen.py` reaches new templates and the reference solutions, and never touches
+code somebody has already written; **Reset code** is the only way to pick up a newer driver, at the
+cost of the work in the box. That trade is deliberate, but it does mean the drivers in the wild are
+not all the same.
+
 The last six cases render nothing at all until you ask for the solution. Submitting tells you
 which of them pass without showing the inputs or the answers. They are hidden in the interface
 rather than secret, and the site says so, because the whole bundle reaches every browser. There
@@ -263,6 +269,12 @@ question:
 - **Assembly `READ`, `ADD`, `SUB` and `MULT` are modulo 1,000,000**, and `DIV` is not. The
   reference does not say what the modulus does to a negative; the magnitude wraps and the sign
   stays, which is the only reading that leaves `BL` able to fire.
+- **Postfix and prefix division keeps the fraction**, so `8 3 - 2 /` is 2.5. This one is not in the
+  reference at all: every worked example on the official page divides exactly, so the case never
+  comes up. It follows the rule ACSL does state for LISP rather than the one it states for assembly,
+  where `DIV` truncates. A quotient that does not terminate would print all sixteen digits Python
+  gives it; no question divides that way, and rounding it would mean inventing a rule nobody
+  published, so the honest fix if one ever appears is to reword the question.
 
 ## House style
 
@@ -337,11 +349,16 @@ carries a notice that it is not affiliated with or endorsed by ACSL.
 Contest rules change between seasons. `security.txt` carries an `Expires` date for the same
 reason the guides carry ACSL's conventions: both are worth rechecking each September.
 
-## License
+## Copyright
 
-The site content, problems, questions, and code are released under the MIT License, see
-[LICENSE](LICENSE). CodeMirror is vendored under `public/vendor/codemirror` and carries its own
-MIT license, included there.
+No license is granted. The lessons, questions, problems, explanations, reference solutions, and
+site code are the author's own, and reading them here is not permission to reuse them. See
+[LICENSE](LICENSE), and write to contact@sfhsacsl.org if you want to.
+
+Two things that notice cannot cover, because they are not the author's to give away. CodeMirror is
+vendored under `public/vendor/codemirror` and stays under its own MIT license, included there. The
+diagrams under `public/assets/diagrams` are reused under their own terms, credited in
+[ATTRIBUTION.md](public/assets/diagrams/ATTRIBUTION.md) and beside each diagram on the site.
 
 ## Backups and verification
 

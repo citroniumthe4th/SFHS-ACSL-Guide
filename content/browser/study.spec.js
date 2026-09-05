@@ -98,3 +98,63 @@ test('diagram question assets load without horizontal page overflow', async ({ p
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
 });
+
+test('returning to bookmarks drops a question removed during the previous visit', async ({ page }) => {
+  await page.goto('/guide');
+  await page.evaluate(() => {
+    window.MCQ.filter(q => q.level === 'b').slice(0, 2).forEach(q =>
+      localStorage.setItem('acsl:bookmark:' + q.id, 'true'));
+  });
+  await page.goto('/bookmarks');
+  await expect(page.locator('.quiz-count')).toHaveText('Question 1 of 2');
+  const removed = await page.getByRole('link', { name: 'Link to this question', exact: true }).getAttribute('href');
+  await page.getByRole('button', { name: 'Bookmarked', exact: true }).click();
+  // Use SPA navigation: reloading would hide the stale in-memory list.
+  await page.locator('#section-tabs a[href="/practice"]').click();
+  await page.locator('#section-tabs a[href="/bookmarks"]').click();
+  await expect(page.locator('.quiz-count')).toHaveText('Question 1 of 1');
+  await expect(page.getByRole('link', { name: 'Link to this question', exact: true })).not.toHaveAttribute('href', removed);
+});
+
+test('finishing an exam grades shuffled choices, blanks, and explanation colors', async ({ page }) => {
+  await page.goto('/exam/1');
+  const answers = await page.evaluate(() => {
+    const e = JSON.parse(localStorage.getItem('acsl:exam'));
+    return e.ids.map((id, i) => e.orders[i].indexOf(window.MCQ.find(q => q.id === id).ans));
+  });
+  await page.locator('#choices .choice').nth(answers[0]).click();
+  await page.locator('#next').click();
+  await page.locator('#choices .choice').nth((answers[1] + 1) % 5).click();
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#finish').click();
+  await expect(page.locator('.scoreline')).toHaveText('1 / 6');
+  await expect(page.locator('.review')).toHaveCount(6);
+  await expect(page.locator('.verdict', { hasText: 'Correct' })).toHaveCount(1);
+  await expect(page.locator('.verdict', { hasText: 'Not quite' })).toHaveCount(1);
+  await expect(page.locator('.verdict', { hasText: 'Left blank' })).toHaveCount(4);
+  const colors = await page.locator('.explain.wrong').first().evaluate(box => ({
+    heading: getComputedStyle(box.querySelector('h2')).color,
+    border: getComputedStyle(box).borderLeftColor,
+  }));
+  expect(colors.heading).toBe(colors.border);
+  expect(await page.evaluate(() => {
+    const e = JSON.parse(localStorage.getItem('acsl:exam'));
+    return e.ids.map(id => JSON.parse(localStorage.getItem('acsl:q:' + id)));
+  })).toEqual([true, false, false, false, false, false]);
+});
+
+test('a late answer cannot be saved while the exam timer callback is delayed', async ({ page }) => {
+  const start = new Date('2026-09-05T12:00:00Z');
+  await page.clock.install({ time: start });
+  await page.clock.pauseAt(start);
+  await page.goto('/exam/1');
+  const deadline = await page.evaluate(() => JSON.parse(localStorage.getItem('acsl:exam')).deadline);
+  // Advance Date without firing the interval, as can happen in a suspended tab.
+  await page.clock.setSystemTime(deadline + 1000);
+  await page.locator('#choices .choice').first().click();
+  await expect(page.locator('.scoreline')).toHaveText('0 / 6');
+  expect(await page.evaluate(() => {
+    const e = JSON.parse(localStorage.getItem('acsl:exam'));
+    return { submitted: e.submitted, answers: e.answers };
+  })).toEqual({ submitted: true, answers: [null, null, null, null, null, null] });
+});

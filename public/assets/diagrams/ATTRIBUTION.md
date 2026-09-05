@@ -16,7 +16,7 @@ Original downloads:
 - https://upload.wikimedia.org/wikipedia/commons/c/c1/LogicGates.svg
 
 No endorsement by the artists or ACSL is implied. The public-domain dedications and
-the CC BY license apply to these images independently of the repository's own license.
+the CC BY license apply to these images independently of the repository's own terms.
 
 ## Additional diagrams in the second audit
 
