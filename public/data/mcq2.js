@@ -155,7 +155,7 @@ RESULT = g(48,18)`,
   why:`Tracing gives g(48, 18), then g(18, 30), g(30, 18), g(18, 12), g(12, 6), and finally
 g(6, 6), which returns 6. If the shape looks familiar it should, because this is the subtraction form
 of the Euclidean algorithm and the value it computes is the greatest common divisor of the two
-arguments. Recognising that answers the question in a single step, provided you also check that the
+arguments. Recognizing that answers the question in a single step, provided you also check that the
 base case returns x itself rather than something derived from it.` },
 
 { id:"rf-10", kind:"problem", topic:"recursive-functions", level:"s",
@@ -168,7 +168,7 @@ def a(s):
     return 0 if s == 1 else (s//3)**2 + 4*a(s//3)
 RESULT = a(27)`,
   why:`Turn the description into a formula before computing anything. A square of side s paints
-a centre of area s squared over 9 and then repeats on four subsquares of side s over 3, so A(s) is
+a center of area s squared over 9 and then repeats on four subsquares of side s over 3, so A(s) is
 (s / 3) squared plus 4 times A(s / 3), with A(1) equal to 0. That gives A(3) equal to 1, then A(9)
 equal to 9 plus 4, then A(27) equal to 81 plus 52. The stopping rule is what decides the answer, so
 read it carefully before you start.` },
@@ -201,7 +201,7 @@ def f(n):
     return f(n-1)+n if n > 0 else 0
 RESULT = f(20)`,
   why:`This definition adds up the integers from 1 to n, so f(20) is 20 times 21 over 2. Tracing
-twenty levels by hand is where arithmetic errors breed, and recognising the closed form removes them
+twenty levels by hand is where arithmetic errors breed, and recognizing the closed form removes them
 entirely. Since 210 is not among the four choices offered, the answer is None of the above.` },
 
 { id:"rf-13", kind:"problem", topic:"recursive-functions", level:"s",
@@ -290,7 +290,7 @@ def f(m,n):
     if n == 0: return f(m-1, 1)
     return f(m-1, f(m, n-1))
 RESULT = f(2,3)`,
-  why:`This is the Ackermann function, and the skill it tests is recognising when not to trace.
+  why:`This is the Ackermann function, and the skill it tests is recognizing when not to trace.
 Each row has a closed form that you can build from the row below it. The m equal to 0 row is n + 1,
 feeding that back in gives f(1, n) equal to n + 2, and feeding that in again gives f(2, n) equal to
 2n + 3, so f(2, 3) is 9. Unwinding downward is not merely slow but impossible, since even f(4, 2) has

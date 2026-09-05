@@ -20,7 +20,7 @@ so on. To repeat the pair you have to write (ab)*.</p>
 
 <h2>Reading a machine</h2>
 <p>A finite state automaton is drawn as circles for states, an arrow from nowhere marking the start
-state, double circles for accepting states, and labelled arrows for transitions. You feed a string
+state, double circles for accepting states, and labeled arrows for transitions. You feed a string
 in one character at a time, follow the arrow that matches, and accept if you are standing on a
 double circle when the string runs out.</p>
 
@@ -30,7 +30,7 @@ double circle when the string runs out.</p>
 <p>Each 0 switches states, while a 1 leaves the state unchanged. The machine accepts exactly the binary strings with an even number of zeros, including no zeros. For 010, the states are S1, S2, S2, S1, so it accepts. For 01, it ends at S2 and rejects. The empty string is accepted because S1 is already an accepting state.</p>
 
 <h2>Turning a machine into an expression</h2>
-<p>Describe the routes from the start state to each accepting state, including loops and returns to earlier states. A self-loop labelled a contributes a*. A multi-state round trip must be grouped before adding a star. Combine alternative routes with a vertical bar, and check that the expression includes every allowed round trip.</p>
+<p>Describe the routes from the start state to each accepting state, including loops and returns to earlier states. A self-loop labeled a contributes a*. A multi-state round trip must be grouped before adding a star. Combine alternative routes with a vertical bar, and check that the expression includes every allowed round trip.</p>
 
 <p>Suppose a machine has states S and F, with S as the start and F as the only accepting state. From
 S, reading 0 goes to F. At F, reading 1 stays at F, and reading 0 goes back to S. The trip out is a
@@ -58,13 +58,13 @@ each one accepts and check the two descriptions say the same thing.</p>
 and a+ is the same as aa* and as a*a. Two plausible-looking equalities are false and appear as wrong
 answers constantly. The pattern (a|b)* is not a*b*, because the first accepts abab and the second
 insists that every a come before every b. For the same reason (ab)* is not a*b*. Both are worth
-memorising specifically as false.</p>
+memorizing specifically as false.</p>
 
 <h2>Counting matches</h2>
 <p>When counting accepted strings, count distinct strings, not different ways to match them. You can split by repetition counts only when the resulting groups do not overlap. For example, a*a* accepts just one string of length 2, aa, although its two stars can split those characters in three ways.</p>
 
 
-<p>Check the scope of each operator. In ab*, the star applies only to b, so the whole expression still requires an a. In ab|cd, the alternatives are ab and cd. When tracing a machine, follow one labelled transition per input character and check that the final state is accepting. A missing transition rejects that input.</p>
+<p>Check the scope of each operator. In ab*, the star applies only to b, so the whole expression still requires an a. In ab|cd, the alternatives are ab and cd. When tracing a machine, follow one labeled transition per input character and check that the final state is accepting. A missing transition rejects that input.</p>
 `,
 
 "wdtpd-arrays": `

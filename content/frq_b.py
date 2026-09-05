@@ -388,7 +388,7 @@ dict(
     blurb="Wedge operators between digits, evaluate strictly left to right, and count the hits.",
     statement="""
 <p>You are given a string of digits and a target value. Leave the digits exactly where they are
-and slot one operator into each gap between neighbouring digits. The only operators allowed are
+and slot one operator into each gap between neighboring digits. The only operators allowed are
 +, &minus;, and *, and each gap must get exactly one of them.</p>
 
 <p>Evaluate the result strictly left to right, with no precedence at all. Multiplication does not

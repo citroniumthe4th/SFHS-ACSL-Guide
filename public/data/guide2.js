@@ -68,13 +68,13 @@ made an arithmetic error.</p>
 <p>Two dimensional arrays are written with the row first, so A(i, j) means row i and column j. When
 a program walks a matrix and swaps A(i, j) with A(j, i) it is transposing, and the loop bounds
 decide whether it does each swap once or twice. Swapping across the entire square performs every
-exchange twice and therefore leaves the matrix exactly as it was, which is a favourite trick and
+exchange twice and therefore leaves the matrix exactly as it was, which is a favorite trick and
 looks like a bug in your own working, when it is the point of the question.</p>
 
 <h2>Strings</h2>
 <p>Strings index from zero, so for S = "PROGRAM" the first character is S[0] and the last is S[6].
 The substring notation is where ACSL differs from the languages you have written in, and it differs
-in two ways. A single bound is a count of characters taken from the end the colon leans towards, so
+in two ways. A single bound is a count of characters taken from the end the colon leans toward, so
 S[:3] is the first three characters, PRO, and S[4:] is the last four, GRAM. Two bounds are positions
 and the second is included, so S[2:5] is positions 2 through 5, which is OGRA, not OGR.</p>
 

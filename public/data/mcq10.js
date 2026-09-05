@@ -36,7 +36,7 @@ length 3 go from A to D?`,
   why:`The graph is bipartite, with A and D on one side and B and C on the other, and every edge
 crosses between the two sides. A path of odd length therefore always finishes on the opposite side
 from where it began, and since A and D sit on the same side, no odd length path can connect them at
-all. Recognising the bipartite structure answers the question without any arithmetic.` },
+all. Recognizing the bipartite structure answers the question without any arithmetic.` },
 
 { id:"gt-05", kind:"problem", topic:"graph-theory", level:"b",
   q:`How many edges does a tree with 12 vertices have?`,
@@ -137,7 +137,7 @@ it.` },
 edges, how many paths of length 2 go from B to C?`,
   choices:["1","0","2","4","None of the above"], ans:0,
   check:`str(walks(5,2,'B','C','0111110000100001000010000'))`,
-  why:`This is a star with A at the centre, so every edge touches A and any two step path between
+  why:`This is a star with A at the center, so every edge touches A and any two step path between
 two leaves has to pass through it. There is exactly one such route between any given pair of leaves,
 and the same reasoning gives a count of 1 from a leaf back to itself as well.` },
 
@@ -148,7 +148,7 @@ and the same reasoning gives a count of 1 from a leaf back to itself as well.` }
 m of M(i, m) times M(m, j) in that position. Each of those products is 1 exactly when both the edge
 from i to m and the edge from m to j exist, so the sum counts the middle vertices that complete a two
 step route. Applying the same argument one step at a time gives every higher power, and it is worth
-following rather than memorising, because it is what tells you the counts allow repeats, making
+following rather than memorizing, because it is what tells you the counts allow repeats, making
 them paths in ACSL's sense rather than simple paths.` },
 
 { id:"gt-17", kind:"problem", topic:"graph-theory", level:"b",
@@ -165,7 +165,7 @@ column 4 contains 0. The row is 0 0 1 0 1 1.` },
 edges.</p>`,
   choices:["1","2","3","0","None of the above"], ans:0,
   check:`str(walks(6, 2, 'A', 'D', '010010101010010100001011110100000100'))`,
-  why:`A two-edge path has one intermediate vertex. The neighbours of 1 are 2 and 5, and the neighbours of
+  why:`A two-edge path has one intermediate vertex. The neighbors of 1 are 2 and 5, and the neighbors of
 4 are 3, 5, and 6. Only 5 appears in both sets, so the only path is 1 to 5 to 4. This is also the
 row 1, column 4 entry of the squared adjacency matrix.` }
 

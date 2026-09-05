@@ -118,7 +118,7 @@ whichever is shorter. Before doing either, reduce the count modulo the length, s
 four bit string is really RCIRC-1 and trying to count nine positions round a four bit string is how
 bits go missing.</p>
 
-<p>Shifting by the length or more gives all zeros, which is a legitimate answer and not an error. A few identities are worth recognising on sight as well: X XOR X is all zeros, X XOR with
+<p>Shifting by the length or more gives all zeros, which is a legitimate answer and not an error. A few identities are worth recognizing on sight as well: X XOR X is all zeros, X XOR with
 all zeros leaves X alone, and X XOR with all ones is the complement of X, so an exclusive or
 against a solid row of ones can simply be read as a tilde. Similarly X AND with the complement of X
 is all zeros, X OR with the complement of X is all ones, and a double complement can be crossed out

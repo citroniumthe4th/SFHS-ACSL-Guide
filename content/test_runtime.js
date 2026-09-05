@@ -184,17 +184,17 @@ async function main() {
   assert.equal((await call()).data.status, "runtime_error");
   api.fetch = async () => Response.json({ status: "1", compiler_error: "bad code" });
   assert.equal((await call()).data.status, "compile_error");
-  let cancelled = false;
+  let canceled = false;
   api.fetch = async () => new Response(new ReadableStream({
     start(controller) { controller.enqueue(new Uint8Array(1024 * 1024 + 1)); },
-    cancel() { cancelled = true; },
+    cancel() { canceled = true; },
   }));
   assert.match((await call()).data.message, /too much output/);
-  assert.equal(cancelled, true, "oversized upstream streams must be cancelled");
-  cancelled = false;
-  api.fetch = async () => ({ ok: false, status: 503, body: { cancel: async () => { cancelled = true; } } });
+  assert.equal(canceled, true, "oversized upstream streams must be canceled");
+  canceled = false;
+  api.fetch = async () => ({ ok: false, status: 503, body: { cancel: async () => { canceled = true; } } });
   assert.equal((await call()).data.status, "error");
-  assert.equal(cancelled, true, "discard error bodies without buffering them");
+  assert.equal(canceled, true, "discard error bodies without buffering them");
   api.fetch = async () => Response.json(null);
   assert.equal((await call()).data.status, "error");
   api.fetch = async () => Response.json({ compiler_error: {} });

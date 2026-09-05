@@ -499,7 +499,7 @@ dict(
 wall it cannot enter, and the letter R marks the square it starts on. It begins facing north,
 meaning toward the top of the plan.</p>
 
-<p>The robot has exactly one behaviour, and it repeats it once per step. It looks at the square
+<p>The robot has exactly one behavior, and it repeats it once per step. It looks at the square
 directly ahead of it. If that square is inside the plan and is not a wall, it drives into that
 square. Otherwise it stays put and turns 90 degrees to its right, from north to east, east to
 south, south to west, and west back to north. Either way, that used up one step.</p>
@@ -514,7 +514,7 @@ and which way it ends up facing.</p>
 <table class="ex"><tr><th>Input</th><td>...;.R.;...<br>6</td></tr>
 <tr><th>Output</th><td>5 S</td></tr>
 <tr><th>Explanation</th><td>
-The robot starts in the centre of the 3 by 3 plan facing north. That square counts as cleaned, so
+The robot starts in the center of the 3 by 3 plan facing north. That square counts as cleaned, so
 the tally starts at 1.<br>
 Step 1 drives north to the top middle square. Tally 2.<br>
 Step 2 finds the edge of the plan ahead, so the robot turns to face east.<br>

@@ -137,7 +137,7 @@ OUT PRINT S
   choices:["5051", "100", "4950", "10000", "None of the above"], ans:4,
   check:`machine("READ N; LOAD =0; STORE S; TOP LOAD N; BE OUT; LOAD S; ADD N; STORE S; LOAD N; SUB =1; STORE N; BU TOP; OUT PRINT S; END#100")`,
   why:`The loop adds N to a running sum and then decrements N, so it computes 100 + 99 + ... + 1,
-which is 100 times 101 over 2. Recognising the shape of a program lets you reach for the closed form
+which is 100 times 101 over 2. Recognizing the shape of a program lets you reach for the closed form
 instead of tracing a hundred passes, and that recognition is most of the skill in this category. Since
 5050 is not among the four choices offered, the answer is None of the above.` },
 
@@ -220,7 +220,7 @@ reading deliberately every single time.` },
   choices:["COMTER","COMPTER","COMUTER","COMPUTER","None of the above"], ans:2,
   check:`substr("COMPUTER", None, 3) + substr("COMPUTER", 4, None)`,
   why:`A substring written with one bound is a count of characters, taken from whichever end the
-colon leans towards. So S[:3] is the first three characters, COM, and S[4:] is the last four, UTER,
+colon leans toward. So S[:3] is the first three characters, COM, and S[4:] is the last four, UTER,
 since COMPUTER has eight characters and the last four begin at position 4. Joining them gives
 COMUTER, with P at position 3 the only character dropped. Reading S[4:] as everything from position 4
 onward is the Python rule and would give the same answer here only by coincidence of length, so check

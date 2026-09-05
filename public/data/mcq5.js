@@ -98,7 +98,7 @@ and third differ, and the fourth agree, producing 0110.` },
   why:`Exclusive or gives 1 exactly where the two bits differ, and against a solid row of ones
 every bit differs from its own inverse, so every position flips. That is precisely what the complement
 does. The other three choices all leave the string exactly as it was, which makes them worth knowing
-for the opposite reason: they are the identity operations you can recognise and skip.` },
+for the opposite reason: they are the identity operations you can recognize and skip.` },
 
 { id:"bs-12", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`Evaluate (11110000 | 00001111) &amp; ~10101010.`,
@@ -132,7 +132,7 @@ inert is a useful check that the earlier steps were right.` },
   check:`flick('RCIRC-1 LCIRC-1 1101101')`,
   why:`Unary operators associate from the right, so LCIRC-1 is applied first and RCIRC-1 acts on
 its result. Circulating left by one and then right by one puts every bit back where it started, so the
-string is returned unchanged. Recognising that on sight is worth doing, because working it through
+string is returned unchanged. Recognizing that on sight is worth doing, because working it through
 arithmetically takes twice as long and offers twice as many chances to slip.` },
 
 { id:"bs-16", kind:"problem", topic:"bit-string-flicking", level:"s",

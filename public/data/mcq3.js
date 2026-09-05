@@ -15,7 +15,7 @@ while A > 0:
     A = A - B
     B = B + 2
 RESULT = A`,
-  why:`Build the table and the answer stops being a judgement call. A runs 50, 40, 28, 14, and
+  why:`Build the table and the answer stops being a judgment call. A runs 50, 40, 28, 14, and
 then -2, while B runs 10, 12, 14, 16, and 18. Because the condition is tested before each pass
 rather than after, the pass that begins with A holding 14 still runs and is what drives A negative.
 Answering 14 means you stopped at the last value that looked reasonable instead of letting the final
@@ -122,7 +122,7 @@ for I in range(1, 5):
     A[I] = A[I] + A[I+1]
 RESULT = A[1] + A[4]`,
   why:`Because the loop moves left to right and only ever writes at I, every read reaches a
-neighbour that has not been touched yet. A(1) becomes 3 plus 1, or 4, then A(2) becomes 1 plus 4, or
+neighbor that has not been touched yet. A(1) becomes 3 plus 1, or 4, then A(2) becomes 1 plus 4, or
 5, then A(3) becomes 4 plus 1, or 5, and A(4) becomes 1 plus 5, or 6. The sum asked for is therefore
 4 plus 6. Had the loop run right to left, the reads would have hit already updated values and the
 array would have come out differently.` },
@@ -153,7 +153,7 @@ while N > 0:
     R = R*10 + N % 10
     N = N // 10
 RESULT = R`,
-  why:`This is the standard digit reversal, and recognising it saves the trace. Each pass peels
+  why:`This is the standard digit reversal, and recognizing it saves the trace. Each pass peels
 the last digit off N with the modulo and pushes it onto R by multiplying R by 10 first, so R runs 4,
 43, 432, and 4321 while N runs 123, 12, 1, and 0. Do confirm that the loop continues while N is
 greater than 0 rather than greater than 9, since the second version would stop early and drop the
@@ -189,7 +189,7 @@ A = A + B
 B = A - B
 A = A - B
 RESULT = A*10 + B`,
-  why:`These three lines are the classic swap without a temporary variable, and recognising the
+  why:`These three lines are the classic swap without a temporary variable, and recognizing the
 idiom is safer than tracing it, because tracing it blind is easy to get backwards. Afterwards A holds
 3 and B holds 7, so A times 10 plus B is 30 plus 7.` },
 

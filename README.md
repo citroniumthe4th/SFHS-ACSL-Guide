@@ -120,7 +120,7 @@ python3 server.py
 
 Then open http://127.0.0.1:8777. The local server compiles with whatever toolchain is on your
 machine (`python3`, `javac`, `c++`), so it works offline but needs those installed. It mirrors the
-production routing, headers, and 404 behaviour, so a policy that breaks the site breaks it here
+production routing, headers, and 404 behavior, so a policy that breaks the site breaks it here
 first.
 
 ## Deploying to Vercel
@@ -253,7 +253,7 @@ each was wrong in a way that still produced a confident answer, because the solv
 question:
 
 - **Substrings are not Python slices.** One bound is a count taken from the end the colon leans
-  towards; two bounds are positions with the second one included. `S[4:]` is the last four
+  toward; two bounds are positions with the second one included. `S[4:]` is the last four
   characters, and `S[2:6]` is five characters.
 - **Duplicate keys go left** in a binary search tree, and deleting a node with two children
   promotes the left child and grafts the right subtree onto it. Both differ from what most
@@ -263,6 +263,12 @@ question:
 - **Assembly `READ`, `ADD`, `SUB` and `MULT` are modulo 1,000,000**, and `DIV` is not. The
   reference does not say what the modulus does to a negative; the magnitude wraps and the sign
   stays, which is the only reading that leaves `BL` able to fire.
+
+## House style
+
+American spelling throughout: color, center, neighbor, practice, recognize, labeled, modeling.
+The corpus started out mixed and has drifted twice, so a sweep is worth running before a large
+content change lands.
 
 ## Generated questions
 
@@ -317,7 +323,7 @@ public/                the site
 
 Skip link, a visible focus ring on everything interactive, `aria-current` on the active tab and
 sidebar link, `aria-pressed` on the division buttons, a theme button that names what pressing it
-will do, a labelled language selector, and polite live regions for run results and answer
+will do, a labeled language selector, and polite live regions for run results and answer
 feedback. Headings run in sequence with nothing skipped. Body and faint text clear 4.5:1 against
 every surface they sit on, in both themes.
 

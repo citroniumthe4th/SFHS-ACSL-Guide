@@ -11,7 +11,7 @@ window.GUIDE = Object.assign(window.GUIDE || {}, {
 <p>ACSL focuses on binary, octal, decimal, and hexadecimal. They use digits 0 through 1, 7, 9, and 15 respectively, with A through F standing for 10 through 15 in hexadecimal. This site also includes a few extension questions in other bases, marked separately in practice.</p>
 
 <h2>What to have memorized</h2>
-<p>The ACSL wiki recommends knowing powers of 2 and 8 through 4096, powers of 16 through 65,536, and the binary values of octal and hexadecimal digits. Each octal digit corresponds to three bits, and each hexadecimal digit to four. Start with the table below and practise converting small numbers without looking.</p>
+<p>The ACSL wiki recommends knowing powers of 2 and 8 through 4096, powers of 16 through 65,536, and the binary values of octal and hexadecimal digits. Each octal digit corresponds to three bits, and each hexadecimal digit to four. Start with the table below and practice converting small numbers without looking.</p>
 
 <table class="tbl">
 <tr><th>Hex</th><th>Binary</th><th>Dec</th><th>Hex</th><th>Binary</th><th>Dec</th></tr>
@@ -73,13 +73,13 @@ one third in decimal is 0.333 forever, so a problem asking for a fixed number of
 how many.</p>
 
 <h2>What the questions actually look like</h2>
-<p>Practise conversions between bases and arithmetic within a base. For conversions between binary, octal, and hexadecimal, grouping bits is useful. For subtraction, write each borrow above the column it changes.</p>
+<p>Practice conversions between bases and arithmetic within a base. For conversions between binary, octal, and hexadecimal, grouping bits is useful. For subtraction, write each borrow above the column it changes.</p>
 
 <p>A third kind gives you an equation and asks for the base. If 34 in base b equals 28, then
 3b + 4 = 28, so b is 8, and you should confirm that every digit used is legal in the base you
 found. Counting problems turn up as well, asking how many three digit numbers in some base have no
 repeated digit, or how many numbers in a range look a particular way in two bases at once. Finally
-there are application problems, most often RGB colour codes, where you split six hex digits into
+there are application problems, most often RGB color codes, where you split six hex digits into
 three pairs and treat each pair as its own number between 0 and 255.</p>
 `,
 
@@ -134,7 +134,7 @@ entries and about a minute.</p>
 
 <p>The same trick works for any definition that only ever reaches downward. If g(n) depends on
 g(n - 1) and g(n - 3), keep those three columns and read across. What you are doing by hand is
-exactly what a programmer means by memoisation, and it is worth recognising that connection,
+exactly what a programmer means by memoisation, and it is worth recognizing that connection,
 because the same problem shows up in the programming half of the contest.</p>
 
 <h2>Definitions disguised as pictures</h2>

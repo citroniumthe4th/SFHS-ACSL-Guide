@@ -43,7 +43,7 @@ component. What is the new hexadecimal color?`,
   choices:["#EF9C80","#EEAC7F","#F09D80","#FFAC7F","None of the above"], ans:0,
   check:`
 RESULT = "#" + "".join(to_base(from_base(c,16)+6, 16).rjust(2,'0') for c in ['E9','96','7A'])`,
-  why:`A colour code is three separate numbers that happen to be written side by side, so split
+  why:`A color code is three separate numbers that happen to be written side by side, so split
 the six digits into pairs and add 6 to each pair on its own, never letting a carry cross from one
 component into the next. E9 plus 6 is EF and 96 plus 6 is 9C, both straightforward. The third pair
 is where the arithmetic bites, since 7A plus 6 needs A plus 6, which is sixteen, so the low digit

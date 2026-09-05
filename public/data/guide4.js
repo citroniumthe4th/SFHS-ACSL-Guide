@@ -120,7 +120,7 @@ next i</code></pre>
 <p>The inner loop runs 4 times when i is 1, then 3, then 2, then 1, so c ends at 10. Whenever you
 see the outer counter appear in the inner bound, expect a triangular count like this and not a rectangle, and add the row lengths rather than multiplying.</p>
 
-<h2>Recognising what a loop is for</h2>
+<h2>Recognizing what a loop is for</h2>
 <p>Most of these programs are doing one of a handful of things, and naming the pattern tells you
 roughly what answer to expect before you have finished tracing, which is a useful check on your own
 arithmetic. A running sum or product starts at 0 or 1 and combines something in on each pass. A

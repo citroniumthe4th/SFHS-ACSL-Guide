@@ -134,7 +134,7 @@ output 1?`,
   choices:["1","2","3","4","None of the above"], ans:0,
   check:`str(circuit("G1 = OR A B, G2 = NOT G1"))`,
   why:`An OR followed by a NOT is simply a NOR gate, which goes high only when both inputs are
-low, so one row of the four. Recognising that pairing, along with an AND followed by a NOT being a
+low, so one row of the four. Recognizing that pairing, along with an AND followed by a NOT being a
 NAND, saves a step every time a diagram spells one of them out the long way.` },
 
 { id:"de-16", kind:"concept", topic:"digital-electronics", level:"s",

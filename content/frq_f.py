@@ -186,12 +186,12 @@ square starts covered.</p>
 
 <p>Clicking a square that hides a mine ends the game.</p>
 
-<p>Clicking a safe square uncovers it and writes on it the number of mines among its neighbours,
+<p>Clicking a safe square uncovers it and writes on it the number of mines among its neighbors,
 counting all eight squares that touch it, including the four diagonals. Squares off the edge of
-the board are not neighbours.</p>
+the board are not neighbors.</p>
 
 <p>If that number turns out to be zero, there is nothing nearby worth being careful about, so the
-game uncovers all eight of its neighbours as well, and applies the same rule to each of them in
+game uncovers all eight of its neighbors as well, and applies the same rule to each of them in
 turn. The opening spreads until it is walled in by squares that do have a mine next to them,
 which get uncovered and show their number but do not spread any further.</p>
 """,
@@ -204,7 +204,7 @@ The field is 3 rows of 4, with one mine at row 1, column 1:
 . * . .
 . . . .</code></pre>
 The click is row 0, column 3. Nothing in the eight squares around it hides a mine, so it opens
-showing 0 and spreads to its neighbours.<br>
+showing 0 and spreads to its neighbors.<br>
 Row 1 column 3 and row 2 column 3 also have no mine beside them, so they open showing 0 and
 spread in turn. That is the whole rightmost column.<br>
 Every square in column 2 touches the mine, so each opens showing 1 and stops there. They are the
@@ -249,16 +249,16 @@ square.</li>
            ["*........*;..........;..........;..........;*........*", "2", "5"]],
     approach="""
 <p>Three parts, of which only the middle one is interesting: count the
-neighbours of a square, spread the opening, then print.</p>
+neighbors of a square, spread the opening, then print.</p>
 
-<p>Write the neighbour count as a function of its own. Loop the row offset and the column offset each
+<p>Write the neighbor count as a function of its own. Loop the row offset and the column offset each
 from minus one to one, skip the pair where both are zero, discard anything falling off the board, and
 add one for every asterisk. Getting that right once means you never have to think about the eight
 directions again.</p>
 
 <p>For the spread, use a queue rather than recursion. Push the clicked square, then repeatedly pop one,
 skipping it if it is already uncovered and otherwise uncovering it and recording its count. Only when
-that count is zero do you push its eight neighbours, and that single condition is the whole rule, since
+that count is zero do you push its eight neighbors, and that single condition is the whole rule, since
 a square with a mine beside it is uncovered but is a dead end. Recursion works too, but a 20 by 20 field
 of open ground goes 400 frames deep, which is comfortable in C++ and Java and close enough to Python's
 default limit to be worth avoiding.</p>
@@ -273,7 +273,7 @@ nothing.</p>
 """,
     sol=dict(
         python_helpers="""
-def neighbours(grid, r, c):
+def neighbors(grid, r, c):
     total = 0
     for dr in (-1, 0, 1):
         for dc in (-1, 0, 1):
@@ -297,7 +297,7 @@ while head < len(queue):
     head += 1
     if shown[r][c] != ".":
         continue
-    n = neighbours(grid, r, c)
+    n = neighbors(grid, r, c)
     shown[r][c] = str(n)
     if n == 0:
         for dr in (-1, 0, 1):
@@ -308,7 +308,7 @@ while head < len(queue):
 return ";".join("".join(rowchars) for rowchars in shown)
 """,
         java_helpers="""
-static int neighbours(String[] grid, int r, int c) {
+static int neighbors(String[] grid, int r, int c) {
     int total = 0;
     for (int dr = -1; dr <= 1; dr++) {
         for (int dc = -1; dc <= 1; dc++) {
@@ -333,7 +333,7 @@ while (!queue.isEmpty()) {
     int[] cur = queue.poll();
     int r = cur[0], c = cur[1];
     if (shown[r][c] != '.') continue;
-    int n = neighbours(grid, r, c);
+    int n = neighbors(grid, r, c);
     shown[r][c] = (char) ('0' + n);
     if (n == 0) {
         for (int dr = -1; dr <= 1; dr++) {
@@ -354,7 +354,7 @@ for (int r = 0; r < h; r++) {
 return out.toString();
 """,
         cpp_helpers="""
-static int neighbours(const vector<string> &grid, int r, int c) {
+static int neighbors(const vector<string> &grid, int r, int c) {
     int total = 0;
     for (int dr = -1; dr <= 1; dr++) {
         for (int dc = -1; dc <= 1; dc++) {
@@ -382,7 +382,7 @@ while (!q.empty()) {
     q.pop_front();
     int r = cur.first, c = cur.second;
     if (shown[r][c] != '.') continue;
-    int n = neighbours(grid, r, c);
+    int n = neighbors(grid, r, c);
     shown[r][c] = char('0' + n);
     if (n == 0) {
         for (int dr = -1; dr <= 1; dr++) {
@@ -636,7 +636,7 @@ at once for free, and it sidesteps the classic bug of deleting row by row while 
 skips a row every time one is removed.</p>
 
 <p>Note too that clearing can drop material into a column that was empty below it, which is exactly why
-the well has to be modelled square by square. A solution that adjusts the heights arithmetically after a
+the well has to be modeled square by square. A solution that adjusts the heights arithmetically after a
 clear gets the first sample right and then drifts.</p>
 
 <p>Parsing is a split on the space, then the first character for the shape, everything between it and

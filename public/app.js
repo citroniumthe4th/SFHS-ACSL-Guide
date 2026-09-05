@@ -148,7 +148,7 @@ function missedElsewhere(div) {
 }
 
 // Every question in the bank was written with its right answer first and its distractors
-// after it, which is the natural way to write one and a disaster to practise against: 195 of
+// after it, which is the natural way to write one and a disaster to practice against: 195 of
 // the 219 correct answers sat in position A. So no question is ever shown in the order it was
 // stored. The stored order stays canonical, which is what verify.py checks against, and the
 // order a student sees is decided here.
@@ -270,7 +270,7 @@ function metaFor(r) {
                + "every question."],
     missed:   ["Missed questions" + suffix, "The questions you got wrong, waiting to be "
                + "tried again."],
-    bookmarks: ["Bookmarked questions" + suffix, "The questions you saved while practising, "
+    bookmarks: ["Bookmarked questions" + suffix, "The questions you saved while practicing, "
                + "ready to work through again."],
     problems: ["Programming problems" + suffix,
                "ACSL style programming problems with twelve test cases, solvable in Python, "
@@ -644,7 +644,7 @@ function drawQuestion() {
   var t = topicById(missedMode ? q.topic : quiz.topic);
   var heading = bookmarksMode ? "Bookmarked questions" : missedMode ? "Missed questions" : t.name;
   var crumb = missedMode
-    ? (bookmarksMode ? 'Questions you saved while practising'
+    ? (bookmarksMode ? 'Questions you saved while practicing'
                        : '<a href="/practice">Practice</a> &middot; questions you got wrong')
     : '<a href="/practice">Practice</a> &middot; ' + CONTEST_NAMES[t.contest];
 
@@ -661,7 +661,7 @@ function drawQuestion() {
           '<button class="' + (quiz.endless ? "" : "on") + '" data-endless="0">Question bank' +
           "</button>" +
           '<button class="' + (quiz.endless ? "on" : "") + '" data-endless="1">Endless</button>' +
-          '<span class="note">' + (quiz.requested ? "Shared question. Choose a mode to continue practising this category." : quiz.endless
+          '<span class="note">' + (quiz.requested ? "Shared question. Choose a mode to continue practicing this category." : quiz.endless
             ? "Generated fresh each time, so you are very unlikely to see the same one twice. "
               + "Missed questions are saved so you can retry the same version."
             : "Fixed question bank. " + questionsFor(quiz.topic, quiz.division).length
@@ -1076,7 +1076,7 @@ function missedPage(bookmarks) {
     var elsewhere = missedElsewhere(division);
     el("main").innerHTML = '<div class="wrap"><div class="eyebrow">' + division +
       " division</div><h1>" + (bookmarks ? "Bookmarked questions" : "Missed questions") + "</h1>" +
-      '<p class="empty">' + (bookmarks ? "No bookmarks in this division yet. Use Bookmark question while practising to save one here."
+      '<p class="empty">' + (bookmarks ? "No bookmarks in this division yet. Use Bookmark question while practicing to save one here."
         : "Questions you get wrong in practice or on a mock exam land here. Getting one right removes it.") +
       (!bookmarks && elsewhere ? " You do have " + elsewhere + " missed in the other division." : "") +
       '</p><div class="btn-row"><a class="btn" href="/practice">Back to practice</a></div></div>';
@@ -1768,7 +1768,7 @@ function render() {
   }
 }
 
-// Backups contain only recognised study data. Validate the complete file before writing.
+// Backups contain only recognized study data. Validate the complete file before writing.
 function validSavedEntry(key, value) {
   if (key === "division") return value === "junior" || value === "senior";
   if (key === "theme") return value === "dark" || value === "light";

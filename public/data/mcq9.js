@@ -182,7 +182,7 @@ RESULT = sum(1 for I in range(4) if A[I] > A[I+1])`,
   why:`The loop counts the places where a value is larger than the one immediately after it.
 Comparing 5 with 3 counts, 3 with 9 does not, 9 with 1 counts, and 1 with 7 does not, giving 2. Note
 that the loop stops at index 4 so that A(I + 1) stays inside the array, which is the standard bound
-for any loop comparing neighbours.` },
+for any loop comparing neighbors.` },
 
 { id:"wa-06", kind:"problem", topic:"wdtpd-arrays", level:"j",
   q:`Array A holds 1, 2, 3, 4, 5 at indices 1 through 5. After for i = 1 to 5 with the body that
@@ -232,7 +232,7 @@ for I in range(2,6):
 RESULT = A[5]`,
   why:`Each slot accumulates everything before it, so the array turns into a running total of 3,
 4, 8, 9, and 14. Because the loop moves left to right, A(I - 1) has already been updated by the time
-it is read, and that is what turns what looks like a simple neighbour sum into a prefix sum. Running
+it is read, and that is what turns what looks like a simple neighbor sum into a prefix sum. Running
 the same loop backwards would produce a completely different array.` },
 
 { id:"wa-10", kind:"concept", topic:"wdtpd-arrays", level:"j",

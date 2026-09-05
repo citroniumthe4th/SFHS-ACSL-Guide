@@ -62,7 +62,7 @@ separated by semicolons.</li>
            "..#..;.....;#...#;.....;..#..",
            "...........;.#.#.#.#.#.;...........;.#.#.#.#.#.;...........;.#.#.#.#.#.;..........."],
     approach="""
-<p>The obvious recursion, where each square asks its right neighbour and its lower neighbour how
+<p>The obvious recursion, where each square asks its right neighbor and its lower neighbor how
 many routes they see, gives the right answer but does far too much work. It re-solves the same square
 once for every distinct route that reaches it, so its running time grows with the number of routes
 rather than with the size of the grid, and on a 17 by 17 grid the number of routes runs into the
@@ -393,8 +393,8 @@ one to the other. The board is empty, so nothing blocks the way.</p>
 <tr><th>Output</th><td>6</td></tr>
 <tr><th>Explanation</th><td>
 One shortest route is a1, b3, c5, d7, e5, f7, h8.<br>
-That is six moves, and no route of five exists. A knight alternates square colour on every move,
-and a1 and h8 are the same colour, so any route between them takes an even number of moves. Four
+That is six moves, and no route of five exists. A knight alternates square color on every move,
+and a1 and h8 are the same color, so any route between them takes an even number of moves. Four
 is not enough to cross the whole board, which leaves six.
 </td></tr></table>
 """,

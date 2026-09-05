@@ -935,7 +935,7 @@ details.reveal > div { padding: 0 14px 14px; }
 
 /* The platform scrollbar draws a pale strip down the page, which is loud on a dark theme and
    worst in the workspace, where the statement, the editor and the console can each show one.
-   Thumb only, in the border colour, over the page's own background. */
+   Thumb only, in the border color, over the page's own background. */
 * { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }

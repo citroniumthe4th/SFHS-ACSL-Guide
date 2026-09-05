@@ -415,7 +415,7 @@ cycle while <code>top</code> is at or below <code>bottom</code> and <code>left</
 <p>Two guards are needed, both on the second half of the cycle. Once a ring has collapsed to a single
 row, the bottom pass would walk that same row backwards and emit it twice, so run it only when
 <code>top</code> is still at or below <code>bottom</code>. The same reasoning applies to a single
-column and the left pass. On a 3 by 3 grid the centre letter is precisely where this bites.</p>
+column and the left pass. On a 3 by 3 grid the center letter is precisely where this bites.</p>
 
 <p>Recovering the side length from the string means a square root, so the same floating point caution
 applies as anywhere else: take the integer part and then nudge it until n times n equals the length.

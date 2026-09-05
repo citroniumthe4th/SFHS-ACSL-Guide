@@ -45,7 +45,7 @@ HINTS = {
         "Use a queue for breadth-first search with the eight knight offsets. Record a square's distance when first adding it, and discard destinations outside the board.",
     ],
     "shuffle-cycles": [
-        "Label each card by its original position so you can recognise the original order after a shuffle.",
+        "Label each card by its original position so you can recognize the original order after a shuffle.",
         "Interleave the two halves into a new deck, count that shuffle, then compare with the initial deck. The initial unshuffled state should not count as the answer.",
     ],
     "bowling-night": [
@@ -85,8 +85,8 @@ HINTS = {
         "Remember the final hollow. A capture requires your own pit to contain exactly one stone after sowing and its opposite to be nonempty. Landing in your store instead earns a free turn.",
     ],
     "minesweeper-click": [
-        "Separate counting neighbouring mines from deciding whether the opening should spread.",
-        "Use a queue and a visited set. Reveal each safe square, but add its neighbours only when its mine count is zero. Numbered boundary squares open without spreading further.",
+        "Separate counting neighboring mines from deciding whether the opening should spread.",
+        "Use a queue and a visited set. Reveal each safe square, but add its neighbors only when its mine count is zero. Numbered boundary squares open without spreading further.",
     ],
     "rotor-cipher": [
         "The wheels turn before encoding a capital letter. Other characters neither change nor turn the wheels.",

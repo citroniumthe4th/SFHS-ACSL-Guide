@@ -22,13 +22,13 @@ itself.</p>
 <tr><td>SUB LOC</td><td>accumulator becomes accumulator minus LOC</td></tr>
 <tr><td>MULT LOC</td><td>accumulator becomes accumulator times LOC</td></tr>
 <tr><td>DIV LOC</td><td>accumulator becomes the signed integer part of accumulator over LOC</td></tr>
-<tr><td>BG LOC</td><td>branch to the line labelled LOC when the accumulator is greater than 0</td></tr>
+<tr><td>BG LOC</td><td>branch to the line labeled LOC when the accumulator is greater than 0</td></tr>
 <tr><td>BE LOC</td><td>branch when the accumulator equals 0</td></tr>
 <tr><td>BL LOC</td><td>branch when the accumulator is less than 0</td></tr>
 <tr><td>BU LOC</td><td>branch unconditionally</td></tr>
 <tr><td>READ LOC</td><td>read the next input value into LOC</td></tr>
 <tr><td>PRINT LOC</td><td>print the contents of LOC</td></tr>
-<tr><td>DC constant</td><td>define the labelled word to hold that constant</td></tr>
+<tr><td>DC constant</td><td>define the labeled word to hold that constant</td></tr>
 <tr><td>END</td><td>stop</td></tr>
 </table>
 
@@ -65,7 +65,7 @@ which point the BE fires and the program prints 24.</p>
 
 <p>The loop reloads N before testing whether it is zero. With N starting at 4, the body runs for N = 4, 3, 2, and 1. It stops when N reaches 0. For this input, describing it as a loop that runs while N is positive gives the same trace.</p>
 
-<h2>Idioms worth recognising on sight</h2>
+<h2>Idioms worth recognizing on sight</h2>
 <p>Comparing two values is LOAD A, SUB B, then BG or BL, since the sign of the difference is the
 comparison when the subtraction does not wrap. A count down loop is LOAD counter, BE exit, do the work, then LOAD counter, SUB =1,
 STORE counter, BU top. A running total is LOAD sum, ADD item, STORE sum. Absolute value is LOAD X,
@@ -104,7 +104,7 @@ S[0] is P and S[6] is M, and there is no position 7. Reading a single character 
 
 <p>Two things there will catch you if you read them at speed. When only one bound is written it is a
 <em>count</em> of characters, not a position, and it counts from whichever end the colon leans
-towards: S[4:] is the last four characters, not everything from position 4 onward. When both bounds
+toward: S[4:] is the last four characters, not everything from position 4 onward. When both bounds
 are written they are <em>positions</em>, and the second one is included, so S[2:6] is five characters
 rather than four.</p>
 

@@ -88,7 +88,7 @@ to push every complement inward at once.` },
   why:`Factoring the B out gives B(A + A'), and the complement pair is 1, so the result is B
 times 1, or B. The pattern generalises: whenever two terms differ in exactly one variable and that
 variable appears plain in one and complemented in the other, the variable drops out entirely.
-Recognising that is the most useful habit in this category, since most simplification questions are
+Recognizing that is the most useful habit in this category, since most simplification questions are
 built from it.` },
 
 { id:"ba-11", kind:"problem", topic:"boolean-algebra", level:"s",
