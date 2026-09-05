@@ -1,17 +1,52 @@
 const { test, expect } = require('@playwright/test');
 
+// The motion control lives in the accessibility menu now, alongside the other four.
+const openA11y = async (page) => {
+  await page.locator('#a11y > summary').click();
+  await expect(page.locator('.a11y-menu')).toBeVisible();
+};
+
 test('background can be paused and reduced motion overrides it', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/guide');
-  await page.getByRole('button', { name: 'Pause background', exact: true }).click();
+  await openA11y(page);
+  await page.locator('#a11y-motion').check();
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'off');
+
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Animate background', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await openA11y(page);
+  await expect(page.locator('#a11y-motion')).toBeChecked();
   expect(await page.evaluate(() => getComputedStyle(document.querySelector('.ambient span')).animationPlayState)).toBe('paused');
-  await page.getByRole('button', { name: 'Animate background', exact: true }).click();
+
+  await page.locator('#a11y-motion').uncheck();
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'on');
+
+  // The system asking for it wins, and the control says so rather than pretending otherwise.
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(page.getByRole('button', { name: 'System motion reduction on' })).toBeDisabled();
+  await expect(page.locator('#a11y-motion')).toBeDisabled();
+  await expect(page.locator('#a11y-motion')).toBeChecked();
+  await expect(page.locator('#a11y-motion-note')).toHaveText(/system already asks/i);
   expect(await page.evaluate(() => getComputedStyle(document.querySelector('.ambient span')).animationName)).toBe('none');
+});
+
+test('the accessibility settings each change the page and survive a reload', async ({ page }) => {
+  await page.goto('/guide');
+  await openA11y(page);
+  for (const [box, flag] of [['#a11y-contrast', 'data-contrast'], ['#a11y-plain', 'data-plain'],
+                             ['#a11y-text', 'data-bigtext'], ['#a11y-underline', 'data-underline']]) {
+    await page.locator(box).check();
+    await expect(page.locator('html')).toHaveAttribute(flag, 'on');
+  }
+  const grew = await page.evaluate(() => getComputedStyle(document.body).fontSize);
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-contrast', 'on');
+  expect(await page.evaluate(() => getComputedStyle(document.body).fontSize)).toBe(grew);
+
+  await openA11y(page);
+  await page.locator('#a11y-reset').click();
+  for (const flag of ['data-contrast', 'data-plain', 'data-bigtext', 'data-underline']) {
+    await expect(page.locator('html')).toHaveAttribute(flag, 'off');
+  }
 });
 
 test('theme persists on standalone pages and active navigation retains contrast', async ({ page }) => {

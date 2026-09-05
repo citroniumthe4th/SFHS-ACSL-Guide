@@ -37,10 +37,14 @@ test('generated questions retain their seed in links, bookmarks, and missed revi
   await page.goto('/missed');
   await expect(page.locator('.qtext')).toHaveText(question);
   await expect(page.getByRole('link', { name: 'Link to this question', exact: true })).toHaveAttribute('href', /gen%3Agraph-theory%3A123/);
+  // The old address still lands on the saved list, which is a list rather than a quiz.
   await page.goto('/missed?view=bookmarks');
+  await expect(page).toHaveURL(/\/bookmarks$/);
   await expect(page.getByRole('heading', { name: 'Bookmarked questions' })).toBeVisible();
-  await expect(page.locator('.qtext')).toHaveText(question);
-  await page.getByRole('link', { name: 'Link to this question', exact: true }).click();
+  const saved = page.locator('.saved-list a');
+  await expect(saved).toHaveCount(1);
+  await expect(saved).toHaveAttribute('href', /gen%3Agraph-theory%3A123/);
+  await saved.click();
   await page.reload();
   await expect(page.locator('.qtext')).toHaveText(question);
 });
@@ -108,14 +112,19 @@ test('returning to bookmarks drops a question removed during the previous visit'
       localStorage.setItem('acsl:bookmark:' + q.id, 'true'));
   });
   await page.goto('/bookmarks');
-  await expect(page.locator('.quiz-count')).toHaveText('Question 1 of 2');
-  const removed = await page.getByRole('link', { name: 'Link to this question', exact: true }).getAttribute('href');
-  await page.getByRole('button', { name: 'Bookmarked', exact: true }).click();
-  // Use SPA navigation: reloading would hide the stale in-memory list.
+  await expect(page.locator('.saved-list li')).toHaveCount(2);
+  const removed = await page.locator('.saved-list a').first().getAttribute('href');
+
+  // Removing one from the list takes it off without answering it.
+  await page.locator('.saved-drop').first().click();
+  await expect(page.locator('.saved-list li')).toHaveCount(1);
+  await expect(page.locator('.saved-list a')).not.toHaveAttribute('href', removed);
+
+  // And it is still gone after leaving and coming back, without a reload.
   await page.locator('#section-tabs a[href="/practice"]').click();
   await page.locator('#section-tabs a[href="/bookmarks"]').click();
-  await expect(page.locator('.quiz-count')).toHaveText('Question 1 of 1');
-  await expect(page.getByRole('link', { name: 'Link to this question', exact: true })).not.toHaveAttribute('href', removed);
+  await expect(page.locator('.saved-list li')).toHaveCount(1);
+  await expect(page.locator('.saved-list a')).not.toHaveAttribute('href', removed);
 });
 
 test('finishing an exam grades shuffled choices, blanks, and explanation colors', async ({ page }) => {
@@ -200,7 +209,7 @@ test('correcting a generated question removes its missed record but preserves it
   }
   expect(await page.evaluate(() => localStorage.getItem('acsl:q:gen:graph-theory:123'))).toBeNull();
   await page.locator('#section-tabs a[href="/bookmarks"]').click();
-  await expect(page.getByRole('link', { name: 'Link to this question', exact: true })).toHaveAttribute('href', /gen%3Agraph-theory%3A123/);
+  await expect(page.locator('.saved-list a')).toHaveAttribute('href', /gen%3Agraph-theory%3A123/);
 });
 
 test('the question box answers with a click, Escape and the backdrop, and never reloads', async ({ page }) => {
