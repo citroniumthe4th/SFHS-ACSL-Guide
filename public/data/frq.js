@@ -3190,5 +3190,3107 @@ window.FRQ = [
    "java": "import java.util.*;\n\npublic class Solution {\n\n\n    static int colHeight(List<int[]> well, int c) {\n        for (int r = well.size() - 1; r >= 0; r--) if (well.get(r)[c] == 1) return r + 1;\n        return 0;\n    }\n\n    static void ensure(List<int[]> well, int rows) {\n        while (well.size() < rows) well.add(new int[8]);\n    }\n\n    static String finalHeights(String pieces) {\n\n        List<int[]> well = new ArrayList<>();\n        for (String token : pieces.trim().split(\"\\s+\")) {\n            char shape = token.charAt(0);\n            int colon = token.indexOf(':');\n            int size = Integer.parseInt(token.substring(1, colon));\n            int c = Integer.parseInt(token.substring(colon + 1));\n            if (shape == 'H') {\n                int base = 0;\n                for (int x = c; x < c + size; x++) base = Math.max(base, colHeight(well, x));\n                ensure(well, base + 1);\n                for (int x = c; x < c + size; x++) well.get(base)[x] = 1;\n            } else {\n                int base = colHeight(well, c);\n                ensure(well, base + size);\n                for (int r = base; r < base + size; r++) well.get(r)[c] = 1;\n            }\n            List<int[]> kept = new ArrayList<>();\n            for (int[] row : well) {\n                int filled = 0;\n                for (int v : row) filled += v;\n                if (filled < 8) kept.add(row);\n            }\n            well = kept;\n        }\n        StringBuilder out = new StringBuilder();\n        for (int c = 0; c < 8; c++) { if (c > 0) out.append(' '); out.append(colHeight(well, c)); }\n        return out.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String pieces = _lines.get(_i + 0);\n            _sb.append(finalHeights(pieces)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
    "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\n\nstatic int colHeight(const vector<array<int, 8>> &well, int c) {\n    for (int r = (int) well.size() - 1; r >= 0; r--) if (well[r][c]) return r + 1;\n    return 0;\n}\n\nstatic void ensure(vector<array<int, 8>> &well, int rows) {\n    while ((int) well.size() < rows) well.push_back(array<int, 8>{0, 0, 0, 0, 0, 0, 0, 0});\n}\n\nstring finalHeights(string pieces) {\n\n    vector<array<int, 8>> well;\n    string token;\n    istringstream is(pieces);\n    while (is >> token) {\n        char shape = token[0];\n        size_t colon = token.find(':');\n        int size_ = stoi(token.substr(1, colon - 1));\n        int c = stoi(token.substr(colon + 1));\n        if (shape == 'H') {\n            int base = 0;\n            for (int x = c; x < c + size_; x++) base = max(base, colHeight(well, x));\n            ensure(well, base + 1);\n            for (int x = c; x < c + size_; x++) well[base][x] = 1;\n        } else {\n            int base = colHeight(well, c);\n            ensure(well, base + size_);\n            for (int r = base; r < base + size_; r++) well[r][c] = 1;\n        }\n        vector<array<int, 8>> kept;\n        for (auto &row : well) {\n            int filled = 0;\n            for (int v : row) filled += v;\n            if (filled < 8) kept.push_back(row);\n        }\n        well = kept;\n    }\n    string out;\n    for (int c = 0; c < 8; c++) { if (c) out += ' '; out += to_string(colHeight(well, c)); }\n    return out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string pieces = _lines[_i + 0];\n        cout << finalHeights(pieces) << \"\\n\";\n    }\n    return 0;\n}\n"
   }
+ },
+ {
+  "id": "stair-hops",
+  "division": "Junior",
+  "contest": 1,
+  "title": "Stair Hops",
+  "blurb": "Climb a staircase one or two steps at a time and count the distinct routes.",
+  "statement": "\n<p>A staircase has N steps. You climb it by moving up either one step or two steps at a time,\nand you keep going until you are standing exactly on the top step.</p>\n\n<p>Two climbs are different if the sequence of moves differs anywhere. Count the climbs. A\nstaircase with no steps at all has exactly one climb, the one that makes no moves.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>4</td></tr>\n<tr><th>Output</th><td>5</td></tr>\n<tr><th>Explanation</th><td>\nWriting each climb as its sequence of move sizes:<br>\n1 1 1 1<br>\n1 1 2<br>\n1 2 1<br>\n2 1 1<br>\n2 2\n</td></tr></table>\n",
+  "input_spec": "Input a single whole number, the number of steps in the staircase.",
+  "output_spec": "Output an integer, the number of distinct climbs.",
+  "constraints": "The number of steps is between 0 and 45, inclusive. The answer always fits in a 32 bit signed integer.",
+  "approach": "\n<p>Ask what the last move was. A climb of N steps either finished with a single step, in which\ncase everything before it was a climb of N minus 1, or with a double step, in which case everything\nbefore it was a climb of N minus 2. No climb is both, and every climb is one or the other, so the\ncount for N is the count for N minus 1 plus the count for N minus 2.</p>\n\n<p>That is the Fibonacci recurrence, and the only thing left to settle is where it starts. A\nstaircase of 0 steps has one climb, the empty one, and a staircase of 1 step also has one. From there\nthe counts run 2, 3, 5, 8, and so on.</p>\n\n<p>Write it as a loop rather than as a recursive function. Plain recursion recomputes the same values\nover and over and becomes unusable well before 45 steps, while two variables and a loop finish in 45\nadditions. Keep a pair of running values, add them, and shift.</p>\n\n<p>The count for 45 steps is 1836311903, which fits in a 32 bit signed integer with very little room to\nspare, so do not be tempted to extend the range on your own.</p>\n",
+  "hints": [
+   "What was the very last move of a climb? There are only two possibilities.",
+   "The count for N is the count for N-1 plus the count for N-2. Both 0 steps and 1 step have exactly one climb. Use a loop, not plain recursion."
+  ],
+  "fname": "countHops",
+  "task": "\n<ul>\n<li>The function has 1 parameter: an integer, <code>steps</code>, the number of steps.</li>\n<li>The function returns an integer, the number of distinct climbs.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "4"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "0"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "10"
+    ],
+    "out": "89"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "4"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "0"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "10"
+    ],
+    "out": "89"
+   },
+   {
+    "in": [
+     "1"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "2"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "3"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "12"
+    ],
+    "out": "233"
+   },
+   {
+    "in": [
+     "20"
+    ],
+    "out": "10946"
+   },
+   {
+    "in": [
+     "30"
+    ],
+    "out": "1346269"
+   },
+   {
+    "in": [
+     "45"
+    ],
+    "out": "1836311903"
+   },
+   {
+    "in": [
+     "44"
+    ],
+    "out": "1134903170"
+   },
+   {
+    "in": [
+     "7"
+    ],
+    "out": "21"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef countHops(steps: int) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        steps = int(_lines[_i + 0].strip())\n        print(countHops(steps))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countHops(int steps) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int steps = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(countHops(steps)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countHops(int steps) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int steps = stoi(_lines[_i + 0]);\n        cout << countHops(steps) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef countHops(steps: int) -> int:\n\n    a, b = 1, 1\n    for _ in range(steps):\n        a, b = b, a + b\n    return a\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        steps = int(_lines[_i + 0].strip())\n        print(countHops(steps))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countHops(int steps) {\n\n        long a = 1, b = 1;\n        for (int i = 0; i < steps; i++) { long t = a + b; a = b; b = t; }\n        return (int) a;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int steps = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(countHops(steps)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countHops(int steps) {\n\n    long long a = 1, b = 1;\n    for (int i = 0; i < steps; i++) { long long t = a + b; a = b; b = t; }\n    return (int) a;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int steps = stoi(_lines[_i + 0]);\n        cout << countHops(steps) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "digit-persistence",
+  "division": "Junior",
+  "contest": 1,
+  "title": "Digit Persistence",
+  "blurb": "Multiply a number's digits together, repeat, and count the rounds until one digit is left.",
+  "statement": "\n<p>Take a whole number and replace it with the product of its digits. Do that again to the\nresult, and again, and keep going until what is left is a single digit.</p>\n\n<p>Count the replacements. A number that is already a single digit needs none, so its answer is 0.\nA number containing a 0 collapses to 0 in one replacement, since the product of its digits is 0.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>39</td></tr>\n<tr><th>Output</th><td>3</td></tr>\n<tr><th>Explanation</th><td>\n3 times 9 is 27, that is replacement 1.<br>\n2 times 7 is 14, that is replacement 2.<br>\n1 times 4 is 4, that is replacement 3.<br>\n4 is a single digit, so the answer is 3.\n</td></tr></table>\n",
+  "input_spec": "Input a single whole number.",
+  "output_spec": "Output an integer, the number of replacements made before a single digit was reached.",
+  "constraints": "The starting number is between 1 and 999999, inclusive.",
+  "approach": "\n<p>The loop is short and the stopping rule is the whole problem. Keep replacing while the value\nis 10 or more, and count each replacement as you make it. A value below 10 is already a single digit,\nso the loop simply never runs and the answer is 0.</p>\n\n<p>Take the product on the number rather than on a string, which is easier in Java and C++ and no\nharder in Python. Start a running product at 1, then repeatedly take the value modulo 10, multiply it\nin, and divide the value by 10, continuing while the value is above zero.</p>\n\n<p>Do not add a special case for digits equal to 0. A 0 anywhere makes the product 0, which is a\nsingle digit, so the loop ends on the next test and the count is right without any help. Trying to\nskip zeros would answer a different question, and one whose chains never terminate for numbers like\n10.</p>\n\n<p>The chains are short. Nothing below a million takes more than seven replacements, so there is no\nperformance question here at all, only the boundary between one digit and two.</p>\n",
+  "hints": [
+   "The loop should keep going while the value has more than one digit. What test is that?",
+   "Repeat while the value is 10 or more. Take the product with modulo 10 and integer division, and do not skip zero digits."
+  ],
+  "fname": "persistence",
+  "task": "\n<ul>\n<li>The function has 1 parameter: an integer, <code>start</code>, the number to begin with.</li>\n<li>The function returns an integer, the number of replacements.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "39"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "5"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "77"
+    ],
+    "out": "4"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "39"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "5"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "77"
+    ],
+    "out": "4"
+   },
+   {
+    "in": [
+     "1"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "10"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "25"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "679"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "6788"
+    ],
+    "out": "6"
+   },
+   {
+    "in": [
+     "68889"
+    ],
+    "out": "7"
+   },
+   {
+    "in": [
+     "999999"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "100000"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "999"
+    ],
+    "out": "4"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef persistence(start: int) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        start = int(_lines[_i + 0].strip())\n        print(persistence(start))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int persistence(int start) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int start = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(persistence(start)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint persistence(int start) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int start = stoi(_lines[_i + 0]);\n        cout << persistence(start) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef persistence(start: int) -> int:\n\n    n = start\n    count = 0\n    while n >= 10:\n        total = 1\n        while n > 0:\n            total *= n % 10\n            n //= 10\n        n = total\n        count += 1\n    return count\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        start = int(_lines[_i + 0].strip())\n        print(persistence(start))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int persistence(int start) {\n\n        int n = start, count = 0;\n        while (n >= 10) {\n            int total = 1;\n            while (n > 0) { total *= n % 10; n /= 10; }\n            n = total;\n            count++;\n        }\n        return count;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int start = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(persistence(start)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint persistence(int start) {\n\n    int n = start, count = 0;\n    while (n >= 10) {\n        int total = 1;\n        while (n > 0) { total *= n % 10; n /= 10; }\n        n = total;\n        count++;\n    }\n    return count;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int start = stoi(_lines[_i + 0]);\n        cout << persistence(start) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "base-parade",
+  "division": "Junior",
+  "contest": 1,
+  "title": "Base Parade",
+  "blurb": "Rewrite a number in another base and report the digit that turns up most often.",
+  "statement": "\n<p>Write a whole number in a given base, using the digits 0 through 9 and then the letters A\nthrough F for the values 10 through 15.</p>\n\n<p>Report the digit that appears most often in that representation, together with how many times\nit appears. If two or more digits are tied for most common, report the one with the larger value.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>255<br>16</td></tr>\n<tr><th>Output</th><td>F 2</td></tr>\n<tr><th>Explanation</th><td>\n255 in base 16 is FF.<br>\nThe digit F appears twice and no other digit appears at all.\n</td></tr></table>\n",
+  "input_spec": "Input the number on the first line and the base on the second line.",
+  "output_spec": "Output the most common digit, a single space, and the number of times it appears.",
+  "constraints": "The number is between 1 and 999999, inclusive. The base is between 2 and 16, inclusive.",
+  "approach": "\n<p>Two separate jobs, and neither is hard once they are kept apart. First convert, then count.</p>\n\n<p>Convert by repeated division: take the value modulo the base to get a digit, divide the value by\nthe base, and repeat while the value is above zero. That produces the digits from least significant to\nmost significant, which is backwards, but for this problem the order never matters, since you are only\ncounting how often each digit appears.</p>\n\n<p>Keep a tally of sixteen counters rather than building the string and scanning it. Index the tally by\nthe digit's numeric value, which is exactly what the modulo hands you, and the letters take care of\nthemselves: only when you print the answer do you turn a value into a character, using the digits 0\nthrough 9 for values below 10 and the letters A through F above.</p>\n\n<p>Sweep the tally from 15 downward and keep the first digit that beats the best count so far. Because\nyou are moving down from the largest value, that automatically settles ties in favor of the larger\ndigit without any extra comparison. Sweeping upward and using a strictly greater test would give the\nsmaller one instead.</p>\n",
+  "hints": [
+   "You never need to build the converted string. What do you actually need from it?",
+   "Tally sixteen counters indexed by digit value while dividing down by the base. Sweep the tally from 15 downward so ties go to the larger digit."
+  ],
+  "fname": "commonDigit",
+  "task": "\n<ul>\n<li>The function has 2 parameters: an integer, <code>value</code>, the number to convert, and an\ninteger, <code>base</code>, the base to write it in.</li>\n<li>The function returns a string, the most common digit followed by a space and its count.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "255",
+     "16"
+    ],
+    "out": "F 2"
+   },
+   {
+    "in": [
+     "1",
+     "2"
+    ],
+    "out": "1 1"
+   },
+   {
+    "in": [
+     "100",
+     "10"
+    ],
+    "out": "0 2"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "255",
+     "16"
+    ],
+    "out": "F 2"
+   },
+   {
+    "in": [
+     "1",
+     "2"
+    ],
+    "out": "1 1"
+   },
+   {
+    "in": [
+     "100",
+     "10"
+    ],
+    "out": "0 2"
+   },
+   {
+    "in": [
+     "64",
+     "8"
+    ],
+    "out": "0 2"
+   },
+   {
+    "in": [
+     "999999",
+     "7"
+    ],
+    "out": "3 4"
+   },
+   {
+    "in": [
+     "4095",
+     "16"
+    ],
+    "out": "F 3"
+   },
+   {
+    "in": [
+     "7",
+     "2"
+    ],
+    "out": "1 3"
+   },
+   {
+    "in": [
+     "999999",
+     "2"
+    ],
+    "out": "1 12"
+   },
+   {
+    "in": [
+     "512",
+     "8"
+    ],
+    "out": "0 3"
+   },
+   {
+    "in": [
+     "43690",
+     "16"
+    ],
+    "out": "A 4"
+   },
+   {
+    "in": [
+     "999999",
+     "16"
+    ],
+    "out": "F 2"
+   },
+   {
+    "in": [
+     "10",
+     "3"
+    ],
+    "out": "1 2"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef commonDigit(value: int, base: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        value = int(_lines[_i + 0].strip())\n        base = int(_lines[_i + 1].strip())\n        print(commonDigit(value, base))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String commonDigit(int value, int base) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int value = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int base = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(commonDigit(value, base)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring commonDigit(int value, int base) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int value = stoi(_lines[_i + 0]);\n        int base = stoi(_lines[_i + 1]);\n        cout << commonDigit(value, base) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef commonDigit(value: int, base: int) -> str:\n\n    digits = \"0123456789ABCDEF\"\n    tally = [0] * 16\n    n = value\n    while n > 0:\n        tally[n % base] += 1\n        n //= base\n    best = 0\n    for d in range(15, -1, -1):\n        if tally[d] > tally[best]:\n            best = d\n    return digits[best] + \" \" + str(tally[best])\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        value = int(_lines[_i + 0].strip())\n        base = int(_lines[_i + 1].strip())\n        print(commonDigit(value, base))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String commonDigit(int value, int base) {\n\n        String digits = \"0123456789ABCDEF\";\n        int[] tally = new int[16];\n        int n = value;\n        while (n > 0) { tally[n % base]++; n /= base; }\n        int best = 0;\n        for (int d = 15; d >= 0; d--) if (tally[d] > tally[best]) best = d;\n        return digits.charAt(best) + \" \" + tally[best];\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int value = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int base = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(commonDigit(value, base)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring commonDigit(int value, int base) {\n\n    string digits = \"0123456789ABCDEF\";\n    vector<int> tally(16, 0);\n    int n = value;\n    while (n > 0) { tally[n % base]++; n /= base; }\n    int best = 0;\n    for (int d = 15; d >= 0; d--) if (tally[d] > tally[best]) best = d;\n    return string(1, digits[best]) + \" \" + to_string(tally[best]);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int value = stoi(_lines[_i + 0]);\n        int base = stoi(_lines[_i + 1]);\n        cout << commonDigit(value, base) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "bus-route",
+  "division": "Junior",
+  "contest": 2,
+  "title": "Bus Route",
+  "blurb": "Run a bus down its route and find the stop where it was fullest.",
+  "statement": "\n<p>A bus begins its route empty. At each stop, everyone who is getting off leaves first, and only\nthen does anyone board.</p>\n\n<p>Report the largest number of passengers the bus ever carried away from a stop, and the number of\nthe first stop at which that number was reached. Stops are numbered from 1.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>5:0 3:2 4:1</td></tr>\n<tr><th>Output</th><td>9 3</td></tr>\n<tr><th>Explanation</th><td>\nStop 1: nobody off, 5 on, leaving 5 aboard.<br>\nStop 2: 2 off and 3 on, leaving 6 aboard.<br>\nStop 3: 1 off and 4 on, leaving 9 aboard.<br>\nThe largest load is 9, first reached leaving stop 3.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the stops in order, separated by single spaces. Each stop is written as the number boarding, a colon, and the number getting off.",
+  "output_spec": "Output the largest load, a single space, and the number of the first stop at which it was reached.",
+  "constraints": "There are between 1 and 50 stops. Each count is between 0 and 99. Nobody ever gets off who is not aboard.",
+  "approach": "\n<p>One pass, one running total, and two things to remember. Split the line into stops, then split\neach stop at the colon into a boarding count and an alighting count.</p>\n\n<p>The order of the two operations at each stop is stated in the problem and it matters: subtract the\npassengers getting off first, then add the ones boarding. Doing it the other way round would let a\nboarding passenger be counted among those who could get off, which changes nothing about the running\ntotal here but would break the moment the problem let anyone do both.</p>\n\n<p>Keep the best load seen so far and the stop it happened at. Start the best at a value below zero\nrather than at 0, so that the first stop always sets it. If you start at 0 and the bus stays empty the\nwhole way, your recorded stop number is never written at all, and a route like the second sample would\nreport stop 0 rather than stop 1.</p>\n\n<p>Use a strictly greater comparison when you update. That keeps the first stop where the maximum was\nreached rather than the last, which is what the problem asks for. A greater than or equal test would\nreport the last one instead, and the sample with 9 on and 9 off shows the difference.</p>\n",
+  "hints": [
+   "The order of the two operations at each stop is given in the statement. Which one comes first?",
+   "Subtract those getting off before adding those boarding. Start the best load below zero so the first stop always sets it, and update only on a strictly larger load."
+  ],
+  "fname": "busiest",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>route</code>, the stops in order.</li>\n<li>The function returns a string, the largest load followed by a space and the stop number.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "5:0 3:2 4:1"
+    ],
+    "out": "9 3"
+   },
+   {
+    "in": [
+     "0:0"
+    ],
+    "out": "0 1"
+   },
+   {
+    "in": [
+     "9:0 0:9 9:0"
+    ],
+    "out": "9 1"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "5:0 3:2 4:1"
+    ],
+    "out": "9 3"
+   },
+   {
+    "in": [
+     "0:0"
+    ],
+    "out": "0 1"
+   },
+   {
+    "in": [
+     "9:0 0:9 9:0"
+    ],
+    "out": "9 1"
+   },
+   {
+    "in": [
+     "1:0 1:0 1:0 0:3"
+    ],
+    "out": "3 3"
+   },
+   {
+    "in": [
+     "99:0"
+    ],
+    "out": "99 1"
+   },
+   {
+    "in": [
+     "10:0 0:5 5:5 5:0"
+    ],
+    "out": "10 1"
+   },
+   {
+    "in": [
+     "3:0 3:0 0:6 3:0"
+    ],
+    "out": "6 2"
+   },
+   {
+    "in": [
+     "0:0 0:0 7:0"
+    ],
+    "out": "7 3"
+   },
+   {
+    "in": [
+     "50:0 50:0"
+    ],
+    "out": "100 2"
+   },
+   {
+    "in": [
+     "2:0 2:1 2:1 2:1"
+    ],
+    "out": "5 4"
+   },
+   {
+    "in": [
+     "99:0 0:99 99:0 0:99"
+    ],
+    "out": "99 1"
+   },
+   {
+    "in": [
+     "4:0 0:4 4:0 0:4 4:0"
+    ],
+    "out": "4 1"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef busiest(route: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        route = _lines[_i + 0].strip()\n        print(busiest(route))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String busiest(String route) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String route = _lines.get(_i + 0);\n            _sb.append(busiest(route)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring busiest(string route) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string route = _lines[_i + 0];\n        cout << busiest(route) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef busiest(route: str) -> str:\n\n    aboard = 0\n    best = -1\n    where = 1\n    stop = 0\n    for token in route.split():\n        stop += 1\n        on, off = token.split(\":\")\n        aboard -= int(off)\n        aboard += int(on)\n        if aboard > best:\n            best = aboard\n            where = stop\n    return str(best) + \" \" + str(where)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        route = _lines[_i + 0].strip()\n        print(busiest(route))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String busiest(String route) {\n\n        int aboard = 0, best = -1, where = 1, stop = 0;\n        for (String token : route.trim().split(\"\\\\s+\")) {\n            stop++;\n            String[] parts = token.split(\":\");\n            aboard -= Integer.parseInt(parts[1]);\n            aboard += Integer.parseInt(parts[0]);\n            if (aboard > best) { best = aboard; where = stop; }\n        }\n        return best + \" \" + where;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String route = _lines.get(_i + 0);\n            _sb.append(busiest(route)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring busiest(string route) {\n\n    int aboard = 0, best = -1, where = 1, stop = 0;\n    string token;\n    istringstream is(route);\n    while (is >> token) {\n        stop++;\n        size_t colon = token.find(':');\n        int on = stoi(token.substr(0, colon));\n        int off = stoi(token.substr(colon + 1));\n        aboard -= off;\n        aboard += on;\n        if (aboard > best) { best = aboard; where = stop; }\n    }\n    return to_string(best) + \" \" + to_string(where);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string route = _lines[_i + 0];\n        cout << busiest(route) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "bracket-depth",
+  "division": "Junior",
+  "contest": 2,
+  "title": "Bracket Depth",
+  "blurb": "Check that a run of brackets closes properly and report how deep it nests.",
+  "statement": "\n<p>A string is made only of the six bracket characters ( ) [ ] { }. It is balanced when every\nopening bracket is closed later by a bracket of the same kind, and no closing bracket appears without\na matching opening bracket still waiting for it.</p>\n\n<p>Report the greatest number of brackets open at any one moment. If the string is not balanced,\nreport &minus;1 instead.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>([{}])</td></tr>\n<tr><th>Output</th><td>3</td></tr>\n<tr><th>Explanation</th><td>\nAfter the round bracket, 1 is open.<br>\nAfter the square bracket, 2 are open.<br>\nAfter the curly bracket, 3 are open, which is the deepest it gets.<br>\nThe three closing brackets then match in the reverse order.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the bracket string.",
+  "output_spec": "Output an integer, the greatest number of brackets open at once, or -1 if the string is not balanced.",
+  "constraints": "The string holds between 1 and 200 characters, each of which is one of ( ) [ ] { }.",
+  "approach": "\n<p>This is what a stack is for. Walk the string one character at a time. An opening bracket is\npushed; a closing bracket has to match whatever is on top, so pop and compare.</p>\n\n<p>There are two separate ways for a string to fail and both need handling. A closing bracket may\narrive when the stack is empty, which means nothing was waiting for it, and a closing bracket may\narrive when the top of the stack is a different kind, which means the brackets cross rather than\nnest. Either one is an immediate -1. Test for the empty stack before you look at what is on top, or\nyou will read past the end of it.</p>\n\n<p>There is a third failure that only shows up at the very end. If the loop finishes with the stack\nstill holding something, those brackets were opened and never closed, so the answer is -1 even though\nnothing went wrong along the way. A string like ( ( ) passes every test inside the loop.</p>\n\n<p>The depth is simply the size of the stack, and the deepest it ever gets is what the problem wants.\nTake that reading immediately after each push, since that is the only moment the stack grows.</p>\n",
+  "hints": [
+   "Which bracket does a closing bracket have to match? Only one is a candidate at any moment.",
+   "Push openers on a stack and pop on a closer, checking the stack is not empty first. After the loop, anything still on the stack means the string was unbalanced."
+  ],
+  "fname": "deepest",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>brackets</code>, the bracket string.</li>\n<li>The function returns an integer, the greatest depth, or -1 if the string is not balanced.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "([{}])"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "(]"
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "()()"
+    ],
+    "out": "1"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "([{}])"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "(]"
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "()()"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "("
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     ")"
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "{[()]}[]"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "(((((((((("
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "(()"
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "())("
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "[](){}"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "[({})]"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "{{[[(())]]}}"
+    ],
+    "out": "6"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef deepest(brackets: str) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        brackets = _lines[_i + 0].strip()\n        print(deepest(brackets))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int deepest(String brackets) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String brackets = _lines.get(_i + 0);\n            _sb.append(deepest(brackets)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint deepest(string brackets) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string brackets = _lines[_i + 0];\n        cout << deepest(brackets) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef deepest(brackets: str) -> int:\n\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    best = 0\n    for c in brackets:\n        if c in \"([{\":\n            stack.append(c)\n            if len(stack) > best:\n                best = len(stack)\n        else:\n            if not stack or stack[-1] != pairs[c]:\n                return -1\n            stack.pop()\n    return -1 if stack else best\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        brackets = _lines[_i + 0].strip()\n        print(deepest(brackets))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int deepest(String brackets) {\n\n        Deque<Character> stack = new ArrayDeque<>();\n        int best = 0;\n        for (char c : brackets.toCharArray()) {\n            if (c == '(' || c == '[' || c == '{') {\n                stack.push(c);\n                if (stack.size() > best) best = stack.size();\n            } else {\n                char want = c == ')' ? '(' : c == ']' ? '[' : '{';\n                if (stack.isEmpty() || stack.peek() != want) return -1;\n                stack.pop();\n            }\n        }\n        return stack.isEmpty() ? best : -1;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String brackets = _lines.get(_i + 0);\n            _sb.append(deepest(brackets)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint deepest(string brackets) {\n\n    vector<char> stack;\n    int best = 0;\n    for (char c : brackets) {\n        if (c == '(' || c == '[' || c == '{') {\n            stack.push_back(c);\n            if ((int) stack.size() > best) best = (int) stack.size();\n        } else {\n            char want = c == ')' ? '(' : c == ']' ? '[' : '{';\n            if (stack.empty() || stack.back() != want) return -1;\n            stack.pop_back();\n        }\n    }\n    return stack.empty() ? best : -1;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string brackets = _lines[_i + 0];\n        cout << deepest(brackets) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "skip-counting",
+  "division": "Junior",
+  "contest": 2,
+  "title": "Skip Counting",
+  "blurb": "Hop around a circular track by a fixed stride and see how much of it you cover.",
+  "statement": "\n<p>A circular track has N slots, numbered 0 through N &minus; 1 in order, with slot N &minus; 1\nsitting next to slot 0. You start on slot 0 and repeatedly hop forward exactly S slots, wrapping past\nthe end of the track as often as necessary.</p>\n\n<p>You stop the moment you land back on slot 0. Report how many different slots you stood on,\ncounting slot 0 once, and the largest slot number among them.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>12<br>8</td></tr>\n<tr><th>Output</th><td>3 8</td></tr>\n<tr><th>Explanation</th><td>\nStart on 0, hop to 8, hop to 4, hop back to 0 and stop.<br>\nThree different slots were visited: 0, 4, and 8.<br>\nThe largest of them is 8.\n</td></tr></table>\n",
+  "input_spec": "Input the number of slots on the first line and the stride on the second line.",
+  "output_spec": "Output the number of different slots visited, a single space, and the largest slot number visited.",
+  "constraints": "The number of slots is between 2 and 100000, inclusive. The stride is between 1 and 100000, inclusive.",
+  "approach": "\n<p>Simulate it. Keep a current slot, and on each hop add the stride and take the result modulo\nthe number of slots, which is what makes the track circular. Stop when the new slot is 0 again.</p>\n\n<p>Structure the loop so that slot 0 is recorded before the first hop and the test happens after it.\nA loop that tests first would stop immediately, since you begin on slot 0. Recording, then hopping,\nthen testing is the shape that works.</p>\n\n<p>You do not need a set. The visited slots are simply every multiple of the stride taken modulo the\ntrack size, and no slot can repeat before you return to 0, so counting the hops is enough. Track the\nlargest slot seen with a running maximum as you go.</p>\n\n<p>The tour always closes, and it never takes more hops than there are slots, so the loop is safe even\nat the largest track size. If you want to check your answer, the number of slots visited is the track\nsize divided by the greatest common divisor of the track size and the stride, and the largest slot is\nthe track size minus that divisor. A stride that is a multiple of the track size visits slot 0 alone,\nand the sixth sample is exactly that case.</p>\n",
+  "hints": [
+   "Record where you are before hopping, or the loop stops immediately.",
+   "Add the stride and take the result modulo the track size. Count the slot, hop, then test for slot 0. The tour always closes within one lap of distinct slots."
+  ],
+  "fname": "skipTour",
+  "task": "\n<ul>\n<li>The function has 2 parameters: an integer, <code>slots</code>, the size of the track, and an\ninteger, <code>stride</code>, the size of each hop.</li>\n<li>The function returns a string, the number of slots visited followed by a space and the largest\nslot number visited.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "12",
+     "8"
+    ],
+    "out": "3 8"
+   },
+   {
+    "in": [
+     "10",
+     "3"
+    ],
+    "out": "10 9"
+   },
+   {
+    "in": [
+     "6",
+     "6"
+    ],
+    "out": "1 0"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "12",
+     "8"
+    ],
+    "out": "3 8"
+   },
+   {
+    "in": [
+     "10",
+     "3"
+    ],
+    "out": "10 9"
+   },
+   {
+    "in": [
+     "6",
+     "6"
+    ],
+    "out": "1 0"
+   },
+   {
+    "in": [
+     "2",
+     "1"
+    ],
+    "out": "2 1"
+   },
+   {
+    "in": [
+     "100000",
+     "1"
+    ],
+    "out": "100000 99999"
+   },
+   {
+    "in": [
+     "100000",
+     "99999"
+    ],
+    "out": "100000 99999"
+   },
+   {
+    "in": [
+     "100",
+     "25"
+    ],
+    "out": "4 75"
+   },
+   {
+    "in": [
+     "7",
+     "3"
+    ],
+    "out": "7 6"
+   },
+   {
+    "in": [
+     "36",
+     "24"
+    ],
+    "out": "3 24"
+   },
+   {
+    "in": [
+     "99991",
+     "12345"
+    ],
+    "out": "99991 99990"
+   },
+   {
+    "in": [
+     "50",
+     "100000"
+    ],
+    "out": "1 0"
+   },
+   {
+    "in": [
+     "1000",
+     "500"
+    ],
+    "out": "2 500"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef skipTour(slots: int, stride: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        slots = int(_lines[_i + 0].strip())\n        stride = int(_lines[_i + 1].strip())\n        print(skipTour(slots, stride))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String skipTour(int slots, int stride) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int slots = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int stride = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(skipTour(slots, stride)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring skipTour(int slots, int stride) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int slots = stoi(_lines[_i + 0]);\n        int stride = stoi(_lines[_i + 1]);\n        cout << skipTour(slots, stride) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef skipTour(slots: int, stride: int) -> str:\n\n    count = 0\n    biggest = 0\n    cur = 0\n    while True:\n        count += 1\n        if cur > biggest:\n            biggest = cur\n        cur = (cur + stride) % slots\n        if cur == 0:\n            break\n    return str(count) + \" \" + str(biggest)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        slots = int(_lines[_i + 0].strip())\n        stride = int(_lines[_i + 1].strip())\n        print(skipTour(slots, stride))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String skipTour(int slots, int stride) {\n\n        int count = 0, biggest = 0, cur = 0;\n        while (true) {\n            count++;\n            if (cur > biggest) biggest = cur;\n            cur = (cur + stride % slots) % slots;\n            if (cur == 0) break;\n        }\n        return count + \" \" + biggest;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int slots = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int stride = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(skipTour(slots, stride)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring skipTour(int slots, int stride) {\n\n    int count = 0, biggest = 0, cur = 0;\n    while (true) {\n        count++;\n        if (cur > biggest) biggest = cur;\n        cur = (cur + stride % slots) % slots;\n        if (cur == 0) break;\n    }\n    return to_string(count) + \" \" + to_string(biggest);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int slots = stoi(_lines[_i + 0]);\n        int stride = stoi(_lines[_i + 1]);\n        cout << skipTour(slots, stride) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "seat-map",
+  "division": "Junior",
+  "contest": 3,
+  "title": "Seat Map",
+  "blurb": "Read a theater's seating chart and find the row with the most seats still free.",
+  "statement": "\n<p>A theater's seating chart is drawn one row at a time. A full stop marks a free seat and a hash\nmarks a taken one. Every row holds the same number of seats.</p>\n\n<p>Report how many free seats the emptiest row has, and the number of that row. Rows are numbered\nfrom 1 in the order they are given, and if two rows tie, report the earlier one.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>..#;#..;###</td></tr>\n<tr><th>Output</th><td>2 1</td></tr>\n<tr><th>Explanation</th><td>\nRow 1 has two free seats.<br>\nRow 2 has two free seats as well.<br>\nRow 3 has none.<br>\nRows 1 and 2 tie, so the earlier one is reported.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the rows in order, separated by semicolons. Each row is a run of full stops and hashes.",
+  "output_spec": "Output the number of free seats in the emptiest row, a single space, and the number of that row.",
+  "constraints": "There are between 1 and 40 rows, each holding between 1 and 40 seats. Every row holds the same number of seats.",
+  "approach": "\n<p>Split the line at the semicolons and you have the rows. Everything after that is one pass with\na running best.</p>\n\n<p>For each row, count the full stops. There is no need to look at the hashes at all, since every\ncharacter is one or the other, though counting hashes and subtracting from the row's length works\nequally well.</p>\n\n<p>Keep the best count found so far along with the row it came from, and update only when a row is\nstrictly better. That is what settles ties in favor of the earlier row: a later row with the same count\nnever displaces it. Using greater than or equal instead would report the last such row, and the sample\nis built so that the two answers differ.</p>\n\n<p>Start the best count below zero rather than at 0. A chart in which every row is completely full\nwould otherwise never record a row number at all, and the second sample is exactly that chart.</p>\n",
+  "hints": [
+   "Splitting the line at the semicolons gives you the rows. What do you need from each one?",
+   "Count the full stops per row, keeping the best count and its row number. Update only on a strictly larger count so ties go to the earlier row."
+  ],
+  "fname": "emptiestRow",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>chart</code>, the rows separated by\nsemicolons.</li>\n<li>The function returns a string, the free seat count followed by a space and the row number.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "..#;#..;###"
+    ],
+    "out": "2 1"
+   },
+   {
+    "in": [
+     "#"
+    ],
+    "out": "0 1"
+   },
+   {
+    "in": [
+     "#.#;.#.;#.#"
+    ],
+    "out": "2 2"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "..#;#..;###"
+    ],
+    "out": "2 1"
+   },
+   {
+    "in": [
+     "#"
+    ],
+    "out": "0 1"
+   },
+   {
+    "in": [
+     "#.#;.#.;#.#"
+    ],
+    "out": "2 2"
+   },
+   {
+    "in": [
+     "..."
+    ],
+    "out": "3 1"
+   },
+   {
+    "in": [
+     "###;###;..#"
+    ],
+    "out": "2 3"
+   },
+   {
+    "in": [
+     ".;#;.;#"
+    ],
+    "out": "1 1"
+   },
+   {
+    "in": [
+     "##.#;.#.#;####"
+    ],
+    "out": "2 2"
+   },
+   {
+    "in": [
+     "....;...."
+    ],
+    "out": "4 1"
+   },
+   {
+    "in": [
+     "#.;.#"
+    ],
+    "out": "1 1"
+   },
+   {
+    "in": [
+     "##########;.........#;##########"
+    ],
+    "out": "9 2"
+   },
+   {
+    "in": [
+     ".#.#.#;......;######"
+    ],
+    "out": "6 2"
+   },
+   {
+    "in": [
+     "#;#;#;#;#;#"
+    ],
+    "out": "0 1"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef emptiestRow(chart: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        chart = _lines[_i + 0].strip()\n        print(emptiestRow(chart))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String emptiestRow(String chart) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String chart = _lines.get(_i + 0);\n            _sb.append(emptiestRow(chart)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring emptiestRow(string chart) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string chart = _lines[_i + 0];\n        cout << emptiestRow(chart) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef emptiestRow(chart: str) -> str:\n\n    best = -1\n    where = 1\n    row = 0\n    for line in chart.split(\";\"):\n        row += 1\n        free = line.count(\".\")\n        if free > best:\n            best = free\n            where = row\n    return str(best) + \" \" + str(where)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        chart = _lines[_i + 0].strip()\n        print(emptiestRow(chart))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String emptiestRow(String chart) {\n\n        int best = -1, where = 1, row = 0;\n        for (String line : chart.split(\";\")) {\n            row++;\n            int free = 0;\n            for (char c : line.toCharArray()) if (c == '.') free++;\n            if (free > best) { best = free; where = row; }\n        }\n        return best + \" \" + where;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String chart = _lines.get(_i + 0);\n            _sb.append(emptiestRow(chart)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring emptiestRow(string chart) {\n\n    int best = -1, where = 1, row = 0;\n    string line;\n    istringstream is(chart);\n    while (getline(is, line, ';')) {\n        row++;\n        int free = 0;\n        for (char c : line) if (c == '.') free++;\n        if (free > best) { best = free; where = row; }\n    }\n    return to_string(best) + \" \" + to_string(where);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string chart = _lines[_i + 0];\n        cout << emptiestRow(chart) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "hot-streak",
+  "division": "Junior",
+  "contest": 3,
+  "title": "Hot Streak",
+  "blurb": "Find the longest stretch of strictly rising numbers and say where it ended.",
+  "statement": "\n<p>A list of whole numbers is given in order. A streak is a stretch of neighboring values in which\neach one is strictly larger than the one before it. A single value on its own is a streak of length\n1.</p>\n\n<p>Report the length of the longest streak and the value it ends on. If two streaks tie for\nlongest, report the one that ends earlier.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>1 3 5 4 6 7 8 2</td></tr>\n<tr><th>Output</th><td>4 8</td></tr>\n<tr><th>Explanation</th><td>\nThe streak 1 3 5 has length 3.<br>\nThe streak 4 6 7 8 has length 4 and is the longest.<br>\nIt ends on 8, and the 2 that follows begins a new streak of length 1.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the values in order, each separated by a single space.",
+  "output_spec": "Output the length of the longest streak, a single space, and the value it ends on.",
+  "constraints": "There are between 1 and 200 values, each between -9999 and 9999, inclusive.",
+  "approach": "\n<p>One pass and two counters. Keep the length of the streak currently running, and separately the\nbest length seen so far together with the value it ended on.</p>\n\n<p>At each position, compare the value with the one before it. If it is strictly larger, the current\nstreak grows by one; otherwise a new streak starts and the current length resets to 1. Both the\ncurrent length and the best have to start at 1 rather than 0, because a single value is already a\nstreak.</p>\n\n<p>The comparison must be strictly greater. Equal neighbors break the streak, which is what the\nstatement means by strictly rising, and a test using greater than or equal would report 6 rather than 2\nfor a list of six equal values.</p>\n\n<p>Update the best only when the current streak is strictly longer. That keeps the earlier of two tied\nstreaks, which is what the problem asks for. Record the value at the same moment you record the length,\nsince the value you want is the one at the position you are standing on, not the largest in the\nlist.</p>\n",
+  "hints": [
+   "You need two lengths at once: the streak you are in and the best you have seen.",
+   "Reset the current length to 1 whenever a value is not strictly larger than the one before it. Record the ending value at the same moment you record a new best."
+  ],
+  "fname": "longestRun",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>values</code>, the numbers separated by single\nspaces.</li>\n<li>The function returns a string, the streak length followed by a space and its final value.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "1 3 5 4 6 7 8 2"
+    ],
+    "out": "4 8"
+   },
+   {
+    "in": [
+     "5"
+    ],
+    "out": "1 5"
+   },
+   {
+    "in": [
+     "9 8 7"
+    ],
+    "out": "1 9"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "1 3 5 4 6 7 8 2"
+    ],
+    "out": "4 8"
+   },
+   {
+    "in": [
+     "5"
+    ],
+    "out": "1 5"
+   },
+   {
+    "in": [
+     "9 8 7"
+    ],
+    "out": "1 9"
+   },
+   {
+    "in": [
+     "1 2 3 1 2 3"
+    ],
+    "out": "3 3"
+   },
+   {
+    "in": [
+     "1 1 1 1"
+    ],
+    "out": "1 1"
+   },
+   {
+    "in": [
+     "-5 -3 -1 0"
+    ],
+    "out": "4 0"
+   },
+   {
+    "in": [
+     "4 4 5 5 6 6"
+    ],
+    "out": "2 5"
+   },
+   {
+    "in": [
+     "10 20 30 40 50"
+    ],
+    "out": "5 50"
+   },
+   {
+    "in": [
+     "3 2 1 2 3 4"
+    ],
+    "out": "4 4"
+   },
+   {
+    "in": [
+     "-9999 9999"
+    ],
+    "out": "2 9999"
+   },
+   {
+    "in": [
+     "7 7 7 8 9 1 2 3 4"
+    ],
+    "out": "4 4"
+   },
+   {
+    "in": [
+     "0 -1 0 -1 0"
+    ],
+    "out": "2 0"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef longestRun(values: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        values = _lines[_i + 0].strip()\n        print(longestRun(values))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String longestRun(String values) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String values = _lines.get(_i + 0);\n            _sb.append(longestRun(values)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring longestRun(string values) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string values = _lines[_i + 0];\n        cout << longestRun(values) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef longestRun(values: str) -> str:\n\n    nums = [int(t) for t in values.split()]\n    best = 1\n    run = 1\n    ending = nums[0]\n    for i in range(1, len(nums)):\n        run = run + 1 if nums[i] > nums[i - 1] else 1\n        if run > best:\n            best = run\n            ending = nums[i]\n    return str(best) + \" \" + str(ending)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        values = _lines[_i + 0].strip()\n        print(longestRun(values))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String longestRun(String values) {\n\n        String[] parts = values.trim().split(\"\\\\s+\");\n        int[] nums = new int[parts.length];\n        for (int i = 0; i < parts.length; i++) nums[i] = Integer.parseInt(parts[i]);\n        int best = 1, run = 1, ending = nums[0];\n        for (int i = 1; i < nums.length; i++) {\n            run = nums[i] > nums[i - 1] ? run + 1 : 1;\n            if (run > best) { best = run; ending = nums[i]; }\n        }\n        return best + \" \" + ending;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String values = _lines.get(_i + 0);\n            _sb.append(longestRun(values)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring longestRun(string values) {\n\n    vector<int> nums;\n    int x;\n    istringstream is(values);\n    while (is >> x) nums.push_back(x);\n    int best = 1, run = 1, ending = nums[0];\n    for (size_t i = 1; i < nums.size(); i++) {\n        run = nums[i] > nums[i - 1] ? run + 1 : 1;\n        if (run > best) { best = run; ending = (int) nums[i]; }\n    }\n    return to_string(best) + \" \" + to_string(ending);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string values = _lines[_i + 0];\n        cout << longestRun(values) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "magic-square",
+  "division": "Junior",
+  "contest": 3,
+  "title": "Magic Square",
+  "blurb": "Check whether every row, column, and diagonal of a square grid adds to the same total.",
+  "statement": "\n<p>A square grid of whole numbers is given one row at a time. It is magic when every row, every\ncolumn, and both of the two long diagonals add up to the same total.</p>\n\n<p>Report that total if the grid is magic. Otherwise report NO. A one by one grid is always magic,\nsince its single value is at once its only row, its only column, and both diagonals.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>2 7 6;9 5 1;4 3 8</td></tr>\n<tr><th>Output</th><td>15</td></tr>\n<tr><th>Explanation</th><td>\nThe rows add to 15, 15, and 15.<br>\nThe columns add to 15, 15, and 15.<br>\nThe diagonals 2 5 8 and 6 5 4 both add to 15 as well.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the rows in order, separated by semicolons. Within a row the values are separated by single spaces.",
+  "output_spec": "Output the common total, or NO if the grid is not magic.",
+  "constraints": "The grid is between 1 by 1 and 12 by 12. Every value is between -999 and 999, inclusive.",
+  "approach": "\n<p>Parse first, check afterwards. Split the line at the semicolons to get the rows, then split\neach row at the spaces to get its values, and store the whole thing in a two dimensional array. Trying\nto check while parsing makes the column and diagonal work far harder than it needs to be.</p>\n\n<p>Take the target total from the first row and then test everything against it. There are four\nseparate things to check and it is easy to stop after two: every row, every column, the diagonal\nrunning from the top left to the bottom right, and the diagonal running from the top right to the\nbottom left.</p>\n\n<p>The columns need the subscripts the other way round from the rows. Where a row sum fixes the row and\nruns the column subscript, a column sum fixes the column and runs the row subscript, so the loops look\nalmost identical and the two subscripts are swapped inside.</p>\n\n<p>The two diagonals are the cells where the subscripts agree and the cells where they add to one less\nthan the size of the grid. Both are single loops. Grids like the third sample and the fourth test show\nwhy the diagonals cannot be skipped: a grid can have every row and column right and still fail on\nthem.</p>\n",
+  "hints": [
+   "There are four things to check, not two. Which ones are easy to forget?",
+   "Take the target from the first row, then check every row, every column, and both diagonals. The columns need the two subscripts swapped relative to the rows."
+  ],
+  "fname": "magicSum",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>grid</code>, the rows separated by\nsemicolons.</li>\n<li>The function returns a string, the common total or the word NO.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "2 7 6;9 5 1;4 3 8"
+    ],
+    "out": "15"
+   },
+   {
+    "in": [
+     "1 2;3 4"
+    ],
+    "out": "NO"
+   },
+   {
+    "in": [
+     "5"
+    ],
+    "out": "5"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "2 7 6;9 5 1;4 3 8"
+    ],
+    "out": "15"
+   },
+   {
+    "in": [
+     "1 2;3 4"
+    ],
+    "out": "NO"
+   },
+   {
+    "in": [
+     "5"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "1 1;1 1"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "16 3 2 13;5 10 11 8;9 6 7 12;4 15 14 1"
+    ],
+    "out": "34"
+   },
+   {
+    "in": [
+     "2 7 6;9 5 1;4 8 3"
+    ],
+    "out": "NO"
+   },
+   {
+    "in": [
+     "0"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "1 0;0 1"
+    ],
+    "out": "NO"
+   },
+   {
+    "in": [
+     "8 1 6;3 5 7;4 9 2"
+    ],
+    "out": "15"
+   },
+   {
+    "in": [
+     "-1 -1;-1 -1"
+    ],
+    "out": "-2"
+   },
+   {
+    "in": [
+     "3 3 3;3 3 3;3 3 3"
+    ],
+    "out": "9"
+   },
+   {
+    "in": [
+     "1 2 3;4 5 6;7 8 9"
+    ],
+    "out": "NO"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef magicSum(grid: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        grid = _lines[_i + 0].strip()\n        print(magicSum(grid))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String magicSum(String grid) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String grid = _lines.get(_i + 0);\n            _sb.append(magicSum(grid)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring magicSum(string grid) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string grid = _lines[_i + 0];\n        cout << magicSum(grid) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef magicSum(grid: str) -> str:\n\n    rows = [[int(t) for t in line.split()] for line in grid.split(\";\")]\n    n = len(rows)\n    target = sum(rows[0])\n    for r in rows:\n        if sum(r) != target:\n            return \"NO\"\n    for c in range(n):\n        if sum(rows[r][c] for r in range(n)) != target:\n            return \"NO\"\n    if sum(rows[i][i] for i in range(n)) != target:\n        return \"NO\"\n    if sum(rows[i][n - 1 - i] for i in range(n)) != target:\n        return \"NO\"\n    return str(target)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        grid = _lines[_i + 0].strip()\n        print(magicSum(grid))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String magicSum(String grid) {\n\n        String[] lines = grid.split(\";\");\n        int n = lines.length;\n        int[][] a = new int[n][n];\n        for (int i = 0; i < n; i++) {\n            String[] parts = lines[i].trim().split(\"\\\\s+\");\n            for (int j = 0; j < n; j++) a[i][j] = Integer.parseInt(parts[j]);\n        }\n        int target = 0;\n        for (int j = 0; j < n; j++) target += a[0][j];\n        for (int i = 0; i < n; i++) {\n            int s = 0;\n            for (int j = 0; j < n; j++) s += a[i][j];\n            if (s != target) return \"NO\";\n        }\n        for (int j = 0; j < n; j++) {\n            int s = 0;\n            for (int i = 0; i < n; i++) s += a[i][j];\n            if (s != target) return \"NO\";\n        }\n        int d1 = 0, d2 = 0;\n        for (int i = 0; i < n; i++) { d1 += a[i][i]; d2 += a[i][n - 1 - i]; }\n        if (d1 != target || d2 != target) return \"NO\";\n        return String.valueOf(target);\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String grid = _lines.get(_i + 0);\n            _sb.append(magicSum(grid)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring magicSum(string grid) {\n\n    vector<vector<int>> a;\n    string line;\n    istringstream rowsIn(grid);\n    while (getline(rowsIn, line, ';')) {\n        vector<int> row;\n        int x;\n        istringstream is(line);\n        while (is >> x) row.push_back(x);\n        a.push_back(row);\n    }\n    int n = (int) a.size();\n    int target = 0;\n    for (int j = 0; j < n; j++) target += a[0][j];\n    for (int i = 0; i < n; i++) {\n        int s = 0;\n        for (int j = 0; j < n; j++) s += a[i][j];\n        if (s != target) return \"NO\";\n    }\n    for (int j = 0; j < n; j++) {\n        int s = 0;\n        for (int i = 0; i < n; i++) s += a[i][j];\n        if (s != target) return \"NO\";\n    }\n    int d1 = 0, d2 = 0;\n    for (int i = 0; i < n; i++) { d1 += a[i][i]; d2 += a[i][n - 1 - i]; }\n    if (d1 != target || d2 != target) return \"NO\";\n    return to_string(target);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string grid = _lines[_i + 0];\n        cout << magicSum(grid) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "run-length",
+  "division": "Junior",
+  "contest": 4,
+  "title": "Run Length",
+  "blurb": "Squash a string into letters and counts, one pair per run.",
+  "statement": "\n<p>A run is a stretch of the same letter repeated. Rewrite a string by replacing each run with\nthat letter followed by the length of the run, working from left to right.</p>\n\n<p>Every run is written out, including a run of length 1, which becomes the letter followed by the\ndigit 1.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>AAABBC</td></tr>\n<tr><th>Output</th><td>A3B2C1</td></tr>\n<tr><th>Explanation</th><td>\nThree As become A3.<br>\nTwo Bs become B2.<br>\nOne C becomes C1.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the string.",
+  "output_spec": "Output the encoded string.",
+  "constraints": "The string holds between 1 and 200 characters, all of them capital letters from A through Z.",
+  "approach": "\n<p>Walk the string with an outer index that jumps a whole run at a time. From position i, run a\nsecond index j forward while the character there still matches the one at i. When it stops, the run is\nj minus i characters long, so append the letter and that length, then set i to j and continue.</p>\n\n<p>A single index with a running counter works too, but it needs the closing run flushed after the loop\nends, and forgetting that is the usual bug: the last run is written by the code that notices a change,\nand at the end of the string there is no change left to notice. The two index version has no such tail\ncase, since the outer loop only stops when everything has already been written.</p>\n\n<p>The count is written as text, not as a character, so a run of twelve becomes the two characters 1\nand 2 rather than anything else. In Java and C++ that means converting the number rather than adding it\nto a character, and a run of length 12 in the third sample is there to catch exactly that slip.</p>\n\n<p>Build the answer in a string builder in Java rather than by repeated concatenation. At 200 characters\nit makes no practical difference, but it is the habit worth having.</p>\n",
+  "hints": [
+   "Advance past a whole run at a time rather than one character at a time.",
+   "From position i, run j forward while the character matches, then write the letter and j minus i. Setting i to j means there is no final run left to flush."
+  ],
+  "fname": "encode",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>text</code>, the string to encode.</li>\n<li>The function returns a string, the encoded form.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "AAABBC"
+    ],
+    "out": "A3B2C1"
+   },
+   {
+    "in": [
+     "A"
+    ],
+    "out": "A1"
+   },
+   {
+    "in": [
+     "ZZZZZZZZZZZZ"
+    ],
+    "out": "Z12"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "AAABBC"
+    ],
+    "out": "A3B2C1"
+   },
+   {
+    "in": [
+     "A"
+    ],
+    "out": "A1"
+   },
+   {
+    "in": [
+     "ZZZZZZZZZZZZ"
+    ],
+    "out": "Z12"
+   },
+   {
+    "in": [
+     "ABCDE"
+    ],
+    "out": "A1B1C1D1E1"
+   },
+   {
+    "in": [
+     "AABBAABB"
+    ],
+    "out": "A2B2A2B2"
+   },
+   {
+    "in": [
+     "MISSISSIPPI"
+    ],
+    "out": "M1I1S2I1S2I1P2I1"
+   },
+   {
+    "in": [
+     "QQ"
+    ],
+    "out": "Q2"
+   },
+   {
+    "in": [
+     "ABABABAB"
+    ],
+    "out": "A1B1A1B1A1B1A1B1"
+   },
+   {
+    "in": [
+     "WWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    "out": "W25"
+   },
+   {
+    "in": [
+     "AAAAAAAAAB"
+    ],
+    "out": "A9B1"
+   },
+   {
+    "in": [
+     "BAAAAAAAAA"
+    ],
+    "out": "B1A9"
+   },
+   {
+    "in": [
+     "XYYZZZWWWW"
+    ],
+    "out": "X1Y2Z3W4"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef encode(text: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        text = _lines[_i + 0].strip()\n        print(encode(text))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String encode(String text) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String text = _lines.get(_i + 0);\n            _sb.append(encode(text)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring encode(string text) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string text = _lines[_i + 0];\n        cout << encode(text) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef encode(text: str) -> str:\n\n    out = \"\"\n    i = 0\n    while i < len(text):\n        j = i\n        while j < len(text) and text[j] == text[i]:\n            j += 1\n        out += text[i] + str(j - i)\n        i = j\n    return out\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        text = _lines[_i + 0].strip()\n        print(encode(text))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String encode(String text) {\n\n        StringBuilder out = new StringBuilder();\n        int i = 0;\n        while (i < text.length()) {\n            int j = i;\n            while (j < text.length() && text.charAt(j) == text.charAt(i)) j++;\n            out.append(text.charAt(i)).append(j - i);\n            i = j;\n        }\n        return out.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String text = _lines.get(_i + 0);\n            _sb.append(encode(text)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring encode(string text) {\n\n    string out;\n    size_t i = 0;\n    while (i < text.size()) {\n        size_t j = i;\n        while (j < text.size() && text[j] == text[i]) j++;\n        out += text[i];\n        out += to_string(j - i);\n        i = j;\n    }\n    return out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string text = _lines[_i + 0];\n        cout << encode(text) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "acronym-maker",
+  "division": "Junior",
+  "contest": 4,
+  "title": "Acronym Maker",
+  "blurb": "Build an acronym from a phrase, keeping only the words that carry weight.",
+  "statement": "\n<p>An acronym is made from the first letter of each significant word in a phrase, written in\ncapitals. A word counts as significant when it holds 4 or more letters, which is what keeps short\njoining words like the, of, and and out of the result.</p>\n\n<p>Report the acronym. If no word in the phrase is long enough, report NONE instead.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>american computer science league</td></tr>\n<tr><th>Output</th><td>ACSL</td></tr>\n<tr><th>Explanation</th><td>\nAll four words hold 4 or more letters, so all four contribute.<br>\nTheir first letters are a, c, s, and l, written in capitals.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the phrase, with words separated by single spaces.",
+  "output_spec": "Output the acronym in capitals, or NONE if no word qualifies.",
+  "constraints": "The phrase holds between 1 and 30 words, each between 1 and 20 lowercase letters.",
+  "approach": "\n<p>Split the phrase at the spaces, then walk the words and keep the first letter of every word\nwhose length is 4 or more. Turning that letter into a capital is the last step and can be done as you\ngo or once at the end; either is fine as long as it happens.</p>\n\n<p>The length test is 4 or more, not more than 4. A four letter word qualifies, and one of the tests is\nthe single word abcd for exactly that reason, with abc beside it as the case that does not.</p>\n\n<p>The NONE case is decided after the whole phrase has been read, not while reading it, so build the\nacronym first and then ask whether it came out empty. A phrase of nothing but short words is the only\nway to reach it.</p>\n\n<p>In Java, uppercasing a single character is easiest with Character.toUpperCase, and in C++ with the\ntoupper function, remembering that it returns an integer that has to be turned back into a character\nbefore it is appended.</p>\n",
+  "hints": [
+   "The rule is 4 or more letters. Which words in the samples sit right on that line?",
+   "Take the first letter of each word of length 4 or more and uppercase it. Decide on NONE after the whole phrase has been read, not during it."
+  ],
+  "fname": "acronym",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>phrase</code>, the phrase to abbreviate.</li>\n<li>The function returns a string, the acronym or the word NONE.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "american computer science league"
+    ],
+    "out": "ACSL"
+   },
+   {
+    "in": [
+     "the cat sat"
+    ],
+    "out": "NONE"
+   },
+   {
+    "in": [
+     "portable network graphics"
+    ],
+    "out": "PNG"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "american computer science league"
+    ],
+    "out": "ACSL"
+   },
+   {
+    "in": [
+     "the cat sat"
+    ],
+    "out": "NONE"
+   },
+   {
+    "in": [
+     "portable network graphics"
+    ],
+    "out": "PNG"
+   },
+   {
+    "in": [
+     "a"
+    ],
+    "out": "NONE"
+   },
+   {
+    "in": [
+     "self contained underwater breathing apparatus"
+    ],
+    "out": "SCUBA"
+   },
+   {
+    "in": [
+     "read the fine manual"
+    ],
+    "out": "RFM"
+   },
+   {
+    "in": [
+     "light amplification by stimulated emission of radiation"
+    ],
+    "out": "LASER"
+   },
+   {
+    "in": [
+     "abcd"
+    ],
+    "out": "A"
+   },
+   {
+    "in": [
+     "abc"
+    ],
+    "out": "NONE"
+   },
+   {
+    "in": [
+     "one two three four five"
+    ],
+    "out": "TFF"
+   },
+   {
+    "in": [
+     "structured query language"
+    ],
+    "out": "SQL"
+   },
+   {
+    "in": [
+     "as soon as possible"
+    ],
+    "out": "SP"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef acronym(phrase: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        phrase = _lines[_i + 0].strip()\n        print(acronym(phrase))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String acronym(String phrase) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String phrase = _lines.get(_i + 0);\n            _sb.append(acronym(phrase)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring acronym(string phrase) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string phrase = _lines[_i + 0];\n        cout << acronym(phrase) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef acronym(phrase: str) -> str:\n\n    out = \"\"\n    for word in phrase.split():\n        if len(word) >= 4:\n            out += word[0].upper()\n    return out if out else \"NONE\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        phrase = _lines[_i + 0].strip()\n        print(acronym(phrase))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String acronym(String phrase) {\n\n        StringBuilder out = new StringBuilder();\n        for (String word : phrase.trim().split(\"\\\\s+\")) {\n            if (word.length() >= 4) out.append(Character.toUpperCase(word.charAt(0)));\n        }\n        return out.length() > 0 ? out.toString() : \"NONE\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String phrase = _lines.get(_i + 0);\n            _sb.append(acronym(phrase)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring acronym(string phrase) {\n\n    string out, word;\n    istringstream is(phrase);\n    while (is >> word) {\n        if (word.size() >= 4) out += (char) toupper(word[0]);\n    }\n    return out.empty() ? string(\"NONE\") : out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string phrase = _lines[_i + 0];\n        cout << acronym(phrase) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "word-search-row",
+  "division": "Junior",
+  "contest": 4,
+  "title": "Word Search Row",
+  "blurb": "Count how often a word sits inside a row of letters, overlaps included.",
+  "statement": "\n<p>A single row of a word search puzzle is a run of capital letters. Count how many times a given\nword appears inside it, reading left to right.</p>\n\n<p>Two appearances may overlap and both are counted. In AAAA the word AA appears three times, once\nstarting at each of the first three positions.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>AAAA<br>AA</td></tr>\n<tr><th>Output</th><td>3</td></tr>\n<tr><th>Explanation</th><td>\nAA appears starting at position 0.<br>\nAA appears starting at position 1.<br>\nAA appears starting at position 2.<br>\nPositions are counted from 0, and the three appearances overlap.\n</td></tr></table>\n",
+  "input_spec": "Input the row of letters on the first line and the word to look for on the second line.",
+  "output_spec": "Output an integer, the number of appearances.",
+  "constraints": "The row holds between 1 and 200 capital letters. The word holds between 1 and 20 capital letters. The word may be longer than the row.",
+  "approach": "\n<p>Try every starting position and compare. The word can begin anywhere from position 0 up to the\nrow's length minus the word's length, and at each of those positions you check whether the next few\ncharacters match the word.</p>\n\n<p>That upper bound is the whole problem. Going further would read past the end of the row, and stopping\nshort would miss an appearance that finishes exactly at the last character. Written as a loop from 0\nwhile i plus the word's length is at most the row's length, it handles both ends correctly, and it also\nhandles a word longer than the row without any special case: the loop simply never runs and the answer\nis 0.</p>\n\n<p>Because you check every position rather than jumping past a match, overlapping appearances are\ncounted automatically. Skipping forward by the word's length after a match would count AA in AAAA twice\nrather than three times, which is the mistake this problem is built around.</p>\n\n<p>In Python the comparison is a slice against the word. In Java, substring does the same job, and in\nC++ so does compare or substr. All three are one line, and none of them needs a character by character\ninner loop unless you want to write one.</p>\n",
+  "hints": [
+   "Where is the last position at which the word could still start?",
+   "Loop while i plus the word length is at most the row length, comparing at every position. Never skip forward past a match, or overlaps go uncounted."
+  ],
+  "fname": "countWord",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>row</code>, the row of letters, and a string,\n<code>word</code>, the word to look for.</li>\n<li>The function returns an integer, the number of appearances.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "AAAA",
+     "AA"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "BANANA",
+     "ANA"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "ABC",
+     "D"
+    ],
+    "out": "0"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "AAAA",
+     "AA"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "BANANA",
+     "ANA"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "ABC",
+     "D"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "XYZXYZXYZ",
+     "XYZ"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "AB",
+     "ABCDE"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "MISSISSIPPI",
+     "ISSI"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "AAAAAAAAAA",
+     "A"
+    ],
+    "out": "10"
+   },
+   {
+    "in": [
+     "AAAAAAAAAA",
+     "AAAAAAAAAA"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "ABABABAB",
+     "ABAB"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "QQQQQ",
+     "QQQ"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "ACSLACSL",
+     "ACSL"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "ZZZZZZZZZZZZZZZZZZZZ",
+     "ZZZZZZZZZZZZZZZZZZZZZ"
+    ],
+    "out": "0"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef countWord(row: str, word: str) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        row = _lines[_i + 0].strip()\n        word = _lines[_i + 1].strip()\n        print(countWord(row, word))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countWord(String row, String word) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String row = _lines.get(_i + 0);\n            String word = _lines.get(_i + 1);\n            _sb.append(countWord(row, word)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countWord(string row, string word) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string row = _lines[_i + 0];\n        string word = _lines[_i + 1];\n        cout << countWord(row, word) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef countWord(row: str, word: str) -> int:\n\n    count = 0\n    n = len(word)\n    for i in range(len(row) - n + 1):\n        if row[i:i + n] == word:\n            count += 1\n    return count\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        row = _lines[_i + 0].strip()\n        word = _lines[_i + 1].strip()\n        print(countWord(row, word))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countWord(String row, String word) {\n\n        int count = 0, n = word.length();\n        for (int i = 0; i + n <= row.length(); i++) {\n            if (row.substring(i, i + n).equals(word)) count++;\n        }\n        return count;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String row = _lines.get(_i + 0);\n            String word = _lines.get(_i + 1);\n            _sb.append(countWord(row, word)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countWord(string row, string word) {\n\n    int count = 0;\n    size_t n = word.size();\n    for (size_t i = 0; i + n <= row.size(); i++) {\n        if (row.compare(i, n, word) == 0) count++;\n    }\n    return count;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string row = _lines[_i + 0];\n        string word = _lines[_i + 1];\n        cout << countWord(row, word) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "collatz-peak",
+  "division": "Senior",
+  "contest": 1,
+  "title": "Collatz Peak",
+  "blurb": "Halve or triple a number by turns and report how high it climbed before it fell to 1.",
+  "statement": "\n<p>Start with a whole number. If it is even, replace it with half of itself. If it is odd, replace\nit with three times itself plus one. Repeat until the value reaches 1, which it always does.</p>\n\n<p>Report the largest value the chain ever held, counting the starting value itself, and the number\nof replacements made. A starting value of 1 makes no replacements at all.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>6</td></tr>\n<tr><th>Output</th><td>16 8</td></tr>\n<tr><th>Explanation</th><td>\nThe chain runs 6, 3, 10, 5, 16, 8, 4, 2, 1.<br>\nThe largest value along the way is 16.<br>\nReaching 1 took 8 replacements.\n</td></tr></table>\n",
+  "input_spec": "Input a single whole number, the value the chain begins with.",
+  "output_spec": "Output the largest value the chain held, a single space, and the number of replacements.",
+  "constraints": "The starting value is between 1 and 999999, inclusive. The largest value reached always fits in a 64 bit integer, and may be far larger than the starting value.",
+  "approach": "\n<p>The loop is four lines and everything that can go wrong is in the bookkeeping around it.</p>\n\n<p>Keep the current value, a running maximum, and a count. On each pass, apply the rule, add one to\nthe count, and raise the maximum if the new value beats it. Stop when the value equals 1.</p>\n\n<p>Start the maximum at the starting value rather than at zero or at one, because a chain that begins\nabove everything it later reaches would otherwise report the wrong peak. A start of 2 is the smallest\ncase where this matters: the chain is 2, 1, and the peak is the 2 you began with.</p>\n\n<p>The type is the real trap. The values climb far higher than the input suggests, and a start under a\nmillion can pass twenty million on the way down. Use a 64 bit integer for the running value in Java and\nC++; a 32 bit one will overflow silently on some of the longer chains and produce a wrong answer\nrather than an error.</p>\n\n<p>Do not try to be clever with a table of already computed chains. There is no need: the longest chain\nunder a million takes well under six hundred steps, so even the worst case finishes instantly.</p>\n",
+  "hints": [
+   "Where should the running maximum start? Think about a chain that only goes down.",
+   "Seed the maximum with the starting value, and hold the running value in a 64 bit integer. Chains under a million pass twenty million on the way."
+  ],
+  "fname": "hailstone",
+  "task": "\n<ul>\n<li>The function has 1 parameter: an integer, <code>start</code>, the value the chain begins\nwith.</li>\n<li>The function returns a string, the largest value followed by a space and the number of\nreplacements.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "6"
+    ],
+    "out": "16 8"
+   },
+   {
+    "in": [
+     "1"
+    ],
+    "out": "1 0"
+   },
+   {
+    "in": [
+     "27"
+    ],
+    "out": "9232 111"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "6"
+    ],
+    "out": "16 8"
+   },
+   {
+    "in": [
+     "1"
+    ],
+    "out": "1 0"
+   },
+   {
+    "in": [
+     "27"
+    ],
+    "out": "9232 111"
+   },
+   {
+    "in": [
+     "2"
+    ],
+    "out": "2 1"
+   },
+   {
+    "in": [
+     "703"
+    ],
+    "out": "250504 170"
+   },
+   {
+    "in": [
+     "77031"
+    ],
+    "out": "21933016 350"
+   },
+   {
+    "in": [
+     "999999"
+    ],
+    "out": "22781248 258"
+   },
+   {
+    "in": [
+     "97"
+    ],
+    "out": "9232 118"
+   },
+   {
+    "in": [
+     "871"
+    ],
+    "out": "190996 178"
+   },
+   {
+    "in": [
+     "6171"
+    ],
+    "out": "975400 261"
+   },
+   {
+    "in": [
+     "9"
+    ],
+    "out": "52 19"
+   },
+   {
+    "in": [
+     "837799"
+    ],
+    "out": "2974984576 524"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef hailstone(start: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        start = int(_lines[_i + 0].strip())\n        print(hailstone(start))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String hailstone(int start) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int start = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(hailstone(start)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring hailstone(int start) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int start = stoi(_lines[_i + 0]);\n        cout << hailstone(start) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef hailstone(start: int) -> str:\n\n    n = start\n    peak = start\n    steps = 0\n    while n != 1:\n        n = n // 2 if n % 2 == 0 else 3 * n + 1\n        steps += 1\n        if n > peak:\n            peak = n\n    return str(peak) + \" \" + str(steps)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        start = int(_lines[_i + 0].strip())\n        print(hailstone(start))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String hailstone(int start) {\n\n        long n = start, peak = start;\n        int steps = 0;\n        while (n != 1) {\n            n = (n % 2 == 0) ? n / 2 : 3 * n + 1;\n            steps++;\n            if (n > peak) peak = n;\n        }\n        return peak + \" \" + steps;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int start = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(hailstone(start)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring hailstone(int start) {\n\n    long long n = start, peak = start;\n    int steps = 0;\n    while (n != 1) {\n        n = (n % 2 == 0) ? n / 2 : 3 * n + 1;\n        steps++;\n        if (n > peak) peak = n;\n    }\n    return to_string(peak) + \" \" + to_string(steps);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int start = stoi(_lines[_i + 0]);\n        cout << hailstone(start) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "divisor-champion",
+  "division": "Senior",
+  "contest": 1,
+  "title": "Divisor Champion",
+  "blurb": "Sweep a range of numbers and find the one with the most divisors.",
+  "statement": "\n<p>Every whole number has some set of divisors, meaning the numbers that divide it exactly,\nincluding 1 and itself.</p>\n\n<p>Over a given range of whole numbers, report the one with the most divisors and how many divisors\nit has. If several numbers tie, report the smallest of them.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>1<br>10</td></tr>\n<tr><th>Output</th><td>6 4</td></tr>\n<tr><th>Explanation</th><td>\n6 has the divisors 1, 2, 3, and 6, which is four of them.<br>\n8 and 10 also have four divisors each, but 6 is the smallest of the three.<br>\nNothing in the range has more than four.\n</td></tr></table>\n",
+  "input_spec": "Input the low end of the range on the first line and the high end on the second line. Both ends belong to the range.",
+  "output_spec": "Output the winning number, a single space, and its number of divisors.",
+  "constraints": "The low end is between 1 and 10000, inclusive, and the high end is at least the low end and at most 10000.",
+  "approach": "\n<p>Two loops, and the inner one is where the whole problem sits. Counting divisors by testing every\nnumber from 1 up to n works and is far more effort than it needs to be. Divisors come in pairs: if d\ndivides n then so does n divided by d, and one member of every pair is at most the square root of\nn.</p>\n\n<p>So loop d from 1 while d times d is at most n, and every time d divides n, add 2 to the count, once\nfor d and once for its partner. The one exception is a perfect square, where d and its partner are the\nsame number and adding 2 would count it twice, so add 1 instead when d times d equals n.</p>\n\n<p>Compare with d times d rather than with the square root itself. Floating point square roots are the\nusual source of off by one errors here, since a value just under a whole number rounds the wrong way\nand silently drops the largest divisor pair.</p>\n\n<p>Keep the best count and the number that achieved it, updating only when a count is strictly larger.\nThat settles ties in favor of the smallest number, since the range is swept upward and a later number\nwith an equal count never displaces the earlier one. The first sample has three numbers tied at four\ndivisors, which is there to catch a greater than or equal test.</p>\n",
+  "hints": [
+   "Divisors come in pairs. How far do you actually have to search for one of each pair?",
+   "Loop d while d*d <= n, adding 2 per divisor found and 1 when d*d equals n. Update the best only on a strictly larger count so ties go to the smallest number."
+  ],
+  "fname": "mostDivisors",
+  "task": "\n<ul>\n<li>The function has 2 parameters: an integer, <code>low</code>, and an integer, <code>high</code>,\nthe two ends of the range.</li>\n<li>The function returns a string, the winning number followed by a space and its divisor\ncount.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "1",
+     "10"
+    ],
+    "out": "6 4"
+   },
+   {
+    "in": [
+     "1",
+     "1"
+    ],
+    "out": "1 1"
+   },
+   {
+    "in": [
+     "60",
+     "120"
+    ],
+    "out": "120 16"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "1",
+     "10"
+    ],
+    "out": "6 4"
+   },
+   {
+    "in": [
+     "1",
+     "1"
+    ],
+    "out": "1 1"
+   },
+   {
+    "in": [
+     "60",
+     "120"
+    ],
+    "out": "120 16"
+   },
+   {
+    "in": [
+     "1",
+     "100"
+    ],
+    "out": "60 12"
+   },
+   {
+    "in": [
+     "9973",
+     "9973"
+    ],
+    "out": "9973 2"
+   },
+   {
+    "in": [
+     "1",
+     "10000"
+    ],
+    "out": "7560 64"
+   },
+   {
+    "in": [
+     "7560",
+     "7560"
+    ],
+    "out": "7560 64"
+   },
+   {
+    "in": [
+     "100",
+     "200"
+    ],
+    "out": "180 18"
+   },
+   {
+    "in": [
+     "9000",
+     "10000"
+    ],
+    "out": "9240 64"
+   },
+   {
+    "in": [
+     "2",
+     "3"
+    ],
+    "out": "2 2"
+   },
+   {
+    "in": [
+     "5040",
+     "5040"
+    ],
+    "out": "5040 60"
+   },
+   {
+    "in": [
+     "1",
+     "2"
+    ],
+    "out": "2 2"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef mostDivisors(low: int, high: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        low = int(_lines[_i + 0].strip())\n        high = int(_lines[_i + 1].strip())\n        print(mostDivisors(low, high))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String mostDivisors(int low, int high) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int low = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int high = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(mostDivisors(low, high)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring mostDivisors(int low, int high) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int low = stoi(_lines[_i + 0]);\n        int high = stoi(_lines[_i + 1]);\n        cout << mostDivisors(low, high) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef mostDivisors(low: int, high: int) -> str:\n\n    bestN = low\n    bestC = -1\n    for n in range(low, high + 1):\n        count = 0\n        d = 1\n        while d * d <= n:\n            if n % d == 0:\n                count += 2 if d * d != n else 1\n            d += 1\n        if count > bestC:\n            bestC = count\n            bestN = n\n    return str(bestN) + \" \" + str(bestC)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        low = int(_lines[_i + 0].strip())\n        high = int(_lines[_i + 1].strip())\n        print(mostDivisors(low, high))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String mostDivisors(int low, int high) {\n\n        int bestN = low, bestC = -1;\n        for (int n = low; n <= high; n++) {\n            int count = 0;\n            for (int d = 1; (long) d * d <= n; d++) {\n                if (n % d == 0) count += (d * d != n) ? 2 : 1;\n            }\n            if (count > bestC) { bestC = count; bestN = n; }\n        }\n        return bestN + \" \" + bestC;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int low = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int high = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(mostDivisors(low, high)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring mostDivisors(int low, int high) {\n\n    int bestN = low, bestC = -1;\n    for (int n = low; n <= high; n++) {\n        int count = 0;\n        for (int d = 1; (long long) d * d <= n; d++) {\n            if (n % d == 0) count += (d * d != n) ? 2 : 1;\n        }\n        if (count > bestC) { bestC = count; bestN = n; }\n    }\n    return to_string(bestN) + \" \" + to_string(bestC);\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int low = stoi(_lines[_i + 0]);\n        int high = stoi(_lines[_i + 1]);\n        cout << mostDivisors(low, high) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "base-palindrome",
+  "division": "Senior",
+  "contest": 1,
+  "title": "Base Palindrome",
+  "blurb": "Hunt for the next number that reads the same forwards in base 10 and in binary.",
+  "statement": "\n<p>A number is a palindrome in a given base when its digits in that base read the same in either\ndirection. Leading zeros are never written, so binary representations always begin with a 1.</p>\n\n<p>Report the smallest number strictly greater than a given value that is a palindrome in base 10 and\na palindrome in base 2 at the same time.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>10</td></tr>\n<tr><th>Output</th><td>33</td></tr>\n<tr><th>Explanation</th><td>\n33 reads the same in either direction in base 10.<br>\n33 in binary is 100001, which also reads the same in either direction.<br>\nNothing between 11 and 32 manages both.\n</td></tr></table>\n",
+  "input_spec": "Input a single whole number.",
+  "output_spec": "Output an integer, the smallest number greater than the input that is a palindrome in both bases.",
+  "constraints": "The input is between 0 and 50000, inclusive. The answer never exceeds 53235.",
+  "approach": "\n<p>Search upward one number at a time and test each one. There is no useful shortcut here, and the\nanswers are close enough together that a plain scan finishes immediately.</p>\n\n<p>Write the palindrome test once and use it for both bases. Given a number and a base, peel the digits\noff with modulo and integer division to build the representation, then compare it against itself\nreversed. Building the digits into a list or a string is easiest; reversing a number arithmetically and\ncomparing works too, and avoids the string entirely.</p>\n\n<p>Note that the digits come off backwards, from least significant to most, which does not matter at\nall for a palindrome test: a sequence reads the same in either direction exactly when its reverse does.\nSo there is no need to correct the order.</p>\n\n<p>Two details decide the edge cases. The search starts strictly above the input, so an input that is\nalready a dual palindrome must not be its own answer, and an input of 9 has to move on to 33. And the\nbinary form never carries leading zeros, which is why 4, whose binary is 100, is not a palindrome even\nthough 001 would be.</p>\n",
+  "hints": [
+   "One palindrome test, used twice with a different base. What does it need as a parameter?",
+   "Peel digits with modulo and integer division and compare the sequence against its reverse. The order they come off in does not matter. Start the search strictly above the input."
+  ],
+  "fname": "nextDual",
+  "task": "\n<ul>\n<li>The function has 1 parameter: an integer, <code>start</code>, the value to search above.</li>\n<li>The function returns an integer, the next number that is a palindrome in both bases.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "10"
+    ],
+    "out": "33"
+   },
+   {
+    "in": [
+     "0"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "9"
+    ],
+    "out": "33"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "10"
+    ],
+    "out": "33"
+   },
+   {
+    "in": [
+     "0"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "9"
+    ],
+    "out": "33"
+   },
+   {
+    "in": [
+     "1"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "100"
+    ],
+    "out": "313"
+   },
+   {
+    "in": [
+     "1000"
+    ],
+    "out": "7447"
+   },
+   {
+    "in": [
+     "7446"
+    ],
+    "out": "7447"
+   },
+   {
+    "in": [
+     "9008"
+    ],
+    "out": "9009"
+   },
+   {
+    "in": [
+     "15350"
+    ],
+    "out": "15351"
+   },
+   {
+    "in": [
+     "32222"
+    ],
+    "out": "32223"
+   },
+   {
+    "in": [
+     "39993"
+    ],
+    "out": "53235"
+   },
+   {
+    "in": [
+     "50000"
+    ],
+    "out": "53235"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef nextDual(start: int) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        start = int(_lines[_i + 0].strip())\n        print(nextDual(start))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int nextDual(int start) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int start = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(nextDual(start)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint nextDual(int start) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int start = stoi(_lines[_i + 0]);\n        cout << nextDual(start) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef nextDual(start: int) -> int:\n\n    def isPal(n, base):\n        digits = []\n        while n > 0:\n            digits.append(n % base)\n            n //= base\n        return digits == digits[::-1]\n\n    n = start + 1\n    while not (isPal(n, 10) and isPal(n, 2)):\n        n += 1\n    return n\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        start = int(_lines[_i + 0].strip())\n        print(nextDual(start))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n\n    static boolean isPal(int n, int base) {\n        List<Integer> digits = new ArrayList<>();\n        while (n > 0) { digits.add(n % base); n /= base; }\n        for (int i = 0, j = digits.size() - 1; i < j; i++, j--) {\n            if (!digits.get(i).equals(digits.get(j))) return false;\n        }\n        return true;\n    }\n\n    static int nextDual(int start) {\n\n        int n = start + 1;\n        while (!(isPal(n, 10) && isPal(n, 2))) n++;\n        return n;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int start = Integer.parseInt((_lines.get(_i + 0)).trim());\n            _sb.append(nextDual(start)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\n\nbool isPal(int n, int base) {\n    vector<int> digits;\n    while (n > 0) { digits.push_back(n % base); n /= base; }\n    for (int i = 0, j = (int) digits.size() - 1; i < j; i++, j--) {\n        if (digits[i] != digits[j]) return false;\n    }\n    return true;\n}\n\nint nextDual(int start) {\n\n    int n = start + 1;\n    while (!(isPal(n, 10) && isPal(n, 2))) n++;\n    return n;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int start = stoi(_lines[_i + 0]);\n        cout << nextDual(start) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "postfix-machine",
+  "division": "Senior",
+  "contest": 2,
+  "title": "Postfix Machine",
+  "blurb": "Run a postfix expression whose operands are named, and refuse the ones that do not work.",
+  "statement": "\n<p>A postfix expression is a sequence of tokens separated by single spaces. A token is either a\nsingle capital letter naming a value, or one of the four operators + &minus; * /. An operator pops the\ntwo most recent values, applies itself with the earlier value on the left, and pushes the result.</p>\n\n<p>Division keeps the signed integer part, discarding any fraction, so &minus;7 divided by 2 is\n&minus;3 rather than &minus;4.</p>\n\n<p>Report the value left on the stack. Report ERROR instead if an operator finds fewer than two values\nwaiting, if a letter is used that has no value, if a division by zero is attempted, or if the\nexpression does not finish with exactly one value on the stack.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>A B + C *<br>A=1 B=2 C=3</td></tr>\n<tr><th>Output</th><td>9</td></tr>\n<tr><th>Explanation</th><td>\nPush 1 and 2, then the plus pops both and pushes 3.<br>\nPush 3, then the star pops 3 and 3 and pushes 9.<br>\nOne value is left, so the answer is 9.\n</td></tr></table>\n",
+  "input_spec": "Input the expression on the first line, tokens separated by single spaces. Input the bindings on the second line, each written as a letter, an equals sign, and a value, separated by single spaces.",
+  "output_spec": "Output the resulting value, or the word ERROR.",
+  "constraints": "The expression holds between 1 and 60 tokens. There are between 1 and 26 bindings, each value between -9999 and 9999. Every intermediate result fits in a 32 bit signed integer.",
+  "approach": "\n<p>A stack and one pass. Split the bindings line first and store each letter's value in a lookup,\nthen walk the expression tokens.</p>\n\n<p>A letter is pushed after looking up its value, and an unknown letter is an immediate ERROR. An\noperator pops two values, and the order matters more than anything else here: the value popped first is\nthe right operand and the value popped second is the left one. Getting that backwards never shows up on\naddition or multiplication and always shows up on subtraction and division, which is why one of the\nsamples subtracts.</p>\n\n<p>Every failure has to be caught before it can do damage. Check that the stack holds at least two\nvalues before popping, and check the right operand against zero before dividing. Both of those, left\nunchecked, crash rather than print ERROR.</p>\n\n<p>The last check happens after the loop rather than during it. A well formed postfix expression leaves\nexactly one value behind, so anything else, whether none or several, is an ERROR. An expression of three\noperands and one operator passes every test inside the loop and still fails this one.</p>\n\n<p>Truncating division toward zero is not what Python's // operator does for negative values, and not\nwhat C++ did before its 2011 standard. Compute the quotient on the absolute values and reattach the sign\nif the two operands disagree in sign, which gets it right in all three languages.</p>\n",
+  "hints": [
+   "Which of the two popped values is the left operand? It matters for two of the four operators.",
+   "The value popped first is the right operand. Check the stack holds two values before popping and the divisor is nonzero before dividing, and check for exactly one value left after the loop."
+  ],
+  "fname": "evaluate",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>expression</code>, the postfix expression, and a\nstring, <code>bindings</code>, the letter values.</li>\n<li>The function returns a string, the resulting value or the word ERROR.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "A B + C *",
+     "A=1 B=2 C=3"
+    ],
+    "out": "9"
+   },
+   {
+    "in": [
+     "A B -",
+     "A=3 B=8"
+    ],
+    "out": "-5"
+   },
+   {
+    "in": [
+     "A B +",
+     "A=1"
+    ],
+    "out": "ERROR"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "A B + C *",
+     "A=1 B=2 C=3"
+    ],
+    "out": "9"
+   },
+   {
+    "in": [
+     "A B -",
+     "A=3 B=8"
+    ],
+    "out": "-5"
+   },
+   {
+    "in": [
+     "A B +",
+     "A=1"
+    ],
+    "out": "ERROR"
+   },
+   {
+    "in": [
+     "A B C +",
+     "A=1 B=2 C=3"
+    ],
+    "out": "ERROR"
+   },
+   {
+    "in": [
+     "A B /",
+     "A=7 B=2"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "A B /",
+     "A=-7 B=2"
+    ],
+    "out": "-3"
+   },
+   {
+    "in": [
+     "A B /",
+     "A=5 B=0"
+    ],
+    "out": "ERROR"
+   },
+   {
+    "in": [
+     "A",
+     "A=42"
+    ],
+    "out": "42"
+   },
+   {
+    "in": [
+     "A +",
+     "A=1"
+    ],
+    "out": "ERROR"
+   },
+   {
+    "in": [
+     "A B C * + D -",
+     "A=5 B=2 C=3 D=4"
+    ],
+    "out": "7"
+   },
+   {
+    "in": [
+     "+ A B",
+     "A=1 B=2"
+    ],
+    "out": "ERROR"
+   },
+   {
+    "in": [
+     "A A * A A * +",
+     "A=9"
+    ],
+    "out": "162"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef evaluate(expression: str, bindings: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        expression = _lines[_i + 0].strip()\n        bindings = _lines[_i + 1].strip()\n        print(evaluate(expression, bindings))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String evaluate(String expression, String bindings) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String expression = _lines.get(_i + 0);\n            String bindings = _lines.get(_i + 1);\n            _sb.append(evaluate(expression, bindings)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring evaluate(string expression, string bindings) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string expression = _lines[_i + 0];\n        string bindings = _lines[_i + 1];\n        cout << evaluate(expression, bindings) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef evaluate(expression: str, bindings: str) -> str:\n\n    env = {}\n    for token in bindings.split():\n        name, value = token.split(\"=\")\n        env[name] = int(value)\n\n    stack = []\n    for token in expression.split():\n        if token in (\"+\", \"-\", \"*\", \"/\"):\n            if len(stack) < 2:\n                return \"ERROR\"\n            b = stack.pop()\n            a = stack.pop()\n            if token == \"+\":\n                stack.append(a + b)\n            elif token == \"-\":\n                stack.append(a - b)\n            elif token == \"*\":\n                stack.append(a * b)\n            else:\n                if b == 0:\n                    return \"ERROR\"\n                q = abs(a) // abs(b)\n                stack.append(q if (a < 0) == (b < 0) else -q)\n        else:\n            if token not in env:\n                return \"ERROR\"\n            stack.append(env[token])\n    return str(stack[0]) if len(stack) == 1 else \"ERROR\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        expression = _lines[_i + 0].strip()\n        bindings = _lines[_i + 1].strip()\n        print(evaluate(expression, bindings))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String evaluate(String expression, String bindings) {\n\n        Map<String, Integer> env = new HashMap<>();\n        for (String token : bindings.trim().split(\"\\\\s+\")) {\n            String[] parts = token.split(\"=\");\n            env.put(parts[0], Integer.parseInt(parts[1]));\n        }\n        Deque<Integer> stack = new ArrayDeque<>();\n        for (String token : expression.trim().split(\"\\\\s+\")) {\n            if (token.equals(\"+\") || token.equals(\"-\") || token.equals(\"*\") || token.equals(\"/\")) {\n                if (stack.size() < 2) return \"ERROR\";\n                int b = stack.pop(), a = stack.pop();\n                if (token.equals(\"+\")) stack.push(a + b);\n                else if (token.equals(\"-\")) stack.push(a - b);\n                else if (token.equals(\"*\")) stack.push(a * b);\n                else {\n                    if (b == 0) return \"ERROR\";\n                    int q = Math.abs(a) / Math.abs(b);\n                    stack.push(((a < 0) == (b < 0)) ? q : -q);\n                }\n            } else {\n                if (!env.containsKey(token)) return \"ERROR\";\n                stack.push(env.get(token));\n            }\n        }\n        return stack.size() == 1 ? String.valueOf(stack.pop()) : \"ERROR\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String expression = _lines.get(_i + 0);\n            String bindings = _lines.get(_i + 1);\n            _sb.append(evaluate(expression, bindings)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring evaluate(string expression, string bindings) {\n\n    map<string, int> env;\n    string token;\n    istringstream bs(bindings);\n    while (bs >> token) {\n        size_t eq = token.find('=');\n        env[token.substr(0, eq)] = stoi(token.substr(eq + 1));\n    }\n    vector<int> stack;\n    istringstream es(expression);\n    while (es >> token) {\n        if (token == \"+\" || token == \"-\" || token == \"*\" || token == \"/\") {\n            if (stack.size() < 2) return \"ERROR\";\n            int b = stack.back(); stack.pop_back();\n            int a = stack.back(); stack.pop_back();\n            if (token == \"+\") stack.push_back(a + b);\n            else if (token == \"-\") stack.push_back(a - b);\n            else if (token == \"*\") stack.push_back(a * b);\n            else {\n                if (b == 0) return \"ERROR\";\n                int q = abs(a) / abs(b);\n                stack.push_back(((a < 0) == (b < 0)) ? q : -q);\n            }\n        } else {\n            if (env.find(token) == env.end()) return \"ERROR\";\n            stack.push_back(env[token]);\n        }\n    }\n    return stack.size() == 1 ? to_string(stack[0]) : string(\"ERROR\");\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string expression = _lines[_i + 0];\n        string bindings = _lines[_i + 1];\n        cout << evaluate(expression, bindings) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "gray-code",
+  "division": "Senior",
+  "contest": 2,
+  "title": "Gray Code",
+  "blurb": "Produce the bit string that sits at a given position in a reflected binary ordering.",
+  "statement": "\n<p>A Gray code lists every bit string of a given length so that each entry differs from the one\nbefore it in exactly one position. The standard one starts at all zeros, and the entry at position K\nis obtained from K by exclusive-oring K with K shifted right by one place.</p>\n\n<p>Report the entry at a given position, written with leading zeros so that it is exactly N bits\nlong. Positions are counted from 0.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>3<br>5</td></tr>\n<tr><th>Output</th><td>111</td></tr>\n<tr><th>Explanation</th><td>\n5 in binary is 101, and shifting it right by one gives 010.<br>\nThe exclusive or of 101 and 010 is 111.<br>\nWritten in 3 bits, that is 111.\n</td></tr></table>\n",
+  "input_spec": "Input the number of bits on the first line and the position on the second line.",
+  "output_spec": "Output the bit string, exactly as many characters long as the number of bits requested.",
+  "constraints": "The number of bits is between 1 and 20, inclusive. The position is between 0 and 2 raised to the number of bits, minus 1.",
+  "approach": "\n<p>The rule is one line, and everything else is formatting. Shift the position right by one and\nexclusive-or the result with the position itself. In Python that is index ^ (index &gt;&gt; 1), and Java\nand C++ spell it the same way.</p>\n\n<p>If you would rather not use the shift and exclusive or, the same value can be built one bit at a\ntime: the leading bit of the answer is the leading bit of the position, and each later bit is the\nexclusive or of the position's bit at that place with the position's bit one place higher.</p>\n\n<p>Writing the answer out is where the marks go. The result has to be exactly N characters, which means\nleading zeros have to be supplied by hand: the entry at position 0 is a run of zeros, not the single\ncharacter 0. Build the string by testing each bit from the highest down to the lowest and appending a 1\nor a 0, which produces the right length automatically.</p>\n\n<p>Twenty bits fits comfortably in a 32 bit integer, so no widening is needed, but be careful with a\nright shift on a signed type if you ever extend the problem.</p>\n",
+  "hints": [
+   "The value is one expression. The formatting is the part that takes work.",
+   "The entry is index XOR (index >> 1). Write it out bit by bit from the highest position down so the leading zeros appear and the length is right."
+  ],
+  "fname": "grayCode",
+  "task": "\n<ul>\n<li>The function has 2 parameters: an integer, <code>bits</code>, the length of the strings, and an\ninteger, <code>index</code>, the position in the listing.</li>\n<li>The function returns a string, the bit string at that position.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "3",
+     "5"
+    ],
+    "out": "111"
+   },
+   {
+    "in": [
+     "3",
+     "0"
+    ],
+    "out": "000"
+   },
+   {
+    "in": [
+     "4",
+     "15"
+    ],
+    "out": "1000"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "3",
+     "5"
+    ],
+    "out": "111"
+   },
+   {
+    "in": [
+     "3",
+     "0"
+    ],
+    "out": "000"
+   },
+   {
+    "in": [
+     "4",
+     "15"
+    ],
+    "out": "1000"
+   },
+   {
+    "in": [
+     "1",
+     "1"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "1",
+     "0"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "2",
+     "2"
+    ],
+    "out": "11"
+   },
+   {
+    "in": [
+     "20",
+     "1048575"
+    ],
+    "out": "10000000000000000000"
+   },
+   {
+    "in": [
+     "20",
+     "0"
+    ],
+    "out": "00000000000000000000"
+   },
+   {
+    "in": [
+     "8",
+     "128"
+    ],
+    "out": "11000000"
+   },
+   {
+    "in": [
+     "5",
+     "17"
+    ],
+    "out": "11001"
+   },
+   {
+    "in": [
+     "10",
+     "512"
+    ],
+    "out": "1100000000"
+   },
+   {
+    "in": [
+     "16",
+     "43690"
+    ],
+    "out": "1111111111111111"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef grayCode(bits: int, index: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        bits = int(_lines[_i + 0].strip())\n        index = int(_lines[_i + 1].strip())\n        print(grayCode(bits, index))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String grayCode(int bits, int index) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int bits = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int index = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(grayCode(bits, index)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring grayCode(int bits, int index) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int bits = stoi(_lines[_i + 0]);\n        int index = stoi(_lines[_i + 1]);\n        cout << grayCode(bits, index) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef grayCode(bits: int, index: int) -> str:\n\n    value = index ^ (index >> 1)\n    out = \"\"\n    for b in range(bits - 1, -1, -1):\n        out += \"1\" if (value >> b) & 1 else \"0\"\n    return out\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        bits = int(_lines[_i + 0].strip())\n        index = int(_lines[_i + 1].strip())\n        print(grayCode(bits, index))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String grayCode(int bits, int index) {\n\n        int value = index ^ (index >> 1);\n        StringBuilder out = new StringBuilder();\n        for (int b = bits - 1; b >= 0; b--) out.append(((value >> b) & 1) == 1 ? '1' : '0');\n        return out.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            int bits = Integer.parseInt((_lines.get(_i + 0)).trim());\n            int index = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(grayCode(bits, index)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring grayCode(int bits, int index) {\n\n    int value = index ^ (index >> 1);\n    string out;\n    for (int b = bits - 1; b >= 0; b--) out += ((value >> b) & 1) ? '1' : '0';\n    return out;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        int bits = stoi(_lines[_i + 0]);\n        int index = stoi(_lines[_i + 1]);\n        cout << grayCode(bits, index) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "circulate-cycle",
+  "division": "Senior",
+  "contest": 2,
+  "title": "Circulate Cycle",
+  "blurb": "Circulate a bit string over and over and see how many different strings you get.",
+  "statement": "\n<p>LCIRC-K applied to a bit string moves the first K bits round to the end, leaving the length\nunchanged. Applying it repeatedly must eventually bring the original string back.</p>\n\n<p>Starting from a given string, apply LCIRC-K again and again until the original string reappears.\nReport how many different strings were seen along the way, counting the original once, and the\nsmallest of them in ordinary alphabetical order, where 0 comes before 1.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>110100<br>2</td></tr>\n<tr><th>Output</th><td>3 001101</td></tr>\n<tr><th>Explanation</th><td>\nStarting from 110100, LCIRC-2 gives 010011, then 110100 is not yet back: 001101 comes next.<br>\nApplying it once more returns 110100, so the tour is over.<br>\nThree strings were seen, and the smallest of them is 001101.\n</td></tr></table>\n",
+  "input_spec": "Input the bit string on the first line and the circulate amount on the second line.",
+  "output_spec": "Output the number of different strings seen, a single space, and the smallest of them.",
+  "constraints": "The bit string holds between 1 and 60 characters, each a 0 or a 1. The circulate amount is between 0 and 1000, inclusive, and may exceed the length of the string.",
+  "approach": "\n<p>Reduce the amount modulo the length before anything else. A circulate by the length returns the\nstring unchanged, so an amount of 1000 on a string of 6 characters is really a circulate by 4. Skipping\nthis step is what makes an amount larger than the string look impossible.</p>\n\n<p>Once reduced, one application is a single slice: take the characters from the amount onward and\nfollow them with the characters before it. Applying that repeatedly walks the tour.</p>\n\n<p>Structure the loop so the original is recorded before the first application and the return test comes\nafter it. A loop that tests first stops immediately, since you begin on the original string. Record,\napply, then test.</p>\n\n<p>Track the smallest string with a running comparison as you go, using ordinary string comparison,\nwhich on 0 and 1 characters is exactly the ordering the problem asks for. There is no need to store\nevery string seen; a count and a running minimum are enough.</p>\n\n<p>The tour always closes and never takes more applications than the length of the string, so the loop\nis safe. An amount that reduces to 0 leaves the string alone and the tour is a single string, which is\nwhat the sixth test and the seventh check.</p>\n",
+  "hints": [
+   "An amount larger than the string is not impossible. What does a circulate by the length do?",
+   "Reduce the amount modulo the length first. Record the current string, apply the circulate, then test for the original, so the loop does not stop before it starts."
+  ],
+  "fname": "cycleTour",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>bits</code>, the starting bit string, and an\ninteger, <code>amount</code>, the circulate amount.</li>\n<li>The function returns a string, the count of different strings followed by a space and the\nsmallest of them.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "110100",
+     "2"
+    ],
+    "out": "3 001101"
+   },
+   {
+    "in": [
+     "1010",
+     "2"
+    ],
+    "out": "1 1010"
+   },
+   {
+    "in": [
+     "100",
+     "1"
+    ],
+    "out": "3 001"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "110100",
+     "2"
+    ],
+    "out": "3 001101"
+   },
+   {
+    "in": [
+     "1010",
+     "2"
+    ],
+    "out": "1 1010"
+   },
+   {
+    "in": [
+     "100",
+     "1"
+    ],
+    "out": "3 001"
+   },
+   {
+    "in": [
+     "1111",
+     "1"
+    ],
+    "out": "1 1111"
+   },
+   {
+    "in": [
+     "10",
+     "3"
+    ],
+    "out": "2 01"
+   },
+   {
+    "in": [
+     "110100",
+     "6"
+    ],
+    "out": "1 110100"
+   },
+   {
+    "in": [
+     "0",
+     "0"
+    ],
+    "out": "1 0"
+   },
+   {
+    "in": [
+     "01",
+     "0"
+    ],
+    "out": "1 01"
+   },
+   {
+    "in": [
+     "110100",
+     "3"
+    ],
+    "out": "2 100110"
+   },
+   {
+    "in": [
+     "100000000000",
+     "4"
+    ],
+    "out": "3 000000001000"
+   },
+   {
+    "in": [
+     "101010101010",
+     "3"
+    ],
+    "out": "2 010101010101"
+   },
+   {
+    "in": [
+     "011",
+     "7"
+    ],
+    "out": "3 011"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef cycleTour(bits: str, amount: int) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        bits = _lines[_i + 0].strip()\n        amount = int(_lines[_i + 1].strip())\n        print(cycleTour(bits, amount))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String cycleTour(String bits, int amount) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String bits = _lines.get(_i + 0);\n            int amount = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(cycleTour(bits, amount)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring cycleTour(string bits, int amount) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string bits = _lines[_i + 0];\n        int amount = stoi(_lines[_i + 1]);\n        cout << cycleTour(bits, amount) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef cycleTour(bits: str, amount: int) -> str:\n\n    n = len(bits)\n    step = amount % n\n    count = 0\n    smallest = bits\n    cur = bits\n    while True:\n        count += 1\n        if cur < smallest:\n            smallest = cur\n        cur = cur[step:] + cur[:step]\n        if cur == bits:\n            break\n    return str(count) + \" \" + smallest\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        bits = _lines[_i + 0].strip()\n        amount = int(_lines[_i + 1].strip())\n        print(cycleTour(bits, amount))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String cycleTour(String bits, int amount) {\n\n        int n = bits.length();\n        int step = amount % n;\n        int count = 0;\n        String smallest = bits, cur = bits;\n        while (true) {\n            count++;\n            if (cur.compareTo(smallest) < 0) smallest = cur;\n            cur = cur.substring(step) + cur.substring(0, step);\n            if (cur.equals(bits)) break;\n        }\n        return count + \" \" + smallest;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String bits = _lines.get(_i + 0);\n            int amount = Integer.parseInt((_lines.get(_i + 1)).trim());\n            _sb.append(cycleTour(bits, amount)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring cycleTour(string bits, int amount) {\n\n    int n = (int) bits.size();\n    int step = amount % n;\n    int count = 0;\n    string smallest = bits, cur = bits;\n    while (true) {\n        count++;\n        if (cur < smallest) smallest = cur;\n        cur = cur.substr(step) + cur.substr(0, step);\n        if (cur == bits) break;\n    }\n    return to_string(count) + \" \" + smallest;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string bits = _lines[_i + 0];\n        int amount = stoi(_lines[_i + 1]);\n        cout << cycleTour(bits, amount) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "bst-traversal",
+  "division": "Senior",
+  "contest": 3,
+  "title": "Tree Walk",
+  "blurb": "Build a binary search tree by ACSL's rules and read it back in any of three orders.",
+  "statement": "\n<p>Build a binary search tree from a list of operations applied in order to an initially empty\ntree. An operation is a plus sign followed by a value, meaning insert it, or a minus sign followed by a\nvalue, meaning delete it.</p>\n\n<p>Insertion follows ACSL's rule that a value equal to the node it is compared against goes left, so\nduplicates are kept rather than dropped. Deletion follows ACSL's rule as well: a node with no children\nsimply goes, a node with one child is replaced by that child, and a node with two children is replaced\nby its left child, with the original right subtree attached at the rightmost node of that promoted\nsubtree. Deleting a value that is not present changes nothing.</p>\n\n<p>Report the requested traversal of the finished tree, or EMPTY if nothing is left in it.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>+50 +30 +70 +20 +40 +60 +80<br>PRE</td></tr>\n<tr><th>Output</th><td>50 30 20 40 70 60 80</td></tr>\n<tr><th>Explanation</th><td>\nThe insertions build a balanced tree with 50 at the root.<br>\nPreorder writes the root, then the whole left subtree, then the whole right subtree.<br>\nThat gives 50, then 30 20 40, then 70 60 80.\n</td></tr></table>\n",
+  "input_spec": "Input the operations on the first line, separated by single spaces. Input the traversal name on the second line: PRE, IN, or POST.",
+  "output_spec": "Output the values in the requested order, separated by single spaces, or the word EMPTY if the tree holds nothing.",
+  "constraints": "There are between 1 and 200 operations. Every value is between 1 and 9999, inclusive.",
+  "approach": "\n<p>Hold the tree in three parallel arrays, one for the values and one for each child, with -1\nstanding in for a missing child. A node is an index into those arrays, and the root is an index of its\nown. That avoids pointers in C++ and object allocation in Java, and it makes the whole thing easy to\nprint while debugging.</p>\n\n<p>Insertion walks down from the root comparing values, going left when the new value is less than or\nequal to the node and right otherwise, until it finds a missing child to fill. That single comparison\nis where ACSL parts company with most textbooks, which send equal values right or refuse them, and it\nis what makes the third sample a chain of three nodes rather than one.</p>\n\n<p>Deletion needs the node and its parent, so track both as you search, along with which side of the\nparent you came down. Once found, work out the replacement: the right child if there is no left, the\nleft child if there is no right, and otherwise the left child with the whole right subtree hung on its\nrightmost descendant. Then attach the replacement to the parent, or make it the new root if the deleted\nnode was the root.</p>\n\n<p>All three traversals can be written with an explicit stack rather than recursively. Preorder pushes\nthe root, then repeatedly pops a node, writes it, and pushes its right child before its left. Inorder\nruns left as far as it can while pushing, then pops, writes, and moves right. Postorder is the neat one:\nrun the preorder loop but push left before right, collect the nodes in a second list, and read that list\nbackwards.</p>\n",
+  "hints": [
+   "ACSL sends a value equal to the node it is compared against to the left. What does that do to duplicates?",
+   "Hold the tree in parallel arrays with -1 for a missing child. On a two child deletion, promote the left child and hang the right subtree on its rightmost descendant."
+  ],
+  "fname": "treeWalk",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>ops</code>, the operations in order, and a\nstring, <code>order</code>, one of PRE, IN, or POST.</li>\n<li>The function returns a string, the traversal or the word EMPTY.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "+50 +30 +70 +20 +40 +60 +80",
+     "PRE"
+    ],
+    "out": "50 30 20 40 70 60 80"
+   },
+   {
+    "in": [
+     "+5 -5",
+     "IN"
+    ],
+    "out": "EMPTY"
+   },
+   {
+    "in": [
+     "+5 +5 +5",
+     "POST"
+    ],
+    "out": "5 5 5"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "+50 +30 +70 +20 +40 +60 +80",
+     "PRE"
+    ],
+    "out": "50 30 20 40 70 60 80"
+   },
+   {
+    "in": [
+     "+5 -5",
+     "IN"
+    ],
+    "out": "EMPTY"
+   },
+   {
+    "in": [
+     "+5 +5 +5",
+     "POST"
+    ],
+    "out": "5 5 5"
+   },
+   {
+    "in": [
+     "+50 +30 +70 +20 +40 +60 +80",
+     "IN"
+    ],
+    "out": "20 30 40 50 60 70 80"
+   },
+   {
+    "in": [
+     "+50 +30 +70 +20 +40 +60 +80",
+     "POST"
+    ],
+    "out": "20 40 30 60 80 70 50"
+   },
+   {
+    "in": [
+     "+8 +3 +10 +1 +6 +14 +4 +7 +13 -3",
+     "PRE"
+    ],
+    "out": "8 1 6 4 7 10 14 13"
+   },
+   {
+    "in": [
+     "+10 +5 +15 +3 +7 -10",
+     "PRE"
+    ],
+    "out": "5 3 7 15"
+   },
+   {
+    "in": [
+     "+1 +2 +3 +4 +5",
+     "POST"
+    ],
+    "out": "5 4 3 2 1"
+   },
+   {
+    "in": [
+     "+65 +77 +69 +82 +73 +67 +65 +78",
+     "IN"
+    ],
+    "out": "65 65 67 69 73 77 78 82"
+   },
+   {
+    "in": [
+     "+50 +30 +70 -70",
+     "PRE"
+    ],
+    "out": "50 30"
+   },
+   {
+    "in": [
+     "+9",
+     "IN"
+    ],
+    "out": "9"
+   },
+   {
+    "in": [
+     "+3 +1 +2 -1",
+     "POST"
+    ],
+    "out": "2 3"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef treeWalk(ops: str, order: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        ops = _lines[_i + 0].strip()\n        order = _lines[_i + 1].strip()\n        print(treeWalk(ops, order))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String treeWalk(String ops, String order) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String ops = _lines.get(_i + 0);\n            String order = _lines.get(_i + 1);\n            _sb.append(treeWalk(ops, order)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring treeWalk(string ops, string order) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string ops = _lines[_i + 0];\n        string order = _lines[_i + 1];\n        cout << treeWalk(ops, order) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef treeWalk(ops: str, order: str) -> str:\n\n    val, left, right = [], [], []\n    root = -1\n    for op in ops.split():\n        v = int(op[1:])\n        if op[0] == \"+\":\n            val.append(v)\n            left.append(-1)\n            right.append(-1)\n            node = len(val) - 1\n            if root == -1:\n                root = node\n            else:\n                cur = root\n                while True:\n                    if v <= val[cur]:\n                        if left[cur] == -1:\n                            left[cur] = node\n                            break\n                        cur = left[cur]\n                    else:\n                        if right[cur] == -1:\n                            right[cur] = node\n                            break\n                        cur = right[cur]\n        else:\n            parent, cur, isLeft = -1, root, False\n            while cur != -1 and val[cur] != v:\n                parent = cur\n                if v < val[cur]:\n                    cur = left[cur]\n                    isLeft = True\n                else:\n                    cur = right[cur]\n                    isLeft = False\n            if cur != -1:\n                l, r = left[cur], right[cur]\n                if l == -1:\n                    repl = r\n                elif r == -1:\n                    repl = l\n                else:\n                    m = l\n                    while right[m] != -1:\n                        m = right[m]\n                    right[m] = r\n                    repl = l\n                if parent == -1:\n                    root = repl\n                elif isLeft:\n                    left[parent] = repl\n                else:\n                    right[parent] = repl\n\n    out = []\n    if order == \"PRE\":\n        stack = [root]\n        while stack:\n            n = stack.pop()\n            if n == -1:\n                continue\n            out.append(val[n])\n            stack.append(right[n])\n            stack.append(left[n])\n    elif order == \"IN\":\n        stack, cur = [], root\n        while stack or cur != -1:\n            while cur != -1:\n                stack.append(cur)\n                cur = left[cur]\n            cur = stack.pop()\n            out.append(val[cur])\n            cur = right[cur]\n    else:\n        stack, seen = [root], []\n        while stack:\n            n = stack.pop()\n            if n == -1:\n                continue\n            seen.append(n)\n            stack.append(left[n])\n            stack.append(right[n])\n        out = [val[n] for n in reversed(seen)]\n\n    if not out:\n        return \"EMPTY\"\n    return \" \".join(str(x) for x in out)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        ops = _lines[_i + 0].strip()\n        order = _lines[_i + 1].strip()\n        print(treeWalk(ops, order))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String treeWalk(String ops, String order) {\n\n        int cap = 256;\n        int[] val = new int[cap], left = new int[cap], right = new int[cap];\n        int used = 0, root = -1;\n        for (String op : ops.trim().split(\"\\\\s+\")) {\n            int v = Integer.parseInt(op.substring(1));\n            if (op.charAt(0) == '+') {\n                val[used] = v; left[used] = -1; right[used] = -1;\n                int node = used++;\n                if (root == -1) root = node;\n                else {\n                    int cur = root;\n                    while (true) {\n                        if (v <= val[cur]) {\n                            if (left[cur] == -1) { left[cur] = node; break; }\n                            cur = left[cur];\n                        } else {\n                            if (right[cur] == -1) { right[cur] = node; break; }\n                            cur = right[cur];\n                        }\n                    }\n                }\n            } else {\n                int parent = -1, cur = root;\n                boolean isLeft = false;\n                while (cur != -1 && val[cur] != v) {\n                    parent = cur;\n                    if (v < val[cur]) { cur = left[cur]; isLeft = true; }\n                    else { cur = right[cur]; isLeft = false; }\n                }\n                if (cur != -1) {\n                    int l = left[cur], r = right[cur], repl;\n                    if (l == -1) repl = r;\n                    else if (r == -1) repl = l;\n                    else {\n                        int m = l;\n                        while (right[m] != -1) m = right[m];\n                        right[m] = r;\n                        repl = l;\n                    }\n                    if (parent == -1) root = repl;\n                    else if (isLeft) left[parent] = repl;\n                    else right[parent] = repl;\n                }\n            }\n        }\n        List<Integer> out = new ArrayList<>();\n        Deque<Integer> stack = new ArrayDeque<>();\n        if (order.equals(\"PRE\")) {\n            stack.push(root);\n            while (!stack.isEmpty()) {\n                int n = stack.pop();\n                if (n == -1) continue;\n                out.add(val[n]);\n                stack.push(right[n]);\n                stack.push(left[n]);\n            }\n        } else if (order.equals(\"IN\")) {\n            int cur = root;\n            while (!stack.isEmpty() || cur != -1) {\n                while (cur != -1) { stack.push(cur); cur = left[cur]; }\n                cur = stack.pop();\n                out.add(val[cur]);\n                cur = right[cur];\n            }\n        } else {\n            List<Integer> seen = new ArrayList<>();\n            stack.push(root);\n            while (!stack.isEmpty()) {\n                int n = stack.pop();\n                if (n == -1) continue;\n                seen.add(n);\n                stack.push(left[n]);\n                stack.push(right[n]);\n            }\n            for (int i = seen.size() - 1; i >= 0; i--) out.add(val[seen.get(i)]);\n        }\n        if (out.isEmpty()) return \"EMPTY\";\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < out.size(); i++) {\n            if (i > 0) sb.append(' ');\n            sb.append(out.get(i));\n        }\n        return sb.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String ops = _lines.get(_i + 0);\n            String order = _lines.get(_i + 1);\n            _sb.append(treeWalk(ops, order)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring treeWalk(string ops, string order) {\n\n    vector<int> val, left, right;\n    int root = -1;\n    string op;\n    istringstream is(ops);\n    while (is >> op) {\n        int v = stoi(op.substr(1));\n        if (op[0] == '+') {\n            val.push_back(v); left.push_back(-1); right.push_back(-1);\n            int node = (int) val.size() - 1;\n            if (root == -1) root = node;\n            else {\n                int cur = root;\n                while (true) {\n                    if (v <= val[cur]) {\n                        if (left[cur] == -1) { left[cur] = node; break; }\n                        cur = left[cur];\n                    } else {\n                        if (right[cur] == -1) { right[cur] = node; break; }\n                        cur = right[cur];\n                    }\n                }\n            }\n        } else {\n            int parent = -1, cur = root;\n            bool isLeft = false;\n            while (cur != -1 && val[cur] != v) {\n                parent = cur;\n                if (v < val[cur]) { cur = left[cur]; isLeft = true; }\n                else { cur = right[cur]; isLeft = false; }\n            }\n            if (cur != -1) {\n                int l = left[cur], r = right[cur], repl;\n                if (l == -1) repl = r;\n                else if (r == -1) repl = l;\n                else {\n                    int m = l;\n                    while (right[m] != -1) m = right[m];\n                    right[m] = r;\n                    repl = l;\n                }\n                if (parent == -1) root = repl;\n                else if (isLeft) left[parent] = repl;\n                else right[parent] = repl;\n            }\n        }\n    }\n    vector<int> out, stack;\n    if (order == \"PRE\") {\n        stack.push_back(root);\n        while (!stack.empty()) {\n            int n = stack.back(); stack.pop_back();\n            if (n == -1) continue;\n            out.push_back(val[n]);\n            stack.push_back(right[n]);\n            stack.push_back(left[n]);\n        }\n    } else if (order == \"IN\") {\n        int cur = root;\n        while (!stack.empty() || cur != -1) {\n            while (cur != -1) { stack.push_back(cur); cur = left[cur]; }\n            cur = stack.back(); stack.pop_back();\n            out.push_back(val[cur]);\n            cur = right[cur];\n        }\n    } else {\n        vector<int> seen;\n        stack.push_back(root);\n        while (!stack.empty()) {\n            int n = stack.back(); stack.pop_back();\n            if (n == -1) continue;\n            seen.push_back(n);\n            stack.push_back(left[n]);\n            stack.push_back(right[n]);\n        }\n        for (int i = (int) seen.size() - 1; i >= 0; i--) out.push_back(val[seen[i]]);\n    }\n    if (out.empty()) return \"EMPTY\";\n    string res;\n    for (size_t i = 0; i < out.size(); i++) {\n        if (i > 0) res += ' ';\n        res += to_string(out[i]);\n    }\n    return res;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string ops = _lines[_i + 0];\n        string order = _lines[_i + 1];\n        cout << treeWalk(ops, order) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "expression-height",
+  "division": "Senior",
+  "contest": 3,
+  "title": "Expression Height",
+  "blurb": "Work out how deep the tree behind an infix expression would be.",
+  "statement": "\n<p>Every infix expression has a tree behind it, with an operator at each internal node and a single\nletter at each leaf. The height of that tree is the number of edges on its longest path from the root\ndown to a leaf, so a lone letter has height 0.</p>\n\n<p>Report the height of the tree for a given expression. The operators are + &minus; * /, with the\nusual precedence and left to right grouping, and brackets may appear anywhere.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>A+B*C</td></tr>\n<tr><th>Output</th><td>2</td></tr>\n<tr><th>Explanation</th><td>\nMultiplication binds tighter, so the expression is A + (B * C).<br>\nThe root is the plus, with A on its left and the star on its right.<br>\nThe path from the plus down through the star to B has two edges.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the expression, with no spaces.",
+  "output_spec": "Output an integer, the height of the expression tree.",
+  "constraints": "The expression holds between 1 and 120 characters. Operands are single capital letters, operators are + - * /, and the brackets are balanced.",
+  "approach": "\n<p>Do not build the tree. Convert the expression to postfix and then read the height straight off\nit, which takes two short passes and no pointers at all.</p>\n\n<p>The first pass is the shunting yard algorithm. Letters go straight to the output. An opening bracket\nis pushed. A closing bracket pops operators to the output until the matching opening bracket appears,\nwhich is then discarded. An operator pops any operator of greater or equal precedence off the stack\nfirst, since all four of these group to the left, and is then pushed. At the end, everything left on\nthe stack is popped to the output.</p>\n\n<p>The second pass walks the postfix with a stack of heights rather than of values. A letter pushes 0,\nbecause a leaf has height 0. An operator pops two heights and pushes one more than the larger of them,\nbecause the new root sits one edge above whichever subtree is deeper. When the walk finishes, the single\nvalue left is the answer.</p>\n\n<p>Precedence is the only place this can go quietly wrong. Popping on greater or equal is what makes\nA+B+C+D a leaning chain of height 3; popping only on strictly greater would group it to the right and\ngive the same number here but a different one for a mixture of precedences. Redundant brackets, as in\nthe sixth test, disappear during the conversion and never affect the height.</p>\n",
+  "hints": [
+   "You do not need the tree itself, only how deep it would be.",
+   "Convert to postfix with the shunting yard, then walk it with a stack of heights: a letter pushes 0 and an operator pushes one more than the larger of the two it pops."
+  ],
+  "fname": "treeHeight",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>expression</code>, the infix expression.</li>\n<li>The function returns an integer, the height of its tree.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "A+B*C"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "A"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "A+B+C+D"
+    ],
+    "out": "3"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "A+B*C"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "A"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "A+B+C+D"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "(A+B)*C"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "A*B+C*D"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "((A))"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "(A+B)*(C+D)"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "A/B/C"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "A+(B*(C-D))"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "A+B"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "((A+B)*(C+D))/((E-F)*(G+H))"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "A*B*C*D*E*F"
+    ],
+    "out": "5"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef treeHeight(expression: str) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        expression = _lines[_i + 0].strip()\n        print(treeHeight(expression))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int treeHeight(String expression) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String expression = _lines.get(_i + 0);\n            _sb.append(treeHeight(expression)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint treeHeight(string expression) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string expression = _lines[_i + 0];\n        cout << treeHeight(expression) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef treeHeight(expression: str) -> int:\n\n    prec = {\"+\": 1, \"-\": 1, \"*\": 2, \"/\": 2}\n    output = []\n    ops = []\n    for ch in expression:\n        if ch.isalpha():\n            output.append(ch)\n        elif ch == \"(\":\n            ops.append(ch)\n        elif ch == \")\":\n            while ops and ops[-1] != \"(\":\n                output.append(ops.pop())\n            ops.pop()\n        else:\n            while ops and ops[-1] != \"(\" and prec[ops[-1]] >= prec[ch]:\n                output.append(ops.pop())\n            ops.append(ch)\n    while ops:\n        output.append(ops.pop())\n\n    heights = []\n    for token in output:\n        if token.isalpha():\n            heights.append(0)\n        else:\n            b = heights.pop()\n            a = heights.pop()\n            heights.append(1 + (a if a > b else b))\n    return heights[0]\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        expression = _lines[_i + 0].strip()\n        print(treeHeight(expression))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n\n    static int prec(char c) {\n        return (c == '*' || c == '/') ? 2 : 1;\n    }\n\n    static int treeHeight(String expression) {\n\n        StringBuilder output = new StringBuilder();\n        Deque<Character> ops = new ArrayDeque<>();\n        for (char ch : expression.toCharArray()) {\n            if (Character.isLetter(ch)) output.append(ch);\n            else if (ch == '(') ops.push(ch);\n            else if (ch == ')') {\n                while (!ops.isEmpty() && ops.peek() != '(') output.append(ops.pop());\n                ops.pop();\n            } else {\n                while (!ops.isEmpty() && ops.peek() != '(' && prec(ops.peek()) >= prec(ch)) {\n                    output.append(ops.pop());\n                }\n                ops.push(ch);\n            }\n        }\n        while (!ops.isEmpty()) output.append(ops.pop());\n\n        Deque<Integer> heights = new ArrayDeque<>();\n        for (char token : output.toString().toCharArray()) {\n            if (Character.isLetter(token)) heights.push(0);\n            else {\n                int b = heights.pop(), a = heights.pop();\n                heights.push(1 + Math.max(a, b));\n            }\n        }\n        return heights.pop();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String expression = _lines.get(_i + 0);\n            _sb.append(treeHeight(expression)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\n\nint prec(char c) {\n    return (c == '*' || c == '/') ? 2 : 1;\n}\n\nint treeHeight(string expression) {\n\n    string output;\n    vector<char> ops;\n    for (char ch : expression) {\n        if (isalpha((unsigned char) ch)) output += ch;\n        else if (ch == '(') ops.push_back(ch);\n        else if (ch == ')') {\n            while (!ops.empty() && ops.back() != '(') { output += ops.back(); ops.pop_back(); }\n            ops.pop_back();\n        } else {\n            while (!ops.empty() && ops.back() != '(' && prec(ops.back()) >= prec(ch)) {\n                output += ops.back();\n                ops.pop_back();\n            }\n            ops.push_back(ch);\n        }\n    }\n    while (!ops.empty()) { output += ops.back(); ops.pop_back(); }\n\n    vector<int> heights;\n    for (char token : output) {\n        if (isalpha((unsigned char) token)) heights.push_back(0);\n        else {\n            int b = heights.back(); heights.pop_back();\n            int a = heights.back(); heights.pop_back();\n            heights.push_back(1 + max(a, b));\n        }\n    }\n    return heights[0];\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string expression = _lines[_i + 0];\n        cout << treeHeight(expression) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "priority-desk",
+  "division": "Senior",
+  "contest": 3,
+  "title": "Priority Desk",
+  "blurb": "Run a help desk where the most urgent ticket wins and arrival order breaks the ties.",
+  "statement": "\n<p>A help desk processes a list of commands in order. ADD:name:priority puts a person in the\nwaiting room with that priority, where a smaller number means more urgent. NEXT calls whoever is\nwaiting with the smallest priority, removing them from the room.</p>\n\n<p>If two people share the smallest priority, the one who arrived earlier is called first. A NEXT\nissued when the room is empty writes a single hyphen instead of a name.</p>\n\n<p>Report the names written by the NEXT commands, in order. If there are no NEXT commands at all,\nreport NONE.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>ADD:ann:3 ADD:bob:1 NEXT NEXT</td></tr>\n<tr><th>Output</th><td>bob ann</td></tr>\n<tr><th>Explanation</th><td>\nann waits with priority 3 and bob waits with priority 1.<br>\nThe first NEXT calls bob, whose priority is smaller.<br>\nThe second NEXT calls ann, who is now the only one left.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the commands in order, separated by single spaces.",
+  "output_spec": "Output the names called, separated by single spaces, using a hyphen for a NEXT that found nobody waiting, or NONE if there were no NEXT commands.",
+  "constraints": "There are between 1 and 100 commands. Names hold between 1 and 12 lowercase letters and are not repeated. Priorities are between 1 and 999.",
+  "approach": "\n<p>A list is enough. Real priority queues are faster, but with at most a hundred commands a linear\nscan for the best waiting person costs nothing and is far easier to get right.</p>\n\n<p>Store three things per person: the priority, the arrival number, and the name. The arrival number is\njust a counter you increase on every ADD, and it is what makes ties resolvable. Without it there is no\nway to tell which of two equally urgent people came first, since a list can be reordered by the removals\nthat happen between them.</p>\n\n<p>On NEXT, scan the waiting list for the smallest priority, and among those for the smallest arrival\nnumber. A single pass keeping the best index so far does both at once: replace the best when the\npriority is smaller, or when the priority is equal and the arrival number is smaller. Then remove that\nentry from the list.</p>\n\n<p>Two things happen after the loop rather than during it. A NEXT on an empty room writes a hyphen and\ncarries on, so it must not be allowed to crash or to be silently skipped. And a run of commands with no\nNEXT at all produces no output, which is the NONE case; check for it once at the end rather than trying\nto detect it as you go.</p>\n",
+  "hints": [
+   "Two people can share a priority. What extra piece of information settles which one goes first?",
+   "Store an arrival counter alongside each person. Scan for the smallest priority, breaking ties on the smaller arrival number, and handle an empty room and an empty output separately."
+  ],
+  "fname": "serveOrder",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>commands</code>, the commands in order.</li>\n<li>The function returns a string, the names called or the word NONE.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "ADD:ann:3 ADD:bob:1 NEXT NEXT"
+    ],
+    "out": "bob ann"
+   },
+   {
+    "in": [
+     "NEXT"
+    ],
+    "out": "-"
+   },
+   {
+    "in": [
+     "ADD:a:1"
+    ],
+    "out": "NONE"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "ADD:ann:3 ADD:bob:1 NEXT NEXT"
+    ],
+    "out": "bob ann"
+   },
+   {
+    "in": [
+     "NEXT"
+    ],
+    "out": "-"
+   },
+   {
+    "in": [
+     "ADD:a:1"
+    ],
+    "out": "NONE"
+   },
+   {
+    "in": [
+     "ADD:x:5 ADD:y:5 NEXT NEXT NEXT"
+    ],
+    "out": "x y -"
+   },
+   {
+    "in": [
+     "ADD:p:9 NEXT ADD:q:1 NEXT"
+    ],
+    "out": "p q"
+   },
+   {
+    "in": [
+     "ADD:a:3 ADD:b:2 ADD:c:1 NEXT NEXT NEXT"
+    ],
+    "out": "c b a"
+   },
+   {
+    "in": [
+     "NEXT NEXT"
+    ],
+    "out": "- -"
+   },
+   {
+    "in": [
+     "ADD:solo:999 NEXT"
+    ],
+    "out": "solo"
+   },
+   {
+    "in": [
+     "ADD:a:1 ADD:b:1 ADD:c:1 NEXT NEXT NEXT"
+    ],
+    "out": "a b c"
+   },
+   {
+    "in": [
+     "ADD:m:4 NEXT NEXT ADD:n:4 NEXT"
+    ],
+    "out": "m - n"
+   },
+   {
+    "in": [
+     "ADD:z:1 ADD:y:2 NEXT ADD:x:1 NEXT NEXT"
+    ],
+    "out": "z x y"
+   },
+   {
+    "in": [
+     "ADD:a:2 ADD:b:3 ADD:c:2 ADD:d:1 NEXT NEXT NEXT NEXT"
+    ],
+    "out": "d a c b"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef serveOrder(commands: str) -> str:\n    # Write your solution here. You may add helper functions above this one.\n    return \"\"\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        commands = _lines[_i + 0].strip()\n        print(serveOrder(commands))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String serveOrder(String commands) {\n        // Write your solution here. You may add helper methods above this one.\n        return \"\";\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String commands = _lines.get(_i + 0);\n            _sb.append(serveOrder(commands)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring serveOrder(string commands) {\n    // Write your solution here. You may add helper functions above this one.\n    return \"\";\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string commands = _lines[_i + 0];\n        cout << serveOrder(commands) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef serveOrder(commands: str) -> str:\n\n    waiting = []\n    out = []\n    arrival = 0\n    for command in commands.split():\n        if command == \"NEXT\":\n            if not waiting:\n                out.append(\"-\")\n            else:\n                best = 0\n                for i in range(1, len(waiting)):\n                    if (waiting[i][0] < waiting[best][0]\n                            or (waiting[i][0] == waiting[best][0]\n                                and waiting[i][1] < waiting[best][1])):\n                        best = i\n                out.append(waiting.pop(best)[2])\n        else:\n            parts = command.split(\":\")\n            waiting.append((int(parts[2]), arrival, parts[1]))\n            arrival += 1\n    if not out:\n        return \"NONE\"\n    return \" \".join(out)\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        commands = _lines[_i + 0].strip()\n        print(serveOrder(commands))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static String serveOrder(String commands) {\n\n        List<int[]> keys = new ArrayList<>();\n        List<String> names = new ArrayList<>();\n        List<String> out = new ArrayList<>();\n        int arrival = 0;\n        for (String command : commands.trim().split(\"\\\\s+\")) {\n            if (command.equals(\"NEXT\")) {\n                if (keys.isEmpty()) out.add(\"-\");\n                else {\n                    int best = 0;\n                    for (int i = 1; i < keys.size(); i++) {\n                        if (keys.get(i)[0] < keys.get(best)[0]\n                                || (keys.get(i)[0] == keys.get(best)[0]\n                                    && keys.get(i)[1] < keys.get(best)[1])) best = i;\n                    }\n                    out.add(names.get(best));\n                    keys.remove(best);\n                    names.remove(best);\n                }\n            } else {\n                String[] parts = command.split(\":\");\n                keys.add(new int[]{Integer.parseInt(parts[2]), arrival++});\n                names.add(parts[1]);\n            }\n        }\n        if (out.isEmpty()) return \"NONE\";\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < out.size(); i++) {\n            if (i > 0) sb.append(' ');\n            sb.append(out.get(i));\n        }\n        return sb.toString();\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String commands = _lines.get(_i + 0);\n            _sb.append(serveOrder(commands)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nstring serveOrder(string commands) {\n\n    vector<int> pri, seq;\n    vector<string> names, out;\n    int arrival = 0;\n    string command;\n    istringstream is(commands);\n    while (is >> command) {\n        if (command == \"NEXT\") {\n            if (pri.empty()) out.push_back(\"-\");\n            else {\n                size_t best = 0;\n                for (size_t i = 1; i < pri.size(); i++) {\n                    if (pri[i] < pri[best] || (pri[i] == pri[best] && seq[i] < seq[best])) best = i;\n                }\n                out.push_back(names[best]);\n                pri.erase(pri.begin() + best);\n                seq.erase(seq.begin() + best);\n                names.erase(names.begin() + best);\n            }\n        } else {\n            size_t first = command.find(':');\n            size_t second = command.find(':', first + 1);\n            names.push_back(command.substr(first + 1, second - first - 1));\n            pri.push_back(stoi(command.substr(second + 1)));\n            seq.push_back(arrival++);\n        }\n    }\n    if (out.empty()) return \"NONE\";\n    string res;\n    for (size_t i = 0; i < out.size(); i++) {\n        if (i > 0) res += ' ';\n        res += out[i];\n    }\n    return res;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string commands = _lines[_i + 0];\n        cout << serveOrder(commands) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "shortest-hops",
+  "division": "Senior",
+  "contest": 4,
+  "title": "Shortest Hops",
+  "blurb": "Find the fewest edges between two vertices of an undirected graph.",
+  "statement": "\n<p>An undirected graph is given as a list of edges, each written as two vertex numbers joined by a\nhyphen. Vertices are numbered from 1, and a vertex may appear in any number of edges.</p>\n\n<p>Report the smallest number of edges on any route from one given vertex to another. A vertex\nreaches itself in 0 edges. If no route exists at all, report &minus;1.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>1-2 2-3 3-4<br>1 4</td></tr>\n<tr><th>Output</th><td>3</td></tr>\n<tr><th>Explanation</th><td>\nThe graph is a chain running 1, 2, 3, 4.<br>\nThe only route from 1 to 4 uses all three edges.<br>\nNo shorter route exists, so the answer is 3.\n</td></tr></table>\n",
+  "input_spec": "Input the edges on the first line, separated by single spaces, each written as two vertex numbers joined by a hyphen. Input the two vertex numbers on the second line, separated by a single space.",
+  "output_spec": "Output an integer, the fewest edges on a route between the two vertices, or -1 if there is none.",
+  "constraints": "There are between 1 and 200 edges. Vertex numbers are between 1 and 100, inclusive. Both given vertices appear in at least one edge.",
+  "approach": "\n<p>This is a breadth first search and nothing else. Depth first search finds a route but not\nnecessarily the shortest one, and there are no edge weights here to justify anything fancier.</p>\n\n<p>Build an adjacency structure first. A list of neighbors for each vertex is the natural shape, and\nsince the graph is undirected each edge has to be recorded in both directions. Forgetting one of the\ntwo is the single most common bug in this kind of problem, and it produces answers that are too large\nor -1 rather than an error.</p>\n\n<p>Then run the search from the starting vertex with a queue. Mark the start as being at distance 0,\nand repeatedly take a vertex off the front, look at each unvisited neighbor, mark it one further out,\nand put it on the back. Because the queue hands vertices back in the order they were reached, the first\ntime you touch the target you have touched it by a shortest route, so you can stop immediately.</p>\n\n<p>Two cases need no search at all. A start equal to the target answers 0. A queue that empties without\never reaching the target means the two vertices lie in different components, which is the -1 case. Note\nthat a duplicated edge and an edge joining a vertex to itself are both harmless as long as you check\nwhether a vertex has been visited before enqueueing it.</p>\n",
+  "hints": [
+   "Which search order guarantees you reach a vertex by its shortest route first?",
+   "Breadth first search with a queue. Record every edge in both directions, and stop as soon as the target is first marked. An empty queue means -1."
+  ],
+  "fname": "shortest",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>edges</code>, the edge list, and a string,\n<code>pair</code>, the two vertex numbers.</li>\n<li>The function returns an integer, the fewest edges or -1.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "1-2 2-3 3-4",
+     "1 4"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "1-2 3-4",
+     "1 4"
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "1-2 1-3 2-4 3-4",
+     "1 4"
+    ],
+    "out": "2"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "1-2 2-3 3-4",
+     "1 4"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "1-2 3-4",
+     "1 4"
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "1-2 1-3 2-4 3-4",
+     "1 4"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "1-2",
+     "1 1"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "1-2",
+     "1 2"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "1-2 2-3 3-4 4-5 5-1",
+     "1 3"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "1-2 2-1",
+     "1 2"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "1-2 2-3 3-1",
+     "1 3"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "1-2 2-3 3-4 4-5 5-6 6-7 7-8 8-9 9-10",
+     "1 10"
+    ],
+    "out": "9"
+   },
+   {
+    "in": [
+     "1-100",
+     "1 100"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "1-2 3-4 5-6",
+     "1 6"
+    ],
+    "out": "-1"
+   },
+   {
+    "in": [
+     "1-2 1-3 1-4 1-5 2-6 3-6 4-6 5-6",
+     "1 6"
+    ],
+    "out": "2"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef shortest(edges: str, pair: str) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        edges = _lines[_i + 0].strip()\n        pair = _lines[_i + 1].strip()\n        print(shortest(edges, pair))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int shortest(String edges, String pair) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String edges = _lines.get(_i + 0);\n            String pair = _lines.get(_i + 1);\n            _sb.append(shortest(edges, pair)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint shortest(string edges, string pair) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string edges = _lines[_i + 0];\n        string pair = _lines[_i + 1];\n        cout << shortest(edges, pair) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef shortest(edges: str, pair: str) -> int:\n\n    adj = {}\n    for token in edges.split():\n        a, b = token.split(\"-\")\n        a, b = int(a), int(b)\n        adj.setdefault(a, []).append(b)\n        adj.setdefault(b, []).append(a)\n\n    parts = pair.split()\n    start, target = int(parts[0]), int(parts[1])\n    if start == target:\n        return 0\n\n    dist = {start: 0}\n    queue = [start]\n    head = 0\n    while head < len(queue):\n        u = queue[head]\n        head += 1\n        for v in adj.get(u, []):\n            if v not in dist:\n                dist[v] = dist[u] + 1\n                if v == target:\n                    return dist[v]\n                queue.append(v)\n    return -1\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        edges = _lines[_i + 0].strip()\n        pair = _lines[_i + 1].strip()\n        print(shortest(edges, pair))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int shortest(String edges, String pair) {\n\n        List<List<Integer>> adj = new ArrayList<>();\n        for (int i = 0; i <= 100; i++) adj.add(new ArrayList<>());\n        for (String token : edges.trim().split(\"\\\\s+\")) {\n            String[] ends = token.split(\"-\");\n            int a = Integer.parseInt(ends[0]), b = Integer.parseInt(ends[1]);\n            adj.get(a).add(b);\n            adj.get(b).add(a);\n        }\n        String[] parts = pair.trim().split(\"\\\\s+\");\n        int start = Integer.parseInt(parts[0]), target = Integer.parseInt(parts[1]);\n        if (start == target) return 0;\n\n        int[] dist = new int[101];\n        Arrays.fill(dist, -1);\n        dist[start] = 0;\n        Deque<Integer> queue = new ArrayDeque<>();\n        queue.add(start);\n        while (!queue.isEmpty()) {\n            int u = queue.poll();\n            for (int v : adj.get(u)) {\n                if (dist[v] == -1) {\n                    dist[v] = dist[u] + 1;\n                    if (v == target) return dist[v];\n                    queue.add(v);\n                }\n            }\n        }\n        return -1;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String edges = _lines.get(_i + 0);\n            String pair = _lines.get(_i + 1);\n            _sb.append(shortest(edges, pair)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint shortest(string edges, string pair) {\n\n    vector<vector<int>> adj(101);\n    string token;\n    istringstream is(edges);\n    while (is >> token) {\n        size_t dash = token.find('-');\n        int a = stoi(token.substr(0, dash)), b = stoi(token.substr(dash + 1));\n        adj[a].push_back(b);\n        adj[b].push_back(a);\n    }\n    int start, target;\n    istringstream ps(pair);\n    ps >> start >> target;\n    if (start == target) return 0;\n\n    vector<int> dist(101, -1);\n    dist[start] = 0;\n    vector<int> queue;\n    queue.push_back(start);\n    size_t head = 0;\n    while (head < queue.size()) {\n        int u = queue[head++];\n        for (int v : adj[u]) {\n            if (dist[v] == -1) {\n                dist[v] = dist[u] + 1;\n                if (v == target) return dist[v];\n                queue.push_back(v);\n            }\n        }\n    }\n    return -1;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string edges = _lines[_i + 0];\n        string pair = _lines[_i + 1];\n        cout << shortest(edges, pair) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "gate-network",
+  "division": "Senior",
+  "contest": 4,
+  "title": "Gate Network",
+  "blurb": "Wire up a small logic circuit from a netlist and count the inputs that drive it high.",
+  "statement": "\n<p>A circuit is described one gate at a time. Each gate is written as its own name, an equals\nsign, the kind of gate, and then its inputs, and the gates are separated by commas. A gate's input is\neither a single capital letter, which is a circuit input, or the name of an earlier gate.</p>\n\n<p>The gate kinds are AND, OR, NAND, NOR, XOR, XNOR, each taking two inputs, and NOT and BUFFER,\neach taking one. The output of the circuit is the output of the last gate listed.</p>\n\n<p>Report how many of the circuit's input combinations drive that output high.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>G1 = AND A B, G2 = NOT G1</td></tr>\n<tr><th>Output</th><td>3</td></tr>\n<tr><th>Explanation</th><td>\nThe circuit has two inputs, A and B, so there are four combinations.<br>\nG1 is high only when both are high.<br>\nG2 inverts that, so it is high on the other three combinations.\n</td></tr></table>\n",
+  "input_spec": "Input one line holding the gates in order, separated by commas. Within a gate, the name, the equals sign, the kind, and the inputs are separated by single spaces.",
+  "output_spec": "Output an integer, the number of input combinations that drive the output high.",
+  "constraints": "There are between 1 and 20 gates and between 1 and 12 distinct circuit inputs. Every gate's inputs are circuit inputs or gates listed before it. Gate names hold two or more characters, so they are never mistaken for circuit inputs.",
+  "approach": "\n<p>Parse once, then evaluate the whole circuit once for every input combination. With at most\ntwelve inputs there are at most 4096 combinations, so brute force is not merely acceptable but the\nintended approach.</p>\n\n<p>Splitting is the first job. Break the line at the commas to get the gates, then break each gate at\nthe spaces. The first piece is the gate's name, the second is the equals sign and can be discarded, the\nthird is the kind, and everything after that is an input.</p>\n\n<p>Work out the circuit inputs by collecting every input that is a single character and is not the name\nof a gate. Sort them so the enumeration is deterministic, though for a count it does not actually\nmatter which order they take.</p>\n\n<p>Enumerate the combinations with a counter from 0 up to 2 raised to the number of inputs. Bit i of\nthat counter is the value of input i, which is why the sorted list is worth having. Then walk the gates\nin order, computing each one from values already known, since every gate's inputs are either circuit\ninputs or gates listed earlier. That ordering is guaranteed by the statement, so a single pass is\nenough and no dependency sorting is needed.</p>\n\n<p>The output is whatever the last gate produced, not whatever the largest value in your table is, so\nkeep hold of the last gate's result specifically. NOT and BUFFER take one input, so guard against\nreading a second one that is not there.</p>\n",
+  "hints": [
+   "How do you tell a circuit input from a gate name when both appear in the same position?",
+   "A circuit input is a single character that is not a gate name. Enumerate the input combinations with a counter, evaluate the gates in the order given, and take the last gate's value."
+  ],
+  "fname": "countHighs",
+  "task": "\n<ul>\n<li>The function has 1 parameter: a string, <code>netlist</code>, the gates separated by\ncommas.</li>\n<li>The function returns an integer, the number of combinations that drive the output high.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "G1 = AND A B, G2 = NOT G1"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "G1 = XOR A B, G2 = XOR G1 C"
+    ],
+    "out": "4"
+   },
+   {
+    "in": [
+     "G1 = NOR A B"
+    ],
+    "out": "1"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "G1 = AND A B, G2 = NOT G1"
+    ],
+    "out": "3"
+   },
+   {
+    "in": [
+     "G1 = XOR A B, G2 = XOR G1 C"
+    ],
+    "out": "4"
+   },
+   {
+    "in": [
+     "G1 = NOR A B"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "G1 = BUFFER A"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "G1 = AND A B, G2 = OR C D, G3 = NAND G1 G2"
+    ],
+    "out": "13"
+   },
+   {
+    "in": [
+     "G1 = XNOR A B"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "G1 = OR A B, G2 = OR C D, G3 = AND G1 G2"
+    ],
+    "out": "9"
+   },
+   {
+    "in": [
+     "GA = AND A B, GB = AND C D, GC = OR GA GB, GD = NOT GC"
+    ],
+    "out": "9"
+   },
+   {
+    "in": [
+     "G1 = NOT A, G2 = NOT G1"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "G1 = XOR A B, G2 = XOR G1 C, G3 = XOR G2 D"
+    ],
+    "out": "8"
+   },
+   {
+    "in": [
+     "G1 = AND A A"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "G1 = OR A B, G2 = AND G1 C, G3 = XOR G2 D, G4 = NOR G3 E"
+    ],
+    "out": "8"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef countHighs(netlist: str) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        netlist = _lines[_i + 0].strip()\n        print(countHighs(netlist))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countHighs(String netlist) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String netlist = _lines.get(_i + 0);\n            _sb.append(countHighs(netlist)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countHighs(string netlist) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string netlist = _lines[_i + 0];\n        cout << countHighs(netlist) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef countHighs(netlist: str) -> int:\n\n    gates = []\n    names = set()\n    for part in netlist.split(\",\"):\n        tokens = part.split()\n        gates.append((tokens[0], tokens[2], tokens[3:]))\n        names.add(tokens[0])\n\n    inputs = sorted({a for _, _, args in gates for a in args\n                     if len(a) == 1 and a not in names})\n\n    count = 0\n    for mask in range(1 << len(inputs)):\n        env = {}\n        for i, name in enumerate(inputs):\n            env[name] = (mask >> i) & 1 == 1\n        last = False\n        for name, kind, args in gates:\n            x = env[args[0]]\n            y = env[args[1]] if len(args) > 1 else False\n            if kind == \"AND\":\n                last = x and y\n            elif kind == \"OR\":\n                last = x or y\n            elif kind == \"NAND\":\n                last = not (x and y)\n            elif kind == \"NOR\":\n                last = not (x or y)\n            elif kind == \"XOR\":\n                last = x != y\n            elif kind == \"XNOR\":\n                last = x == y\n            elif kind == \"NOT\":\n                last = not x\n            else:\n                last = x\n            env[name] = last\n        if last:\n            count += 1\n    return count\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 1\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        netlist = _lines[_i + 0].strip()\n        print(countHighs(netlist))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countHighs(String netlist) {\n\n        List<String[]> gates = new ArrayList<>();\n        Set<String> names = new HashSet<>();\n        for (String part : netlist.split(\",\")) {\n            String[] tokens = part.trim().split(\"\\\\s+\");\n            gates.add(tokens);\n            names.add(tokens[0]);\n        }\n        TreeSet<String> inputSet = new TreeSet<>();\n        for (String[] g : gates) {\n            for (int i = 3; i < g.length; i++) {\n                if (g[i].length() == 1 && !names.contains(g[i])) inputSet.add(g[i]);\n            }\n        }\n        List<String> inputs = new ArrayList<>(inputSet);\n\n        int count = 0;\n        for (int mask = 0; mask < (1 << inputs.size()); mask++) {\n            Map<String, Boolean> env = new HashMap<>();\n            for (int i = 0; i < inputs.size(); i++) env.put(inputs.get(i), ((mask >> i) & 1) == 1);\n            boolean last = false;\n            for (String[] g : gates) {\n                boolean x = env.get(g[3]);\n                boolean y = g.length > 4 ? env.get(g[4]) : false;\n                String kind = g[2];\n                if (kind.equals(\"AND\")) last = x && y;\n                else if (kind.equals(\"OR\")) last = x || y;\n                else if (kind.equals(\"NAND\")) last = !(x && y);\n                else if (kind.equals(\"NOR\")) last = !(x || y);\n                else if (kind.equals(\"XOR\")) last = x != y;\n                else if (kind.equals(\"XNOR\")) last = x == y;\n                else if (kind.equals(\"NOT\")) last = !x;\n                else last = x;\n                env.put(g[0], last);\n            }\n            if (last) count++;\n        }\n        return count;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 1;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String netlist = _lines.get(_i + 0);\n            _sb.append(countHighs(netlist)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countHighs(string netlist) {\n\n    vector<vector<string>> gates;\n    set<string> names;\n    string part;\n    istringstream commaStream(netlist);\n    while (getline(commaStream, part, ',')) {\n        vector<string> tokens;\n        string t;\n        istringstream is(part);\n        while (is >> t) tokens.push_back(t);\n        gates.push_back(tokens);\n        names.insert(tokens[0]);\n    }\n    set<string> inputSet;\n    for (auto &g : gates) {\n        for (size_t i = 3; i < g.size(); i++) {\n            if (g[i].size() == 1 && names.find(g[i]) == names.end()) inputSet.insert(g[i]);\n        }\n    }\n    vector<string> inputs(inputSet.begin(), inputSet.end());\n\n    int count = 0;\n    for (int mask = 0; mask < (1 << (int) inputs.size()); mask++) {\n        map<string, bool> env;\n        for (size_t i = 0; i < inputs.size(); i++) env[inputs[i]] = ((mask >> i) & 1) == 1;\n        bool last = false;\n        for (auto &g : gates) {\n            bool x = env[g[3]];\n            bool y = g.size() > 4 ? env[g[4]] : false;\n            string kind = g[2];\n            if (kind == \"AND\") last = x && y;\n            else if (kind == \"OR\") last = x || y;\n            else if (kind == \"NAND\") last = !(x && y);\n            else if (kind == \"NOR\") last = !(x || y);\n            else if (kind == \"XOR\") last = x != y;\n            else if (kind == \"XNOR\") last = x == y;\n            else if (kind == \"NOT\") last = !x;\n            else last = x;\n            env[g[0]] = last;\n        }\n        if (last) count++;\n    }\n    return count;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 1;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string netlist = _lines[_i + 0];\n        cout << countHighs(netlist) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
+ },
+ {
+  "id": "path-counter",
+  "division": "Senior",
+  "contest": 4,
+  "title": "Path Counter",
+  "blurb": "Count the paths of an exact length between two vertices of a graph.",
+  "statement": "\n<p>A graph is given as its adjacency matrix, one row at a time, with a 1 wherever an edge joins two\nvertices and a 0 everywhere else. Rows and columns are numbered from 1 in the order given.</p>\n\n<p>Count the paths of exactly the requested length from one vertex to another. A path here is\nACSL's, so vertices and edges may be repeated as often as you like, and only the number of edges\ntravelled matters.</p>\n",
+  "example": "\n<table class=\"ex\"><tr><th>Input</th><td>011;101;110<br>4 1 3</td></tr>\n<tr><th>Output</th><td>5</td></tr>\n<tr><th>Explanation</th><td>\nThe matrix describes a triangle on vertices 1, 2, and 3.<br>\nThere are five ways to walk four edges from vertex 1 and finish at vertex 3.<br>\nEach one is free to revisit vertices along the way.\n</td></tr></table>\n",
+  "input_spec": "Input the matrix on the first line, rows separated by semicolons, each row a run of 0 and 1 characters. Input the length, the starting vertex, and the finishing vertex on the second line, separated by single spaces.",
+  "output_spec": "Output an integer, the number of paths of exactly that length.",
+  "constraints": "The matrix is between 1 by 1 and 8 by 8. The length is between 0 and 10, inclusive. The two vertex numbers are within the matrix. The answer always fits in a 32 bit signed integer.",
+  "approach": "\n<p>The textbook answer is the kth power of the adjacency matrix, whose entry in row u and column v\nis the number of paths of length k from u to v. That works, but multiplying whole matrices is more\narithmetic than the question needs.</p>\n\n<p>You only want one row of the result, so carry one row. Start with a vector holding a 1 in the\nstarting vertex's position and 0 everywhere else, meaning there is exactly one path of length 0 that\nends where it began. Then repeat the length times: the new value at vertex j is the sum, over every\nvertex m that has an edge to j, of the old value at m. After k rounds, read off the finishing\nvertex.</p>\n\n<p>That is one vector times one matrix per round rather than a full matrix product, so the whole thing\ncosts the length times the number of vertices squared. For an 8 by 8 matrix and a length of 10 that is\nunder a thousand multiplications.</p>\n\n<p>A length of 0 is worth checking. The loop simply never runs, and the answer is 1 when the two\nvertices are the same and 0 otherwise, which the starting vector delivers without any special case. A\ngraph with no edges at all gives 0 for every positive length, which the eleventh test checks.</p>\n\n<p>Counts grow like the degree raised to the length, so use 64 bit integers for the running vector even\nthough the final answer fits in 32 bits.</p>\n",
+  "hints": [
+   "The kth power of the adjacency matrix is the textbook answer, but you only need one row of it.",
+   "Carry a vector holding a 1 at the starting vertex and multiply it by the matrix once per unit of length. A length of 0 needs no special case."
+  ],
+  "fname": "countWalks",
+  "task": "\n<ul>\n<li>The function has 2 parameters: a string, <code>matrix</code>, the adjacency matrix, and a\nstring, <code>spec</code>, the length and the two vertex numbers.</li>\n<li>The function returns an integer, the number of paths.</li>\n</ul>\n",
+  "samples": [
+   {
+    "in": [
+     "011;101;110",
+     "4 1 3"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "011;101;110",
+     "2 1 1"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "01;10",
+     "3 1 1"
+    ],
+    "out": "0"
+   }
+  ],
+  "tests": [
+   {
+    "in": [
+     "011;101;110",
+     "4 1 3"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "011;101;110",
+     "2 1 1"
+    ],
+    "out": "2"
+   },
+   {
+    "in": [
+     "01;10",
+     "3 1 1"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "0111;1011;1101;1110",
+     "10 1 1"
+    ],
+    "out": "14763"
+   },
+   {
+    "in": [
+     "0",
+     "0 1 1"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "0",
+     "1 1 1"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "0100;1010;0101;0010",
+     "3 1 4"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "011;101;110",
+     "0 1 2"
+    ],
+    "out": "0"
+   },
+   {
+    "in": [
+     "01000;10100;01010;00101;00010",
+     "2 1 3"
+    ],
+    "out": "1"
+   },
+   {
+    "in": [
+     "0111111;1011111;1101111;1110111;1111011;1111101;1111110",
+     "8 1 1"
+    ],
+    "out": "239946"
+   },
+   {
+    "in": [
+     "010001;101000;010100;001010;000101;100010",
+     "4 1 3"
+    ],
+    "out": "5"
+   },
+   {
+    "in": [
+     "00;00",
+     "5 1 2"
+    ],
+    "out": "0"
+   }
+  ],
+  "starter": {
+   "python": "import sys\n\ndef countWalks(matrix: str, spec: str) -> int:\n    # Write your solution here. You may add helper functions above this one.\n    return 0\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        matrix = _lines[_i + 0].strip()\n        spec = _lines[_i + 1].strip()\n        print(countWalks(matrix, spec))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countWalks(String matrix, String spec) {\n        // Write your solution here. You may add helper methods above this one.\n        return 0;\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String matrix = _lines.get(_i + 0);\n            String spec = _lines.get(_i + 1);\n            _sb.append(countWalks(matrix, spec)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countWalks(string matrix, string spec) {\n    // Write your solution here. You may add helper functions above this one.\n    return 0;\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string matrix = _lines[_i + 0];\n        string spec = _lines[_i + 1];\n        cout << countWalks(matrix, spec) << \"\\n\";\n    }\n    return 0;\n}\n"
+  },
+  "solution": {
+   "python": "import sys\n\ndef countWalks(matrix: str, spec: str) -> int:\n\n    rows = [[1 if c == \"1\" else 0 for c in line] for line in matrix.split(\";\")]\n    n = len(rows)\n    parts = spec.split()\n    length, u, v = int(parts[0]), int(parts[1]), int(parts[2])\n\n    cur = [0] * n\n    cur[u - 1] = 1\n    for _ in range(length):\n        nxt = [0] * n\n        for j in range(n):\n            total = 0\n            for m in range(n):\n                if rows[m][j]:\n                    total += cur[m]\n            nxt[j] = total\n        cur = nxt\n    return cur[v - 1]\n\n\n# ----- driver code: leave this alone -----\ndef _driver():\n    _lines = [ln.rstrip(chr(13)) for ln in sys.stdin.read().split(chr(10))]\n    _lines = [ln for ln in _lines if ln.strip() != '']\n    _k = 2\n    if len(_lines) % _k:\n        raise ValueError('Incomplete test case: supply one line per parameter.')\n    for _i in range(0, len(_lines) - _k + 1, _k):\n        matrix = _lines[_i + 0].strip()\n        spec = _lines[_i + 1].strip()\n        print(countWalks(matrix, spec))\n\n\n_driver()\n",
+   "java": "import java.util.*;\n\npublic class Solution {\n\n    static int countWalks(String matrix, String spec) {\n\n        String[] lines = matrix.split(\";\");\n        int n = lines.length;\n        int[][] a = new int[n][n];\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < n; j++) a[i][j] = lines[i].charAt(j) == '1' ? 1 : 0;\n        }\n        String[] parts = spec.trim().split(\"\\\\s+\");\n        int length = Integer.parseInt(parts[0]);\n        int u = Integer.parseInt(parts[1]), v = Integer.parseInt(parts[2]);\n\n        long[] cur = new long[n];\n        cur[u - 1] = 1;\n        for (int step = 0; step < length; step++) {\n            long[] nxt = new long[n];\n            for (int j = 0; j < n; j++) {\n                long total = 0;\n                for (int m = 0; m < n; m++) if (a[m][j] == 1) total += cur[m];\n                nxt[j] = total;\n            }\n            cur = nxt;\n        }\n        return (int) cur[v - 1];\n    }\n\n    // ----- driver code: leave this alone -----\n    public static void main(String[] args) throws Exception {\n        Scanner _sc = new Scanner(System.in);\n        List<String> _lines = new ArrayList<>();\n        while (_sc.hasNextLine()) {\n            String _ln = _sc.nextLine();\n            if (!_ln.trim().isEmpty()) _lines.add(_ln.trim());\n        }\n        StringBuilder _sb = new StringBuilder();\n        int _k = 2;\n        if (_lines.size() % _k != 0) throw new IllegalArgumentException(\"Incomplete test case: supply one line per parameter.\");\n        for (int _i = 0; _i + _k <= _lines.size(); _i += _k) {\n            String matrix = _lines.get(_i + 0);\n            String spec = _lines.get(_i + 1);\n            _sb.append(countWalks(matrix, spec)).append('\\n');\n        }\n        System.out.print(_sb);\n    }\n}\n",
+   "cpp": "#include <bits/stdc++.h>\nusing namespace std;\n\nint countWalks(string matrix, string spec) {\n\n    vector<string> lines;\n    string line;\n    istringstream rowsIn(matrix);\n    while (getline(rowsIn, line, ';')) lines.push_back(line);\n    int n = (int) lines.size();\n    vector<vector<int>> a(n, vector<int>(n, 0));\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < n; j++) a[i][j] = lines[i][j] == '1' ? 1 : 0;\n    }\n    int length, u, v;\n    istringstream ss(spec);\n    ss >> length >> u >> v;\n\n    vector<long long> cur(n, 0);\n    cur[u - 1] = 1;\n    for (int step = 0; step < length; step++) {\n        vector<long long> nxt(n, 0);\n        for (int j = 0; j < n; j++) {\n            long long total = 0;\n            for (int m = 0; m < n; m++) if (a[m][j]) total += cur[m];\n            nxt[j] = total;\n        }\n        cur = nxt;\n    }\n    return (int) cur[v - 1];\n}\n\n// ----- driver code: leave this alone -----\nint main() {\n    vector<string> _lines;\n    string _ln;\n    while (getline(cin, _ln)) {\n        size_t _first = _ln.find_first_not_of(\" \\t\\r\\n\\f\\v\");\n        if (_first == string::npos) continue;\n        size_t _last = _ln.find_last_not_of(\" \\t\\r\\n\\f\\v\");\n        _lines.push_back(_ln.substr(_first, _last - _first + 1));\n    }\n    size_t _k = 2;\n    if (_lines.size() % _k != 0) { cerr << \"Incomplete test case: supply one line per parameter.\"; return 1; }\n    for (size_t _i = 0; _i + _k <= _lines.size(); _i += _k) {\n        string matrix = _lines[_i + 0];\n        string spec = _lines[_i + 1];\n        cout << countWalks(matrix, spec) << \"\\n\";\n    }\n    return 0;\n}\n"
+  }
  }
 ];

@@ -156,7 +156,7 @@ function questionsFor(topicId, div) {
     return q.topic === topicId && (q.level === "b" || q.level === want);
   });
 }
-// Twelve problems a division, three in each of the four contests. The frq_*.py files are
+// Twenty four problems a division, six in each of the four contests. The frq_*.py files are
 // authoring buckets that each span several contests, so the order they ship in has nothing
 // to do with the order anyone would work through them. Sort is stable, so problems inside a
 // contest keep the order they were written in.
