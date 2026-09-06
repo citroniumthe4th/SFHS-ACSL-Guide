@@ -18,15 +18,14 @@
   --bad: #ff969b;
   --link: #a2e6dc;
   --code-bg: #121d20;
-  /* The three glass knobs. app.js writes --glass-a and --glass-frost from the settings menu;
-     everything else here is derived so both themes move together. */
   --glass-edge: rgb(218 250 248 / .22);
-  --glass-a: .58;
-  --glass-frost: 30px;
-  --glass-sat: 165%;
+  /* Thin, lightly frosted, and pulled a little toward the accent. The tint is the neutral
+     panel color mixed 15 percent toward --accent, which is why it is not a round number.
+     Frost drives saturation with it: a material this thin would read as grey without it. */
+  --glass: rgb(40 66 67 / .22);
+  --glass-frost: 6px;
+  --glass-sat: 112%;
   --glass-bright: .88;
-  --glass-rgb: 28 42 46;
-  --glass: rgb(var(--glass-rgb) / var(--glass-a));
   --sheen: rgb(225 255 253 / .10);
   --shadow: 0 18px 50px rgb(3 14 17 / .20);
   --radius: 10px;
@@ -52,8 +51,8 @@ html[data-theme="light"] {
   --link: #186a5c;
   --code-bg: #edf3f1;
   --glass-edge: rgb(255 255 255 / .92);
+  --glass: rgb(214 231 226 / .22);
   --glass-bright: 1.05;
-  --glass-rgb: 247 253 250;
   --sheen: rgb(255 255 255 / .7);
   --shadow: 0 18px 50px rgb(39 75 64 / .09);
   color-scheme: light;
@@ -434,74 +433,6 @@ html[data-theme="light"] .btn-danger { color: #fff; }
 #a11y-reset { margin-top: 10px; font-size: 11.5px; color: var(--text-faint); }
 
 
-/* ------------------------------------------------------------- settings menu
-
-   The same popup shape as the accessibility menu, carrying the theme switch and the two
-   glass sliders. Its surface stays opaque: a translucent panel for tuning translucency
-   would move under its own controls while you dragged them. */
-
-.glass-menu {
-  position: absolute; right: 0; top: calc(100% + 10px); z-index: 60;
-  width: min(20rem, calc(100vw - 24px));
-  padding: 16px 18px 14px;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
-  box-shadow: var(--shadow); text-align: left;
-  /* Three sliders and a sample make this the taller of the two menus, and the toolbar sits
-     inside the viewport rather than above it, so the menu has to be able to scroll. */
-  max-height: calc(100dvh - 120px); overflow-y: auto; overscroll-behavior: contain;
-}
-.glass-row { display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 9px 0; }
-.glass-row > .glass-name { font-size: 13px; }
-.glass-rows { border-top: 1px solid var(--line-soft); margin-top: 6px; padding-top: 4px; }
-.glass-slider { display: block; padding: 9px 0 4px; }
-.glass-slider .glass-head { display: flex; align-items: baseline; justify-content: space-between;
-  gap: 12px; margin-bottom: 7px; }
-.glass-slider .glass-name { font-size: 13px; }
-.glass-slider output { font: 600 11px/1 var(--mono); color: var(--text-dim); }
-.glass-slider small { display: block; margin-top: 5px; font-size: 11.5px;
-  color: var(--text-faint); line-height: 1.5; }
-.glass-menu input[type="range"] {
-  -webkit-appearance: none; appearance: none; width: 100%; height: 18px;
-  background: transparent; cursor: pointer; margin: 0; display: block;
-}
-.glass-menu input[type="range"]::-webkit-slider-runnable-track {
-  height: 3px; border-radius: 2px; background: var(--line);
-}
-.glass-menu input[type="range"]::-moz-range-track {
-  height: 3px; border-radius: 2px; background: var(--line);
-}
-.glass-menu input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; appearance: none; width: 13px; height: 13px; border-radius: 50%;
-  background: var(--accent); border: 0; margin-top: -5px;
-}
-.glass-menu input[type="range"]::-moz-range-thumb {
-  width: 13px; height: 13px; border-radius: 50%; background: var(--accent); border: 0;
-}
-.glass-menu input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-#glass-reset { margin-top: 12px; font-size: 11.5px; color: var(--text-faint); }
-
-/* A sample of the material over something worth looking through. The site's own background
-   sits within about fifteen RGB units of the glass tint, so the sliders would look inert
-   against it; this strip gives them something with real contrast behind. */
-.glass-sample {
-  position: relative; height: 62px; margin: 12px 0 2px; border-radius: 12px; overflow: hidden;
-  background:
-    radial-gradient(circle at 18% 30%, #7ee0c8 0%, transparent 46%),
-    radial-gradient(circle at 52% 78%, #f0b3d0 0%, transparent 44%),
-    radial-gradient(circle at 84% 26%, #8fb6f2 0%, transparent 46%),
-    linear-gradient(120deg, #2b4c55, #1d3138);
-}
-.glass-sample-chip {
-  position: absolute; inset: 14px 12px; border-radius: 9px;
-  background: var(--glass);
-  backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
-  -webkit-backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
-  box-shadow: inset 0 1px 0 var(--sheen);
-  display: flex; align-items: center; justify-content: center;
-  font: 600 11px/1 var(--sans); letter-spacing: .04em; color: var(--text);
-}
-
 /* ------------------------------------------------------- what the settings do */
 
 /* Higher contrast: full-strength text, borders that are actually visible, no dimming. */
@@ -523,11 +454,7 @@ html[data-plain="on"] .a11y-menu,
 html[data-plain="on"] .ask {
   backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
 }
-/* Reduce transparency outranks the settings sliders. */
-html[data-plain="on"] .glass-sample-chip {
-  backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
-}
-html[data-plain="on"] .glass-rows { opacity: .45; pointer-events: none; }
+
 html[data-plain="on"] .ask::backdrop { backdrop-filter: none; background: rgb(6 12 14 / .8); }
 
 /* Larger text: everything that is sized in rem or inherits from the body grows with it. */

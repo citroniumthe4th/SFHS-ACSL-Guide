@@ -6,11 +6,6 @@ const openA11y = async (page) => {
   await expect(page.locator('.a11y-menu')).toBeVisible();
 };
 
-// Theme moved out of a standalone toggle and into the settings menu beside the glass sliders.
-const openSettings = async (page) => {
-  await page.locator('#settings > summary').click();
-  await expect(page.locator('.glass-menu')).toBeVisible();
-};
 
 test('background can be paused and reduced motion overrides it', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -62,11 +57,7 @@ test('theme persists on standalone pages and active navigation retains contrast'
   await page.goto('/guide');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   for (const theme of ['light', 'dark']) {
-    if (theme === 'dark') {
-      await openSettings(page);
-      await page.locator('#theme-switch button[data-theme="dark"]').click();
-      await page.locator('#settings > summary').click();
-    }
+    if (theme === 'dark') await page.getByRole('button', { name: 'Switch to dark theme', exact: true }).click();
     const ratio = await page.locator('#section-tabs a.on').evaluate(button => {
       const s = getComputedStyle(button);
       const lum = color => {
@@ -111,98 +102,10 @@ test('redesigned sections fit the viewport and preserve navigation', async ({ pa
   }
 });
 
-test('the glass sliders move three separate axes and survive a reload', async ({ page }) => {
-  await page.goto('/guide');
-  const vars = () => page.evaluate(() => {
-    const cs = getComputedStyle(document.documentElement);
-    return {
-      alpha: cs.getPropertyValue('--glass-a').trim(),
-      frost: cs.getPropertyValue('--glass-frost').trim(),
-      sat: cs.getPropertyValue('--glass-sat').trim(),
-      rgb: cs.getPropertyValue('--glass-rgb').trim(),
-    };
-  });
 
-  // Defaults are applied before paint by appearance.js, not by this file.
-  const start = await vars();
-  expect(start.frost).toBe('30px');
-  expect(Number(start.alpha)).toBeGreaterThan(0.5);
 
-  await openSettings(page);
-  const set = async (id, value) => {
-    await page.evaluate(([i, v]) => {
-      const s = document.getElementById(i);
-      s.value = v;
-      s.dispatchEvent(new Event('input', { bubbles: true }));
-    }, [id, String(value)]);
-  };
 
-  // Transparency alone moves the alpha and leaves the blur and the tint where they were.
-  await set('glass-clear', 100);
-  let now = await vars();
-  expect(Number(now.alpha)).toBeLessThan(Number(start.alpha));
-  expect(now.frost).toBe(start.frost);
-  expect(now.rgb).toBe(start.rgb);
-
-  // Frost drives the blur and the saturation together, which is what keeps a thick material
-  // from reading as flat grey.
-  await set('glass-frost', 0);
-  now = await vars();
-  expect(now.frost).toBe('0px');
-  expect(now.sat).toBe('100%');
-
-  // Tint alone moves the colour of the material.
-  await set('glass-tint', 100);
-  now = await vars();
-  expect(now.rgb).not.toBe(start.rgb);
-
-  await expect(page.locator('#glass-clear-out')).toHaveText('100%');
-  await expect(page.locator('#glass-frost-out')).toHaveText('0px');
-  await expect(page.locator('#glass-tint-out')).toHaveText('100%');
-
-  await page.reload();
-  const kept = await vars();
-  expect(kept.frost).toBe('0px');
-  expect(kept.rgb).not.toBe(start.rgb);
-
-  await openSettings(page);
-  await page.locator('#glass-reset').click();
-  const reset = await vars();
-  expect(reset.frost).toBe(start.frost);
-  expect(reset.rgb).toBe(start.rgb);
-  expect(reset.alpha).toBe(start.alpha);
-});
-
-test('the two toolbar menus never stand open together', async ({ page }) => {
-  await page.goto('/guide');
-  await openSettings(page);
-  await expect(page.locator('.a11y-menu')).toBeHidden();
-  await openA11y(page);
-  await expect(page.locator('.glass-menu')).toBeHidden();
-  await page.keyboard.press('Escape');
-  await expect(page.locator('.a11y-menu')).toBeHidden();
-});
-
-test('reduce transparency outranks the glass sliders', async ({ page }) => {
-  await page.goto('/guide');
-  await openSettings(page);
-  await page.evaluate(() => {
-    const s = document.getElementById('glass-clear');
-    s.value = '100';
-    s.dispatchEvent(new Event('input', { bubbles: true }));
-  });
-  await openA11y(page);
-  await page.locator('#a11y-plain').check();
-  const bar = await page.evaluate(() => {
-    const s = getComputedStyle(document.querySelector('.topbar'));
-    return { filter: s.backdropFilter || s.webkitBackdropFilter, bg: s.backgroundColor };
-  });
-  expect(bar.filter).toBe('none');
-  // A solid panel, whatever the slider was left on.
-  expect(bar.bg).not.toContain('rgba');
-});
-
-test('the toolbar wears one plain border and no gradient ring', async ({ page }) => {
+test('the toolbar glass is thin, lightly frosted and drops to a panel on request', async ({ page }) => {
   await page.goto('/guide');
   const bar = () => page.evaluate(() => {
     const el = document.querySelector('.topbar');
@@ -210,23 +113,26 @@ test('the toolbar wears one plain border and no gradient ring', async ({ page })
     return {
       border: cs.borderTopWidth,
       rim: getComputedStyle(el, '::after').content,
+      bg: cs.backgroundColor,
       filter: cs.backdropFilter || cs.webkitBackdropFilter || 'none',
     };
   });
 
-  // A single 1px border supplies the edge. A gradient ring painted over it read as an
-  // outline that was thicker where the gradient was opaque than where it had faded out.
+  // One plain border, no gradient ring over it, and a material thin enough to read through.
   const glass = await bar();
   expect(glass.border).toBe('1px');
   expect(glass.rim).toBe('none');
-  expect(glass.filter).toContain('blur(');
+  expect(glass.bg).toContain('0.22');
+  expect(glass.filter).toContain('blur(6px)');
 
-  // Reduce transparency still drops the material and leaves the border behind.
+  // Reduce transparency still turns the whole material into a solid panel.
   await openA11y(page);
   await page.locator('#a11y-plain').check();
   const plain = await bar();
   expect(plain.filter).toBe('none');
   expect(plain.border).toBe('1px');
+  expect(plain.bg).not.toContain('rgba');
 });
+
 
 
