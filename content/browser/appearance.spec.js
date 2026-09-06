@@ -6,6 +6,7 @@ const openA11y = async (page) => {
   await expect(page.locator('.a11y-menu')).toBeVisible();
 };
 
+
 test('background can be paused and reduced motion overrides it', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/guide');
@@ -100,3 +101,38 @@ test('redesigned sections fit the viewport and preserve navigation', async ({ pa
     expect(await nav.evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
   }
 });
+
+
+
+
+test('the toolbar glass is thin, lightly frosted and drops to a panel on request', async ({ page }) => {
+  await page.goto('/guide');
+  const bar = () => page.evaluate(() => {
+    const el = document.querySelector('.topbar');
+    const cs = getComputedStyle(el);
+    return {
+      border: cs.borderTopWidth,
+      rim: getComputedStyle(el, '::after').content,
+      bg: cs.backgroundColor,
+      filter: cs.backdropFilter || cs.webkitBackdropFilter || 'none',
+    };
+  });
+
+  // One plain border, no gradient ring over it, and a material thin enough to read through.
+  const glass = await bar();
+  expect(glass.border).toBe('1px');
+  expect(glass.rim).toBe('none');
+  expect(glass.bg).toContain('0.22');
+  expect(glass.filter).toContain('blur(6px)');
+
+  // Reduce transparency still turns the whole material into a solid panel.
+  await openA11y(page);
+  await page.locator('#a11y-plain').check();
+  const plain = await bar();
+  expect(plain.filter).toBe('none');
+  expect(plain.border).toBe('1px');
+  expect(plain.bg).not.toContain('rgba');
+});
+
+
+
