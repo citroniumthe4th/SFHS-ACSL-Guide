@@ -266,7 +266,7 @@ one more element than L?`,
   why:`CONS places its first argument on the front of the list given as its second and returns
 that longer list, so the count always goes up by exactly one whatever X happens to be, list or atom.
 Writing the arguments the other way round asks CONS to treat X as a list, which fails unless it
-already is one. REVERSE leaves the length alone and CDR reduces it by one.` },
+already is one. REVERSE leaves the length alone and CDR reduces it by one for a nonempty list. CDR of the empty list is still empty.` },
 
 { id:"lp-14", kind:"problem", topic:"lisp", level:"s",
   q:`Evaluate (CONS (CAR '((1 2) 3)) '(4)).`,
@@ -283,8 +283,7 @@ merged the two lists, which it never does.` },
   check:`lisp("(REVERSE (CDR '(A (B C) D E)))")`,
   why:`CDR removes the leading A and hands back ((B C) D E), a list of three elements. REVERSE
 then reorders those three top level elements and leaves whatever is inside them exactly as it was, so
-the nested (B C) keeps its own order. Every distractor here either reverses the nested list too or
-flattens it, and REVERSE does neither at any depth.` },
+the nested (B C) keeps its own order. The other listed results either leave the outer list unchanged, reverse the nested list, or flatten it. REVERSE changes only the order of the outer elements.` },
 
 { id:"lp-16", kind:"problem", topic:"lisp", level:"s",
   q:`Evaluate (ADD (MULT 3 4) (DIV 20 8)).`,

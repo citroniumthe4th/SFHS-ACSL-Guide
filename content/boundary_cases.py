@@ -31,15 +31,17 @@ CASES = {
     # Junior contests 1 and 2, added with the second wave of problems.
     'stair-hops': [(['0'], '1'), (['1'], '1'), (['45'], '1836311903')],  # Fibonacci offset by one
     'digit-persistence': [(['5'], '0'), (['10'], '1')],  # A zero digit collapses in one step.
-    'base-parade': [(['1', '2'], '1 1'), (['255', '16'], 'F 2')],
+    'base-parade': [(['1', '2'], '1 1'), (['255', '16'], 'F 2'),
+                    (['10', '2'], '1 2'), (['16', '16'], '1 1'),
+                    (['100', '10'], '0 2')],  # Zero loses a tie, but wins a larger count.
     'bus-route': [(['0:0'], '0 1')],  # An empty route still names stop 1.
-    'bracket-depth': [(['('], '-1'), ([')'], '-1'), (['()()'], '1')],
+    'bracket-depth': [(['('], '-1'), ([')'], '-1'), (['()()'], '1'), (['([)]'], '-1')],
     'skip-counting': [(['6', '6'], '1 0'), (['2', '1'], '2 1')],
 
     # Junior contests 3 and 4.
     'seat-map': [(['#'], '0 1'), (['..#;#..;###'], '2 1')],  # A tie goes to the earlier row.
     'hot-streak': [(['5'], '1 5'), (['4 4 4'], '1 4')],  # Equal neighbors break a streak.
-    'magic-square': [(['5'], '5'), (['1 1;1 1'], '2')],
+    'magic-square': [(['5'], '5'), (['1 1;1 1'], '2'), (['1 0;0 1'], 'NO')],
     'run-length': [(['A'], 'A1'), (['ZZZZZZZZZZZZ'], 'Z12')],  # Two digit run lengths.
     'acronym-maker': [(['a'], 'NONE'), (['abcd'], 'A'), (['abc'], 'NONE')],
     'word-search-row': [(['AAAA', 'AA'], '3'), (['AB', 'ABCDE'], '0')],
@@ -48,7 +50,9 @@ CASES = {
     'collatz-peak': [(['1'], '1 0'), (['2'], '2 1')],  # The peak includes the starting value.
     'divisor-champion': [(['1', '1'], '1 1'), (['1', '2'], '2 2')],
     'base-palindrome': [(['0'], '1'), (['9'], '33')],  # Strictly greater, so 9 is not its own answer.
-    'postfix-machine': [(['A', 'A=42'], '42'), (['A B +', 'A=1'], 'ERROR')],
+    'postfix-machine': [(['A', 'A=42'], '42'), (['A B +', 'A=1'], 'ERROR'),
+                        (['A B * C * D /', 'A=-8192 B=8192 C=32 D=2'], '-1073741824'),
+                        (['A B * C * D /', 'A=-8192 B=8192 C=32 D=-2'], '1073741824')],
     'gray-code': [(['3', '0'], '000'), (['1', '1'], '1')],  # Leading zeros are written out.
     'circulate-cycle': [(['0', '0'], '1 0'), (['1111', '1'], '1 1111')],
 
@@ -58,5 +62,6 @@ CASES = {
     'priority-desk': [(['NEXT'], '-'), (['ADD:a:1'], 'NONE')],
     'shortest-hops': [(['1-2', '1 1'], '0'), (['1-2 3-4', '1 4'], '-1')],
     'gate-network': [(['G1 = BUFFER A'], '1'), (['G1 = NOR A B'], '1')],
-    'path-counter': [(['011;101;110', '0 1 2'], '0'), (['0', '0 1 1'], '1')],
+    'path-counter': [(['011;101;110', '0 1 2'], '0'), (['0', '0 1 1'], '1'),
+                     (['01;00', '1 1 2'], '1'), (['01;00', '1 2 1'], '0')],
 }

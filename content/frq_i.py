@@ -13,7 +13,7 @@ dict(
     blurb="Halve or triple a number by turns and report how high it climbed before it fell to 1.",
     statement="""
 <p>Start with a whole number. If it is even, replace it with half of itself. If it is odd, replace
-it with three times itself plus one. Repeat until the value reaches 1, which it always does.</p>
+it with three times itself plus one. Repeat until the value reaches 1. Every starting value in the range specified for this problem reaches 1.</p>
 
 <p>Report the largest value the chain ever held, counting the starting value itself, and the number
 of replacements made. A starting value of 1 makes no replacements at all.</p>
@@ -56,7 +56,7 @@ above everything it later reaches would otherwise report the wrong peak. A start
 case where this matters: the chain is 2, 1, and the peak is the 2 you began with.</p>
 
 <p>The type is the real trap. The values climb far higher than the input suggests, and a start under a
-million can pass twenty million on the way down. Use a 64 bit integer for the running value in Java and
+million can exceed two billion on the way down. Use a 64 bit integer for the running value in Java and
 C++; a 32 bit one will overflow silently on some of the longer chains and produce a wrong answer
 rather than an error.</p>
 
@@ -257,7 +257,7 @@ So there is no need to correct the order.</p>
 <p>Two details decide the edge cases. The search starts strictly above the input, so an input that is
 already a dual palindrome must not be its own answer, and an input of 9 has to move on to 33. And the
 binary form never carries leading zeros, which is why 4, whose binary is 100, is not a palindrome even
-though 001 would be.</p>
+though padding it to 00100 would create a palindrome.</p>
 """,
     sol=dict(
         python="""
@@ -374,9 +374,7 @@ unchecked, crash rather than print ERROR.</p>
 exactly one value behind, so anything else, whether none or several, is an ERROR. An expression of three
 operands and one operator passes every test inside the loop and still fails this one.</p>
 
-<p>Truncating division toward zero is not what Python's // operator does for negative values, and not
-what C++ did before its 2011 standard. Compute the quotient on the absolute values and reattach the sign
-if the two operands disagree in sign, which gets it right in all three languages.</p>
+<p>Python's // rounds down, so compute the quotient on absolute values and reattach the sign there. Java and C++ integer division already truncate toward zero, so use a / b directly. Taking the absolute value of the smallest 32 bit integer is unsafe in those languages because its positive counterpart does not fit in that type.</p>
 """,
     sol=dict(
         python="""
@@ -425,8 +423,7 @@ for (String token : expression.trim().split("\\\\s+")) {
         else if (token.equals("*")) stack.push(a * b);
         else {
             if (b == 0) return "ERROR";
-            int q = Math.abs(a) / Math.abs(b);
-            stack.push(((a < 0) == (b < 0)) ? q : -q);
+            stack.push(a / b);
         }
     } else {
         if (!env.containsKey(token)) return "ERROR";
@@ -455,8 +452,7 @@ while (es >> token) {
         else if (token == "*") stack.push_back(a * b);
         else {
             if (b == 0) return "ERROR";
-            int q = abs(a) / abs(b);
-            stack.push_back(((a < 0) == (b < 0)) ? q : -q);
+            stack.push_back(a / b);
         }
     } else {
         if (env.find(token) == env.end()) return "ERROR";

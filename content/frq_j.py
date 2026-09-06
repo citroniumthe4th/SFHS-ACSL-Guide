@@ -368,7 +368,7 @@ The path from the plus down through the star to B has two edges.
     input_spec="Input one line holding the expression, with no spaces.",
     output_spec="Output an integer, the height of the expression tree.",
     constraints="The expression holds between 1 and 120 characters. Operands are single capital "
-                "letters, operators are + - * /, and the brackets are balanced.",
+                "letters, operators are + - * /, the expression is valid, and parentheses are balanced.",
     task="""
 <ul>
 <li>The function has 1 parameter: a string, <code>expression</code>, the infix expression.</li>
@@ -557,17 +557,14 @@ The second NEXT calls ann, who is now the only one left.
 scan for the best waiting person costs nothing and is far easier to get right.</p>
 
 <p>Store three things per person: the priority, the arrival number, and the name. The arrival number is
-just a counter you increase on every ADD, and it is what makes ties resolvable. Without it there is no
-way to tell which of two equally urgent people came first, since a list can be reordered by the removals
-that happen between them.</p>
+just a counter you increase on every ADD, and it is what makes ties resolvable. If the list preserves arrival order when entries are removed, keeping the first minimum is enough. Recording the arrival number also makes the tie rule explicit if the storage order later changes.</p>
 
 <p>On NEXT, scan the waiting list for the smallest priority, and among those for the smallest arrival
 number. A single pass keeping the best index so far does both at once: replace the best when the
 priority is smaller, or when the priority is equal and the arrival number is smaller. Then remove that
 entry from the list.</p>
 
-<p>Two things happen after the loop rather than during it. A NEXT on an empty room writes a hyphen and
-carries on, so it must not be allowed to crash or to be silently skipped. And a run of commands with no
+<p>Handle an empty-room NEXT inside the loop by recording a hyphen and continuing. A run of commands with no
 NEXT at all produces no output, which is the NONE case; check for it once at the end rather than trying
 to detect it as you go.</p>
 """,
@@ -1035,8 +1032,7 @@ dict(
     title="Path Counter",
     blurb="Count the paths of an exact length between two vertices of a graph.",
     statement="""
-<p>A graph is given as its adjacency matrix, one row at a time, with a 1 wherever an edge joins two
-vertices and a 0 everywhere else. Rows and columns are numbered from 1 in the order given.</p>
+<p>A directed graph is given as its adjacency matrix, one row at a time. Entry (i, j) is 1 when an edge runs from vertex i to vertex j, and 0 otherwise. Rows and columns are numbered from 1 in the order given. Loops are allowed, and the matrix need not be symmetric.</p>
 
 <p>Count the paths of exactly the requested length from one vertex to another. A path here is
 ACSL's, so vertices and edges may be repeated as often as you like, and only the number of edges
@@ -1092,7 +1088,7 @@ under a thousand multiplications.</p>
 
 <p>A length of 0 is worth checking. The loop simply never runs, and the answer is 1 when the two
 vertices are the same and 0 otherwise, which the starting vector delivers without any special case. A
-graph with no edges at all gives 0 for every positive length, which the eleventh test checks.</p>
+graph with no edges at all gives 0 for every positive length, as the all-zero matrix test checks.</p>
 
 <p>Counts grow like the degree raised to the length, so use 64 bit integers for the running vector even
 though the final answer fits in 32 bits.</p>

@@ -44,6 +44,8 @@ def main():
     # drift into serving a stale asset hash.
     subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                  "prerender.py")], check=True)
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                 "sitemap.py")], check=True)
 
 
 if __name__ == "__main__":

@@ -60,7 +60,7 @@ over and over and becomes unusable well before 45 steps, while two variables and
 additions. Keep a pair of running values, add them, and shift.</p>
 
 <p>The count for 45 steps is 1836311903, which fits in a 32 bit signed integer with very little room to
-spare, so do not be tempted to extend the range on your own.</p>
+spare, but the running pair computes the next Fibonacci number too. That next value is 2971215073, so the Java and C++ solutions use 64 bit variables even though the returned answer fits in 32 bits.</p>
 """,
     sol=dict(
         python="""
@@ -132,9 +132,7 @@ harder in Python. Start a running product at 1, then repeatedly take the value m
 in, and divide the value by 10, continuing while the value is above zero.</p>
 
 <p>Do not add a special case for digits equal to 0. A 0 anywhere makes the product 0, which is a
-single digit, so the loop ends on the next test and the count is right without any help. Trying to
-skip zeros would answer a different question, and one whose chains never terminate for numbers like
-10.</p>
+single digit, so the loop ends on the next test and the count is right without any help. Skipping zeros would give the wrong product. For example, 101 should become 0 in one replacement. Ignoring its zero would instead produce 1.</p>
 
 <p>The chains are short. Nothing below a million takes more than seven replacements, so there is no
 performance question here at all, only the boundary between one digit and two.</p>
@@ -216,7 +214,7 @@ integer, <code>base</code>, the base to write it in.</li>
     tests=[["255", "16"], ["1", "2"], ["100", "10"],
            ["64", "8"], ["999999", "7"], ["4095", "16"],
            ["7", "2"], ["999999", "2"], ["512", "8"],
-           ["43690", "16"], ["999999", "16"], ["10", "3"]],
+           ["43690", "16"], ["999999", "16"], ["10", "2"]],
     approach="""
 <p>Two separate jobs, and neither is hard once they are kept apart. First convert, then count.</p>
 
@@ -230,7 +228,7 @@ the digit's numeric value, which is exactly what the modulo hands you, and the l
 themselves: only when you print the answer do you turn a value into a character, using the digits 0
 through 9 for values below 10 and the letters A through F above.</p>
 
-<p>Sweep the tally from 15 downward and keep the first digit that beats the best count so far. Because
+<p>Start the best digit at base minus 1, the largest digit allowed in this base. Sweep the remaining digits downward and replace the best only when a count is strictly larger. Because
 you are moving down from the largest value, that automatically settles ties in favor of the larger
 digit without any extra comparison. Sweeping upward and using a strictly greater test would give the
 smaller one instead.</p>
@@ -243,8 +241,8 @@ n = value
 while n > 0:
     tally[n % base] += 1
     n //= base
-best = 0
-for d in range(15, -1, -1):
+best = base - 1
+for d in range(base - 2, -1, -1):
     if tally[d] > tally[best]:
         best = d
 return digits[best] + " " + str(tally[best])
@@ -254,8 +252,8 @@ String digits = "0123456789ABCDEF";
 int[] tally = new int[16];
 int n = value;
 while (n > 0) { tally[n % base]++; n /= base; }
-int best = 0;
-for (int d = 15; d >= 0; d--) if (tally[d] > tally[best]) best = d;
+int best = base - 1;
+for (int d = base - 2; d >= 0; d--) if (tally[d] > tally[best]) best = d;
 return digits.charAt(best) + " " + tally[best];
 """,
         cpp="""
@@ -263,8 +261,8 @@ string digits = "0123456789ABCDEF";
 vector<int> tally(16, 0);
 int n = value;
 while (n > 0) { tally[n % base]++; n /= base; }
-int best = 0;
-for (int d = 15; d >= 0; d--) if (tally[d] > tally[best]) best = d;
+int best = base - 1;
+for (int d = base - 2; d >= 0; d--) if (tally[d] > tally[best]) best = d;
 return string(1, digits[best]) + " " + to_string(tally[best]);
 """,
     ),
@@ -387,8 +385,7 @@ dict(
     blurb="Check that a run of brackets closes properly and report how deep it nests.",
     statement="""
 <p>A string is made only of the six bracket characters ( ) [ ] { }. It is balanced when every
-opening bracket is closed later by a bracket of the same kind, and no closing bracket appears without
-a matching opening bracket still waiting for it.</p>
+opening bracket is closed later by a bracket of the same kind, and each closing bracket matches the most recently opened bracket that has not yet been closed. Brackets must nest, so ([)] is not balanced.</p>
 
 <p>Report the greatest number of brackets open at any one moment. If the string is not balanced,
 report &minus;1 instead.</p>
@@ -548,7 +545,7 @@ largest slot seen with a running maximum as you go.</p>
 at the largest track size. If you want to check your answer, the number of slots visited is the track
 size divided by the greatest common divisor of the track size and the stride, and the largest slot is
 the track size minus that divisor. A stride that is a multiple of the track size visits slot 0 alone,
-and the sixth sample is exactly that case.</p>
+as in the sample with 6 slots and a stride of 6.</p>
 """,
     sol=dict(
         python="""

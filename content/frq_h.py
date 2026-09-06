@@ -111,7 +111,7 @@ dict(
     title="Hot Streak",
     blurb="Find the longest stretch of strictly rising numbers and say where it ended.",
     statement="""
-<p>A list of whole numbers is given in order. A streak is a stretch of neighboring values in which
+<p>A list of integers is given in order. A streak is a stretch of neighboring values in which
 each one is strictly larger than the one before it. A single value on its own is a streak of length
 1.</p>
 
@@ -155,7 +155,7 @@ current length and the best have to start at 1 rather than 0, because a single v
 streak.</p>
 
 <p>The comparison must be strictly greater. Equal neighbors break the streak, which is what the
-statement means by strictly rising, and a test using greater than or equal would report 6 rather than 2
+statement means by strictly rising, and a test using greater than or equal would report 6 rather than 1
 for a list of six equal values.</p>
 
 <p>Update the best only when the current streak is strictly longer. That keeps the earlier of two tied
@@ -211,7 +211,7 @@ dict(
     title="Magic Square",
     blurb="Check whether every row, column, and diagonal of a square grid adds to the same total.",
     statement="""
-<p>A square grid of whole numbers is given one row at a time. It is magic when every row, every
+<p>A square grid of integers is given one row at a time. It is magic when every row, every
 column, and both of the two long diagonals add up to the same total.</p>
 
 <p>Report that total if the grid is magic. Otherwise report NO. A one by one grid is always magic,
@@ -260,9 +260,7 @@ runs the column subscript, a column sum fixes the column and runs the row subscr
 almost identical and the two subscripts are swapped inside.</p>
 
 <p>The two diagonals are the cells where the subscripts agree and the cells where they add to one less
-than the size of the grid. Both are single loops. Grids like the third sample and the fourth test show
-why the diagonals cannot be skipped: a grid can have every row and column right and still fail on
-them.</p>
+than the size of the grid. Both are single loops. The grid 1 0;0 1 has row and column totals of 1, but diagonal totals of 2 and 0. It shows why neither diagonal check can be skipped.</p>
 """,
     sol=dict(
         python="""
@@ -559,7 +557,7 @@ Positions are counted from 0, and the three appearances overlap.
     tests=[["AAAA", "AA"], ["BANANA", "ANA"], ["ABC", "D"],
            ["XYZXYZXYZ", "XYZ"], ["AB", "ABCDE"], ["MISSISSIPPI", "ISSI"],
            ["AAAAAAAAAA", "A"], ["AAAAAAAAAA", "AAAAAAAAAA"], ["ABABABAB", "ABAB"],
-           ["QQQQQ", "QQQ"], ["ACSLACSL", "ACSL"], ["ZZZZZZZZZZZZZZZZZZZZ", "ZZZZZZZZZZZZZZZZZZZZZ"]],
+           ["QQQQQ", "QQQ"], ["ACSLACSL", "ACSL"], ["ZZZZZZZZZZZZZZZZZZZ", "ZZZZZZZZZZZZZZZZZZZZ"]],
     approach="""
 <p>Try every starting position and compare. The word can begin anywhere from position 0 up to the
 row's length minus the word's length, and at each of those positions you check whether the next few

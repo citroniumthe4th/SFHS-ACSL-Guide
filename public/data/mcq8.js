@@ -215,10 +215,10 @@ order. What is the preorder traversal?`,
   why:`Build the tree first: 15 at the root, 9 and 23 below it, 4 and 12 under 9, 19 and 30 under
 23, and 2 as the left child of 4. Preorder writes the root, then the entire left subtree, then the
 entire right, so it reads 15, then 9 4 2 12, then 23 19 30. The sorted sequence is the inorder walk and
-the fourth choice is simply the insertion order, which is level order only by coincidence here.` },
+15 9 23 4 12 19 30 2 is simply the insertion order, which is level order only by coincidence here.` },
 
 { id:"ds-23", kind:"problem", topic:"data-structures", level:"s",
-  q:`Using the same tree built from 15, 9, 23, 4, 12, 19, 30, 2, what is the postorder traversal?`,
+  q:`Insert 15, 9, 23, 4, 12, 19, 30, 2 into an empty binary search tree in that order. What is the postorder traversal?`,
   choices:["2 4 12 9 19 30 23 15","15 9 4 2 12 23 19 30","2 4 9 12 19 23 30 15","2 4 12 19 30 9 23 15","None of the above"], ans:0,
   check:`trav("+15 +9 +23 +4 +12 +19 +30 +2".split(), "post")`,
   why:`Postorder visits both subtrees before the root, which means the root is always the last
@@ -257,7 +257,7 @@ node. What is the preorder traversal?`,
 the old right subtree, which is just 80, is attached at the rightmost node of the promoted subtree.
 Since 60 has no right child, 80 becomes its right child directly. Preorder then reads 50, 30, 20, 40,
 60, 80. Copying the successor into the node instead, which is what most textbooks do, would leave 80 in
-that position and give the second choice.` },
+that position and give 50 30 20 40 80 60.` },
 
 { id:"ds-27", kind:"problem", topic:"data-structures", level:"b",
   q:`Insert 9, 4, 7, 1, 8, 2 into a min heap one at a time, sifting each new value up from the
@@ -293,14 +293,14 @@ on top, and the final D writes E. The two structures are entirely independent, s
 side by side and update only the one each command names.` },
 
 { id:"ds-30", kind:"problem", topic:"data-structures", level:"s",
-  q:`Using the same commands, where P and D write X when the structure is empty, what does
+  q:`S pushes onto a stack, Q adds to a queue, P pops the stack, and D removes from the front of the queue. Both structures start empty, and an empty removal writes X. What does
 Q1 S2 Q3 S4 P D P D D write, in order?`,
   choices:["4 1 2 3 X","4 2 1 3 X","1 2 3 4 X","4 1 2 3","None of the above"], ans:0,
   check:`stack_queue("Q1 S2 Q3 S4 P D P D D".split())`,
   why:`The queue receives 1 and then 3, and the stack receives 2 and then 4. The first P takes 4
 from the top of the stack, the first D takes 1 from the front of the queue, the second P takes 2, and
 the second D takes 3. The last D finds the queue empty, and the rule is to write X rather than to stop,
-so the output ends with an X. Forgetting that final step is what produces the fourth choice.` },
+so the output ends with an X. Forgetting that final step is what produces 4 1 2 3.` },
 
 { id:"ds-31", kind:"problem", topic:"data-structures", level:"b",
   q:`In a heap stored in an array with the root at index 1, where do the two children of the node
@@ -353,8 +353,7 @@ rule. What is the preorder traversal?`,
   why:`Deleting the root lands on the two child case. ACSL promotes the left child, so 5 becomes
 the root, and the old right subtree, which is the single node 15, is attached at the rightmost node of
 the promoted subtree, which is 7. The tree is therefore 5 with left child 3 and right child 7, and 7
-carries 15 on its right. Preorder reads 5, 3, 7, 15. Note that the result is legal but no longer
-balanced, which is a general side effect of this rule.` },
+carries 15 on its right. Preorder reads 5, 3, 7, 15. The result remains a binary search tree. ACSL deletion does not include a separate rebalancing step.` },
 
 { id:"ds-36", kind:"problem", topic:"data-structures", level:"j",
   q:`Push 4, then 8, then 15 onto a stack, then pop twice. What is written, in order?`,
@@ -381,7 +380,7 @@ about the height of the heap in swaps.` },
 order. What is the height of the tree, counting the root as height 0?`,
   choices:["3","2","4","8","None of the above"], ans:0,
   check:`str(trav("+50 +25 +75 +12 +37 +62 +87 +6".split(), "height"))`,
-  why:`The first seven values build a perfectly balanced tree two levels deep, and the last value,
+  why:`The first seven values build a perfectly balanced tree three levels deep, with its leaves at depth 2, and the last value,
 6, goes left of 12 and sits one level below it. The deepest node is therefore three edges from the
 root. Only one node lives at depth 3, and height is decided by the single deepest node rather than by
 how many nodes are down there.` },
@@ -393,7 +392,7 @@ What is the postorder traversal?`,
   check:`trav("+8 +4 +12 +2 +6 +10 +14".split(), "post")`,
   why:`The insertions build a perfectly balanced tree with 8 at the root. Postorder finishes each
 subtree before writing its root, so the left side gives 2 6 4, the right gives 10 14 12, and 8 comes
-last. The second choice is the preorder and the third is the inorder, so all three walks of this one
+last. 8 4 2 6 12 10 14 is the preorder, and 2 4 6 8 10 12 14 is the inorder, so all three walks of this one
 tree are sitting in the choices together.` },
 
 { id:"ds-40", kind:"problem", topic:"data-structures", level:"j",

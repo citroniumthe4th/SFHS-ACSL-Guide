@@ -93,8 +93,7 @@ tell you?`,
   choices:["the degree of vertex C","the number of vertices","the number of edges","the length of the longest simple path from C","None of the above"], ans:0,
   why:`Row 3 holds a 1 in every column matching a vertex adjacent to vertex C, so summing the row
 counts the edges touching C, which is its degree. In a directed graph that same row sum is the
-outdegree while the column sum is the indegree, and the two agree only when the matrix is symmetric,
-which is to say only when the graph is undirected.` },
+outdegree while the column sum is the indegree, but equal indegree and outdegree do not require a symmetric matrix. For example, in the directed cycle A to B to C to A, every vertex has indegree 1 and outdegree 1.` },
 
 { id:"gt-11", kind:"problem", topic:"graph-theory", level:"s",
   q:`A graph has 6 vertices and 4 edges, and no cycles. How many connected components does it
@@ -264,7 +263,7 @@ many paths of length 5 go from A back to A?`,
   why:`With p of the five steps going clockwise, the net displacement is 2p minus 5, and returning
 to A needs that to be a multiple of 5. That forces p to be 0 or 5, meaning the walk goes all the way
 round in one direction or the other. Each of those can happen in exactly one way, so the count is 2.
-The distractor 10 counts the walks with p equal to 1 or 4, which land one place short of A.` },
+The distractor 10 counts the walks with p equal to 1 or 4, which end at C or D rather than A.` },
 
 { id:"gt-28", kind:"problem", topic:"graph-theory", level:"s",
   q:`Vertices A and B are each joined to every one of C, D, and E, and there are no other edges.
@@ -283,8 +282,7 @@ go from B back to B?`,
   check:`str(walks(4,2,'B','B','0100101001010010'))`,
   why:`A there-and-back path leaves along one edge and returns along the same one, so the number
 of them is exactly the degree of the vertex. B is joined to A and to C, so its degree is 2 and the count
-is 2. That is the general fact behind every diagonal entry of the squared adjacency matrix: it always
-equals the degree of that vertex.` },
+is 2. That is the general fact behind the squared adjacency matrix of an undirected graph without loops: each diagonal entry equals the degree of its vertex.` },
 
 { id:"gt-30", kind:"problem", topic:"graph-theory", level:"s",
   q:`Six vertices A through F form a cycle in alphabetical order, with F joined back to A. How many
@@ -329,11 +327,10 @@ whichever of the three numbers a question leaves out.` },
   choices:["the indegree of that vertex","the outdegree of that vertex","the number of edges","the number of vertices reachable from it","None of the above"], ans:0,
   why:`Entry (i, j) is 1 when an arrow runs from vertex i to vertex j, so a column collects every
 arrow arriving at one vertex and its sum is the indegree. The row sum is the outdegree by the same
-argument. The two agree only when the matrix is symmetric, which is to say only when the graph is
-undirected, and in that case both are simply the degree.` },
+argument. Equal indegree and outdegree do not require a symmetric matrix. For example, in the directed cycle A to B to C to A, every vertex has indegree 1 and outdegree 1.` },
 
 { id:"gt-35", kind:"concept", topic:"graph-theory", level:"s",
-  q:`For an undirected graph with no loops, what does the sum of the diagonal entries of the
+  q:`For an undirected graph with no loops or parallel edges, what does the sum of the diagonal entries of the
 squared adjacency matrix equal?`,
   choices:["twice the number of edges","the number of edges","the number of vertices","the number of triangles","None of the above"], ans:0,
   why:`A diagonal entry of the squared matrix counts the paths of length 2 from a vertex back to
@@ -343,11 +340,8 @@ twice the number of edges. Triangles are counted by the diagonal of the cubed ma
 one is counted six times there.` },
 
 { id:"gt-36", kind:"concept", topic:"graph-theory", level:"b",
-  q:`Why can no graph have vertices of degrees 1, 2, 3, 4, and 5?`,
+  q:`Why can an undirected graph on exactly five vertices not have degrees 1, 2, 3, 4, and 5, even if loops or parallel edges are allowed?`,
   choices:["the degrees add to an odd number","5 is too large for a graph on 5 vertices","no two vertices may share a degree","the degrees must be consecutive","None of the above"], ans:0,
-  why:`The sum of all the degrees is always twice the number of edges and is therefore even, but
-1 + 2 + 3 + 4 + 5 is 15. No graph can have that degree sequence, whatever its size. A corollary worth
-carrying is that the number of vertices of odd degree is always even, which is often the quickest way to
-rule a proposed graph out.` }
+  why:`The degrees add to 15, but every edge contributes 2 to the total degree. A loop contributes 2 at its single endpoint, so allowing loops or parallel edges does not change the requirement that the total be even. A degree of 5 is possible with those edges allowed, so the odd total is the reason this particular sequence is impossible.` }
 
 ]);

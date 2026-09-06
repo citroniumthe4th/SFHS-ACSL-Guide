@@ -396,8 +396,7 @@ def f(n):
 RESULT = f(43)`,
   why:`The argument drops by 5 each time, running 43, 38, 33, 28, 23, and then 18. That is five
 steps, and 18 is the first value that is not greater than 20, so the base case answers with 18 itself.
-Five waiting additions of 4 give 20 more, for a total of 38. Note that 23 still recurses, since the
-test is greater than 20 rather than greater than or equal to.` },
+Five waiting additions of 4 give 20 more, for a total of 38. The value 23 still recurses because it is above 20. The chain stops at 18, not at the threshold itself.` },
 
 { id:"rf-24", kind:"problem", topic:"recursive-functions", level:"s",
   q:`Find f(5), given the pair of definitions:
@@ -454,8 +453,7 @@ RESULT = f("RECURSE")`,
   why:`Each level swaps the outermost pair of characters and hands the middle back to itself, so
 the whole string comes out reversed. Working inward, f("RECURSE") is E + f("ECURS") + R, f("ECURS") is
 S + f("CUR") + E, and f("CUR") is R + "U" + C, which is RUC. Winding back up gives SRUCE and then
-ESRUCER. Since RECURSE is not a palindrome, the answer differs from the input, which rules out the
-second choice without any tracing at all.` },
+ESRUCER. Since RECURSE is not a palindrome, the answer differs from the input, which rules out the choice RECURSE without any tracing at all.` },
 
 { id:"rf-27", kind:"problem", topic:"recursive-functions", level:"s",
   q:`How many times is f called in total, counting the first call, when f(8) is evaluated with no
@@ -526,11 +524,11 @@ RESULT = f(10)`,
   why:`Three base values of 1 and each later term the sum of the previous three make this the
 tribonacci sequence, and a table is the only sensible way to compute it. The values run 1, 1, 1, 3, 5,
 9, 17, 31, 57, 105, and 193. The distractor 105 is f(9), one place short. Drawing the call tree
-instead would mean visiting well over a thousand nodes. Since 193 is not among the four choices
+instead would mean visiting 289 calls, including 193 base-case calls. Since 193 is not among the four choices
 offered, the answer is None of the above.` },
 
 { id:"rf-31", kind:"problem", topic:"recursive-functions", level:"b",
-  q:`A single stalk is drawn. At each later stage every stalk from the previous stage is replaced
+  q:`Three stalks are drawn at stage 0. At each later stage every stalk from the previous stage is replaced
 by three stalks. How many stalks are there at stage 5, if stage 0 has three stalks?
 <div class="cases"><div class="fn">p(n) =</div><div class="rows">
 <div><span>3 p(n &minus; 1)</span><span>if n &gt; 0</span></div>

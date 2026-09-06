@@ -242,7 +242,7 @@ finally combines A with it.` },
   why:`Exponentiation binds tightest and associates to the right, so B ^ C ^ D is B ^ (C ^ D) and
 resolves first, giving B C D ^ ^. Multiplication comes next, taking that whole result and E, and the
 addition is last. Fully parenthesized the expression reads A + ((B ^ (C ^ D)) * E). Treating the caret
-as left associative would give A B C ^ D ^ E * +, which is the second choice.` },
+as left associative would give A B C ^ D ^ E * +.` },
 
 { id:"pp-27", kind:"problem", topic:"prefix-postfix", level:"s",
   q:`Evaluate the postfix expression 20 4 - 3 - 2 /.`,
@@ -303,7 +303,6 @@ for t in '2 3 + 4 5 + *'.split():
 RESULT = mx`,
   why:`Each operand adds one to the stack and each binary operator removes two and pushes one,
 for a net loss of one. Tracing the depth gives 1, 2, 1, 2, 3, 2, and finally 1, so the peak is 3. The
-depth reached is a property of the shape of the expression rather than its length, and a well balanced
-expression like this one keeps the stack far shallower than a long left leaning chain would.` }
+depth reached is a property of the shape of the expression rather than its length, and a left-grouped chain such as 2 3 + 4 + 5 + needs only two stack slots. A right-grouped expression such as 2 3 4 5 + + + pushes all four operands before reducing them.` }
 
 ]);

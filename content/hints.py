@@ -106,7 +106,7 @@ HINTS = {
     ],
     "base-parade": [
         "You never need to build the converted string. What do you actually need from it?",
-        "Tally sixteen counters indexed by digit value while dividing down by the base. Sweep the tally from 15 downward so ties go to the larger digit.",
+        "Tally sixteen counters indexed by digit value while dividing down by the base. Start with the largest allowed digit, then scan downward and replace it only for a strictly larger count.",
     ],
     "bus-route": [
         "The order of the two operations at each stop is given in the statement. Which one comes first?",
@@ -146,7 +146,7 @@ HINTS = {
     ],
     "collatz-peak": [
         "Where should the running maximum start? Think about a chain that only goes down.",
-        "Seed the maximum with the starting value, and hold the running value in a 64 bit integer. Chains under a million pass twenty million on the way.",
+        "Seed the maximum with the starting value, and hold the running value in a 64 bit integer. Some starts below a million produce values beyond the 32 bit integer range.",
     ],
     "divisor-champion": [
         "Divisors come in pairs. How far do you actually have to search for one of each pair?",

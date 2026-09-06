@@ -193,8 +193,7 @@ window.MCQ = (window.MCQ || []).concat([
   why:`Every hexadecimal digit is exactly four bits, so this is regrouping rather than
 arithmetic. 5 is 0101, A is 1010, and 3 is 0011, which written end to end gives 0101 1010 0011.
 Dropping the leading zero leaves 10110100011. Count the bits when you finish: three hex digits must
-produce twelve bits before any leading zeros come off, and a result of ten or eleven significant bits
-means one group was written with three bits instead of four.` },
+produce twelve bits before any leading zeros come off, and this result has eleven significant bits because just one leading zero was removed.` },
 
 { id:"ns-20", kind:"problem", topic:"number-systems", level:"s",
   q:`Evaluate the following and express the answer in octal.
@@ -242,7 +241,7 @@ binary?`,
   check:`str(len([n for n in range(1,501) if to_base(n,2)==to_base(n,2)[::-1]]))`,
   why:`Count by length rather than by number. A binary palindrome of length L begins with a 1,
 which forces it to end with a 1, and the middle bits are free in mirrored pairs, so there are 2 to the
-power of the floor of (L minus 2) over 2 palindromes at each length. That gives 1, 1, 2, 2, 4, 4, 8,
+power of the ceiling of L over 2, minus 1 palindromes at each length. That gives 1, 1, 2, 2, 4, 4, 8,
 and 8 for lengths 1 through 8, which is 30 through length 8, and length 9 runs from 256 to 511 where
 the palindromes up to 500 add 15 more. The total is 45. Since 45 is not among the four choices
 offered, the answer is None of the above.` },

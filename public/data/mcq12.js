@@ -413,9 +413,7 @@ DONE END</code></pre>What is printed?`,
   choices:["5 4 3 2 1","5 4 3 2 1 0","1 2 3 4 5","5","None of the above"], ans:0,
   check:`machine("LOAD =5; STORE X; TOP LOAD X; BE DONE; PRINT X; LOAD X; SUB =1; STORE X; BU TOP; DONE END#")`,
   why:`The exit test runs before the print, so once X reaches 0 the BE fires and control jumps to
-DONE without printing it. The values printed are therefore 5 down to 1. Moving the test to the bottom of
-the loop would print the 0 as well, which is exactly the difference between a while loop and a repeat
-loop.` },
+DONE without printing it. The values printed are therefore 5 down to 1. Printing before this zero test would include 0. A test at the bottom is not enough by itself to decide whether 0 is printed, because the position of the decrement matters too.` },
 
 { id:"as-19", kind:"concept", topic:"assembly", level:"s",
   q:`After STORE X executes, what does the accumulator hold?`,

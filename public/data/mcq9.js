@@ -362,8 +362,7 @@ optional.` },
   check:`str(regex_match('(a|b)(a|b)(a|b)', ['aaa','aab','aba','abb','baa','bab','bba','bbb']).split().count('Y'))`,
   why:`Each of the three groups chooses a or b independently of the others, so the count is 2
 times 2 times 2. Every accepted string has length exactly 3, since nothing here repeats or is optional.
-Nothing in the pattern requires the three groups to agree; forcing that would need a backreference,
-which the regular expressions in this category do not provide.` },
+Nothing in the pattern requires the three groups to agree; to require agreement here, write aaa|bbb instead.` },
 
 { id:"fr-24", kind:"problem", topic:"fsa-regex", level:"s",
   q:`Which string does a(a|b)*b NOT match?`,
@@ -395,13 +394,9 @@ copy each, and abba is ab followed by ba. Counting characters before tracing is 
 whenever every branch of a starred group has the same length.` },
 
 { id:"fr-27", kind:"concept", topic:"fsa-regex", level:"s",
-  q:`What makes a finite state automaton deterministic?`,
+  q:`Which transition rule does a complete deterministic finite automaton (DFA) follow?`,
   choices:["each state has exactly one transition for each input symbol","it has exactly one accepting state","no state may transition to itself","every transition leads to a different state","None of the above"], ans:0,
-  why:`Determinism is about having no choice and no dead ends: from any state, each symbol of the
-alphabet leads to exactly one next state, so a string traces out a single path and either finishes on
-an accepting state or does not. A machine with two transitions on the same symbol out of one state, or
-with none, is nondeterministic. The number of accepting states and any self loops are irrelevant to
-it.` },
+  why:`In a complete DFA, every state has exactly one next state for each input symbol, and there are no transitions that consume no input. The accepting states and self-loops do not determine whether a machine is deterministic. Diagrams may omit transitions that reject an input. Those can be filled in with a rejecting sink state, so a missing arrow alone does not imply a nondeterministic choice.` },
 
 { id:"fr-28", kind:"concept", topic:"fsa-regex", level:"s",
   q:`In the pattern (ab)*c, what does the star apply to?`,
@@ -477,7 +472,7 @@ RESULT = " ".join(str(x) for x in A[1:])`,
   why:`Because the loop moves right to left, every read of A(I - 1) reaches a value that has not
 been touched yet, so each slot simply picks up its original left neighbor. That gives 1, 3, 5, 7, and
 9. Running the same body from 2 up to 5 instead would read values that had already been updated and
-produce the running totals 1, 3, 6, 10, and 15, which is the second choice.` },
+produce the running totals 1, 3, 6, 10, and 15.` },
 
 { id:"wa-15", kind:"problem", topic:"wdtpd-arrays", level:"j",
   q:`A three by three array is filled by A(I, J) = I * 10 + J for I and J from 1 to 3. What is the
@@ -533,8 +528,7 @@ A[1] = T
 RESULT = " ".join(str(x) for x in A[1:])`,
   why:`The last value is saved in T before anything moves, then the loop shifts every element one
 place to the right, and finally the saved value is dropped into the vacated first slot. The result is a
-rotation rather than a plain shift, since nothing is lost. The direction matters: running the loop
-upward instead would smear A(1) across the whole array and give the fourth choice.` },
+rotation rather than a plain shift, since nothing is lost. The direction matters: running I from 2 up to 5 instead would copy the original A(1) into positions 2 through 5. The final A(1) = T would then leave 5 1 1 1 1.` },
 
 { id:"wa-18", kind:"problem", topic:"wdtpd-arrays", level:"j",
   q:`A four by four array is filled by A(I, J) = I + J for I and J from 1 to 4. What is the sum of

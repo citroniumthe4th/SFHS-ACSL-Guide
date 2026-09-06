@@ -494,8 +494,7 @@ RESULT = C`,
   why:`Two variables move at once, so the table needs two columns. A runs 2, 4, 8, 16, 32, and
 64 while B runs 90, 80, 70, 60, 50, and 40. After the sixth pass A is 64 and B is 40, so the condition
 fails and the loop stops. One value climbing while the other falls means they cross much sooner than
-either would reach the other alone, which is why the count is far below what watching A on its own
-would suggest.` },
+either would reach the other alone, which saves one pass here compared with keeping B fixed at 100.` },
 
 { id:"wd-15", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>A(1..5) = 5, 2, 9, 1, 7
@@ -515,7 +514,7 @@ RESULT = " ".join(str(x) for x in A)`,
   why:`This is a single pass of a bubble sort, not a full sort, so the array does not come out
 ordered. Following it through, 5 and 2 swap, 5 and 9 do not, 9 and 1 swap, and 9 and 7 swap, leaving
 2 5 1 7 9. What one pass does guarantee is that the largest value has been carried to the end, which
-is why a complete bubble sort needs a pass for every element.` },
+is why at most N minus 1 passes suffice for N elements. A pass with no swaps can stop the sort earlier.` },
 
 { id:"wd-16", kind:"problem", topic:"wdtpd", level:"s",
   q:`<pre><code>N = 987
@@ -766,7 +765,7 @@ RESULT = N`,
   why:`Count each group and then remove the overlap. The multiples of 2 up to 10 are 2, 4, 6, 8,
 and 10, which is five, and the multiples of 3 are 3, 6, and 9, which is three, but 6 belongs to both
 and would otherwise be counted twice. So the answer is 5 plus 3 minus 1. Adding the two counts without
-removing the overlap gives 8, which is the distractor sitting right beside the answer.` },
+removing the overlap gives 8.` },
 
 { id:"wb-13", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>X = 15
@@ -911,8 +910,7 @@ for I in range(1,7):
 RESULT = C`,
   why:`The first half of the condition means each unordered pair is counted at most once, with
 the smaller value in I. Listing the pairs whose total is a multiple of 3 gives (1, 2), (1, 5), (2, 4),
-(3, 6), and (4, 5), which is 5. Dropping the I less than J test would count every pair twice and give
-10, which is the distractor.` },
+(3, 6), and (4, 5), which is 5. Dropping I &lt; J would count these five pairs in both orders and also admit (3, 3) and (6, 6), giving 12. Replacing it with I != J would exclude those equal pairs and give 10.` },
 
 { id:"wb-19", kind:"problem", topic:"wdtpd-branching", level:"j",
   q:`<pre><code>X = 12
@@ -968,7 +966,6 @@ else:
 RESULT = B`,
   why:`These are three separate structures rather than a chain, so every one of them is
 evaluated. The first two conditions hold, adding 1 and then 2, and the third fails, so its else adds 8.
-The total is 11. The distractor 3 is what you get by treating the three as a chain in which only the
-first match runs. Since 11 is not among the four choices offered, the answer is None of the above.` }
+The total is 11. The distractor 3 omits the final else and keeps only the first two additions. An else-if chain would instead stop after adding 1. Since 11 is not among the four choices offered, the answer is None of the above.` }
 
 ]);

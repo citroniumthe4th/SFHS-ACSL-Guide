@@ -165,7 +165,7 @@ reading down the columns, the and gives 11000.` },
   why:`The complement is a unary operator and binds tighter than any of the binary ones, so it
 applies to 1010 alone rather than to the whole line. That gives 0101, and 0101 ored with 0110 sets a
 bit wherever either operand has one, producing 0111. Complementing the result of the or instead would
-give 0000, which is a different answer entirely.` },
+give 0001, which is a different answer entirely.` },
 
 { id:"bs-19", kind:"problem", topic:"bit-string-flicking", level:"j",
   q:`What is LCIRC-7 applied to 1100?`,
@@ -206,11 +206,8 @@ Since 00011 is not among the four choices offered, the answer is None of the abo
 { id:"bs-23", kind:"concept", topic:"bit-string-flicking", level:"b",
   q:`In the ACSL precedence table, which list orders the operators from most tightly binding to
 least?`,
-  choices:["NOT and the movers, then AND, then XOR, then OR","AND, then OR, then XOR, then NOT","OR, then XOR, then AND, then NOT","NOT, then OR, then AND, then XOR","None of the above"], ans:0,
-  why:`The unary operators bind tightest, which covers the complement and every shift and
-circulate, and among the binary operators the order is and, then exclusive or, then or. Operators at
-the same level are evaluated from left to right. This is the single fact that decides questions like
-10110 | 01001 &amp; 11100, where reading strictly left to right gives the wrong answer.` },
+  choices:["NOT, then shifts and circulates, then AND, then XOR, then OR","AND, then OR, then XOR, then NOT","OR, then XOR, then AND, then NOT","NOT, then OR, then AND, then XOR","None of the above"], ans:0,
+  why:`The ACSL table lists NOT first, then shifts and circulates, then AND, XOR, and OR. Unary operators bind from right to left, so in LCIRC-3 RCIRC-5 110010 the right circulate acts first. Equal-precedence binary operators are evaluated from left to right. AND therefore acts before OR in 10110 | 01001 &amp; 11100.` },
 
 { id:"bs-24", kind:"problem", topic:"bit-string-flicking", level:"s",
   q:`Evaluate LCIRC-3 RCIRC-5 110010.`,
@@ -236,7 +233,7 @@ and 01010 anded with 10101 has no position where both are set.` },
   check:`flick('1111 & 1010 ^ 0101')`,
   why:`And binds more tightly than exclusive or, so the line means (1111 &amp; 1010) ^ 0101. The
 and leaves 1010, since anding against a row of ones changes nothing, and 1010 exclusive-ored with 0101
-sets every position, because the two disagree everywhere. Evaluating strictly left to right would give
+sets every position, because the two disagree everywhere. Doing the XOR first would give
 1111 &amp; 1111, which is also 1111 here by coincidence, so this one is worth working through properly
 rather than trusting the matching answer.` },
 

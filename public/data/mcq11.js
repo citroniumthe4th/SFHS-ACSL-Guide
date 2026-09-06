@@ -174,7 +174,7 @@ window.MCQ = (window.MCQ || []).concat([
   check:`"only when both inputs are 0" if circuit("G1 = NOR A B") == 1 else "unverified"`,
   why:`NOR is an OR followed by an inversion, and an OR is low only on the single row where both
 inputs are 0, so the inverted output is high exactly there. The choice about at least one input being 0
-belongs to NAND, and the one about differing inputs belongs to XOR. Keeping the four negated gates
+belongs to NAND, and the one about differing inputs belongs to XOR. Keeping the negated gates
 apart is easier if you name the gate they invert first and then flip the answer.` },
 
 { id:"de-20", kind:"concept", topic:"digital-electronics", level:"b",
@@ -232,7 +232,7 @@ does it mean?`,
   why:`A bubble always means inversion, and where it sits decides what gets inverted. On an input
 wire it complements that one signal only, leaving the other input untouched, so an AND gate with a
 bubble on its first input computes A'B rather than (AB)'. Check which wire carries the bubble before
-evaluating anything, since the two readings differ on most rows.` },
+evaluating anything, since the two readings differ on two of the four rows.` },
 
 { id:"de-26", kind:"problem", topic:"digital-electronics", level:"s",
   q:`Gate G1 is NAND A B, gate G2 is NAND C D, and gate G3 is NAND G1 G2. For how many of the
