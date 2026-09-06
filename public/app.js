@@ -378,22 +378,85 @@ el("division-switch").addEventListener("click", function (e) {
   render();
 });
 
-function paintThemeButton() {
-  var b = el("theme-btn");
-  var to = theme === "dark" ? "light" : "dark";
-  b.setAttribute("aria-label", "Switch to " + to + " theme");
-  b.title = "Switch to " + to + " theme";
-}
-paintThemeButton();
+// ------------------------------------------------- appearance: theme and glass
 
-el("theme-btn").addEventListener("click", function () {
-  theme = theme === "dark" ? "light" : "dark";
+// The three glass axes are independent, which is why they are three controls rather than one
+// preset list. Transparency decides how much of the page reaches you, frost decides how much
+// of it survives as recognizable shape, and tint decides what colour the material itself is.
+// Apple varies all three between its materials; collapsing any two of them loses a real
+// difference. Their bounds and their storage keys live in appearance.js, which needs them
+// before this file has loaded.
+var GLASS_AXES = [
+  { key: "clear", box: "glass-clear", suffix: "%" },
+  { key: "frost", box: "glass-frost", suffix: "px" },
+  { key: "tint", box: "glass-tint", suffix: "%" }
+];
+
+function glassLimits() {
+  return { clear: 100, frost: 60, tint: 100 };
+}
+
+function readGlass() {
+  return window.readGlass ? window.readGlass()
+    : { clear: 55, frost: 30, tint: 0 };
+}
+
+function paintGlass() {
+  var glass = readGlass();
+  if (window.applyGlass) window.applyGlass(glass, theme);
+  GLASS_AXES.forEach(function (axis) {
+    var slider = el(axis.box);
+    if (!slider) return;
+    slider.value = glass[axis.key];
+    slider.setAttribute("aria-valuetext", glass[axis.key] + axis.suffix);
+    el(axis.box + "-out").textContent = glass[axis.key] + axis.suffix;
+  });
+}
+
+GLASS_AXES.forEach(function (axis) {
+  var slider = el(axis.box);
+  if (!slider) return;
+  slider.addEventListener("input", function () {
+    var cap = glassLimits()[axis.key];
+    var n = Math.max(0, Math.min(cap, parseInt(this.value, 10) || 0));
+    save("glass-" + axis.key, n);
+    paintGlass();
+  });
+});
+
+if (el("glass-reset")) {
+  el("glass-reset").addEventListener("click", function () {
+    var d = window.GLASS_DEFAULT || { clear: 55, frost: 30, tint: 0 };
+    GLASS_AXES.forEach(function (axis) { save("glass-" + axis.key, d[axis.key]); });
+    paintGlass();
+  });
+}
+
+function paintThemeSwitch() {
+  var btns = el("theme-switch").querySelectorAll("button");
+  for (var i = 0; i < btns.length; i++) {
+    var picked = btns[i].getAttribute("data-theme") === theme;
+    btns[i].classList.toggle("on", picked);
+    btns[i].setAttribute("aria-pressed", picked ? "true" : "false");
+  }
+}
+
+el("theme-switch").addEventListener("click", function (e) {
+  var b = e.target.closest("button[data-theme]");
+  if (!b || b.getAttribute("data-theme") === theme) return;
+  theme = b.getAttribute("data-theme");
   save("theme", theme);
   document.documentElement.setAttribute("data-theme", theme);
   if (window.applyThemeColor) window.applyThemeColor(theme);
-  paintThemeButton();
+  paintThemeSwitch();
+  // The tint mixes toward the accent, and the accent differs by theme, so the glass has to be
+  // recomputed rather than left holding the other theme's mix.
+  paintGlass();
   if (window.__cm) window.__cm.setOption("theme", theme === "dark" ? "material-darker" : "default");
 });
+
+paintThemeSwitch();
+paintGlass();
 
 // Accessibility settings. Each one is a flag on the root element that the stylesheet reads,
 // and each is remembered on its own so a later addition cannot invalidate the others. The
@@ -458,17 +521,35 @@ if (el("a11y-reset")) {
   });
 }
 
-// Close the menu on Escape or on a click anywhere else, the way a menu is expected to behave.
+// Close a menu on Escape or on a click anywhere else, the way a menu is expected to behave.
+// Both toolbar menus share this, and opening one closes the other, since they overlap.
+var TOOLBAR_MENUS = ["a11y", "settings"];
+
+function openMenus() {
+  return TOOLBAR_MENUS.map(el).filter(function (m) { return m && m.open; });
+}
+
 document.addEventListener("click", function (e) {
-  var menu = el("a11y");
-  if (menu && menu.open && !menu.contains(e.target)) menu.open = false;
+  openMenus().forEach(function (menu) {
+    if (!menu.contains(e.target)) menu.open = false;
+  });
 });
 document.addEventListener("keydown", function (e) {
-  var menu = el("a11y");
-  if (e.key === "Escape" && menu && menu.open) {
+  if (e.key !== "Escape") return;
+  openMenus().forEach(function (menu) {
     menu.open = false;
     menu.querySelector("summary").focus();
-  }
+  });
+});
+TOOLBAR_MENUS.forEach(function (id) {
+  var menu = el(id);
+  if (!menu) return;
+  menu.addEventListener("toggle", function () {
+    if (!menu.open) return;
+    TOOLBAR_MENUS.forEach(function (other) {
+      if (other !== id && el(other)) el(other).open = false;
+    });
+  });
 });
 
 SYSTEM_MOTION.addEventListener("change", paintA11y);
@@ -2103,6 +2184,11 @@ function validSavedEntry(key, value) {
       && A11Y.some(function (s) { return "a11y:" + s.key === key; });
   }
   if (key === "lang") return LANGS.some(function (lang) { return lang.id === value; });
+  if (key.indexOf("glass-") === 0) {
+    var caps = { "glass-clear": 100, "glass-frost": 60, "glass-tint": 100 };
+    return Object.prototype.hasOwnProperty.call(caps, key)
+      && Number.isInteger(value) && value >= 0 && value <= caps[key];
+  }
   if (key === "editor-font") return Number.isInteger(value) && value >= 11 && value <= 22;
   if (key === "ws-split") return typeof value === "number" && value >= 0.2 && value <= 0.75;
   if (key === "exam") return value === null || !!validExam(value);
