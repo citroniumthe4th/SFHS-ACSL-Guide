@@ -109,8 +109,8 @@ One symbol with three meanings, decided entirely by where it sits.` },
   check:`str(regex_match('(a|b)(a|b)', ['aa','ab','ba','bb']).split().count('Y'))`,
   why:`Each group independently chooses a or b, so there are two choices for the first position
 and two for the second, giving aa, ab, ba, and bb. The two groups are entirely separate, and nothing
-in the pattern requires them to choose the same letter. Imposing that would need a backreference,
-which the regular expressions in this category do not provide.` },
+in the pattern requires them to choose the same letter. To require agreement here, write aa|bb
+instead.` },
 
 { id:"wa-01", kind:"problem", topic:"wdtpd-arrays", level:"j",
   q:`Array A holds 1, 2, 3, 4, 5 at indices 1 through 5. After for i = 1 to 4 with the body

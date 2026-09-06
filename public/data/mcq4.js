@@ -89,8 +89,8 @@ often quicker, because the last operator you meet that way is always the outermo
   check:`to_postfix('A*B/C*D')`,
   why:`Multiplication and division share a precedence level and group to the left, so the
 expression is ((A * B) / C) * D, and each operator lands immediately after whichever operand completed
-it. Reading them as right associative would give A B C D * / *, which is the first distractor and
-looks plausible enough that it is worth ruling out deliberately.` },
+it. Reading them as right associative would group the expression as A * (B / (C * D)) and give
+A B C D * / *, which looks plausible enough that it is worth ruling out deliberately.` },
 
 { id:"pp-11", kind:"problem", topic:"prefix-postfix", level:"s",
   q:`Evaluate the postfix expression 6 2 / 3 - 4 *.`,
