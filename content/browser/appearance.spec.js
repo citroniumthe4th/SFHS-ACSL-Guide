@@ -202,27 +202,37 @@ test('reduce transparency outranks the glass sliders', async ({ page }) => {
   expect(bar.bg).not.toContain('rgba');
 });
 
-test('the toolbar carries exactly one edge, whichever material is in use', async ({ page }) => {
+test('the glass keeps its plain border and refracts only where it can', async ({ page }) => {
   await page.goto('/guide');
-  const edge = () => page.evaluate(() => {
-    const bar = document.querySelector('.topbar');
+  const bar = () => page.evaluate(() => {
+    const el = document.querySelector('.topbar');
+    const cs = getComputedStyle(el);
     return {
-      border: getComputedStyle(bar).borderTopWidth,
-      rim: getComputedStyle(bar, '::after').display,
+      border: cs.borderTopWidth,
+      rim: getComputedStyle(el, '::after').content,
+      filter: cs.backdropFilter || cs.webkitBackdropFilter || 'none',
+      supportsUrl: CSS.supports('backdrop-filter', 'url(#glass-refract)'),
+      hasFilter: !!document.getElementById('glass-refract'),
     };
   });
 
-  // With the glass on, the rim is the edge and there is no border under it. A border here
-  // would show as a second ring, thicker where the gradient is opaque than where it fades.
-  const glass = await edge();
-  expect(glass.border).toBe('0px');
-  expect(glass.rim).not.toBe('none');
+  // One plain border, and no gradient ring stacked on top of it.
+  const glass = await bar();
+  expect(glass.border).toBe('1px');
+  expect(glass.rim).toBe('none');
 
-  // With the glass off, the rim goes and a plain border takes over, so the bar is never
-  // left with no outline at all.
+  // The refraction is a progressive enhancement. Where the browser can resolve a url() inside
+  // backdrop-filter the displacement is appended after the scattering; where it cannot, the
+  // bar still has its blur rather than losing the material entirely.
+  expect(glass.hasFilter).toBe(true);
+  expect(glass.filter).toContain('blur(');
+  if (glass.supportsUrl) expect(glass.filter).toContain('glass-refract');
+
+  // Reduce transparency drops the whole material, refraction included.
   await openA11y(page);
   await page.locator('#a11y-plain').check();
-  const plain = await edge();
+  const plain = await bar();
+  expect(plain.filter).toBe('none');
   expect(plain.border).toBe('1px');
-  expect(plain.rim).toBe('none');
 });
+

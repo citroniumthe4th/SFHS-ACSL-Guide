@@ -20,15 +20,13 @@
   --code-bg: #121d20;
   /* The three glass knobs. app.js writes --glass-a and --glass-frost from the settings menu;
      everything else here is derived so both themes move together. */
+  --glass-edge: rgb(218 250 248 / .22);
   --glass-a: .58;
   --glass-frost: 30px;
   --glass-sat: 165%;
   --glass-bright: .88;
   --glass-rgb: 28 42 46;
   --glass: rgb(var(--glass-rgb) / var(--glass-a));
-  /* Apple's material catches light along one edge and loses it along the opposite one. */
-  --glass-rim: linear-gradient(147deg, rgb(228 255 252 / .58) 0%, rgb(228 255 252 / .12) 34%,
-                               rgb(228 255 252 / 0) 58%, rgb(150 210 205 / .22) 100%);
   --sheen: rgb(225 255 253 / .10);
   --shadow: 0 18px 50px rgb(3 14 17 / .20);
   --radius: 10px;
@@ -53,15 +51,16 @@ html[data-theme="light"] {
   --warn: #85570d;
   --link: #186a5c;
   --code-bg: #edf3f1;
+  --glass-edge: rgb(255 255 255 / .92);
   --glass-bright: 1.05;
   --glass-rgb: 247 253 250;
-  --glass-rim: linear-gradient(147deg, rgb(255 255 255 / .96) 0%, rgb(255 255 255 / .42) 34%,
-                               rgb(255 255 255 / .06) 58%, rgb(120 160 155 / .30) 100%);
   --sheen: rgb(255 255 255 / .7);
   --shadow: 0 18px 50px rgb(39 75 64 / .09);
   color-scheme: light;
 }
 body { font-size: 15px; line-height: 1.7; isolation: isolate; }
+/* The filter definition is markup, not something to lay out. */
+.glass-filter { position: absolute; width: 0; height: 0; pointer-events: none; }
 .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
   -webkit-user-select: none; user-select: none; }
 .ambient span { position: absolute; color: var(--text-dim); opacity: .09; font: 400 clamp(35px, 5vw, 70px)/1 var(--mono); animation: drift 22s ease-in-out infinite alternate; }
@@ -90,25 +89,38 @@ p { text-wrap: pretty; }
 /* A floating, optically edged navigation surface. Text remains legible without blur. */
 .topbar {
   height: 64px; min-height: 64px; margin: 12px 18px; padding: 0 18px; top: 12px;
-  gap: 24px; border: 0; border-radius: 22px;
+  gap: 24px; border: 1px solid var(--glass-edge); border-radius: 22px;
   background: var(--glass);
   backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   -webkit-backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   box-shadow: inset 0 1px 0 var(--sheen), var(--shadow);
 }
-/* The specular rim, and the bar's only edge: a plain border underneath it would show as a
-   second ring, thicker wherever the gradient is opaque and thinner where it fades out. A
-   gradient cannot be a border colour, so the ring is painted by filling the box with the
-   gradient and masking out everything but its one pixel edge. The bar carries no border, so
-   the padding box is the border box and the ring lands exactly on the corner curve. */
-.topbar::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  padding: 1px; background: var(--glass-rim);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
+/* Refraction at the rounded edge.
+
+   The bar is a slab of glass with a filleted rim, so its surface is not uniform: flat across
+   the middle, curving down through the last third at each edge. A ray crossing the flat part
+   meets the surface square on and passes straight through, which is why the middle only ever
+   scatters. A ray crossing the fillet meets a tilted surface and bends by Snell's law, so
+   content there is displaced toward the edge and squeezed against it.
+
+   The displacement map encodes that profile, and it falls off the way the physics does rather
+   than linearly: the deviation is largest right at the rim, where the surface is nearly
+   vertical, and is already down to 30 percent of it a quarter of the way in. That tight band
+   is what separates glass from a smear.
+
+   It runs last in the chain, after the tint and the scattering, because the curvature acts on
+   the light as it leaves. Only Chromium resolves url() inside backdrop-filter today, so the
+   whole thing is a progressive enhancement and every other browser keeps the flat material. */
+@supports (backdrop-filter: url(#glass-refract)) {
+  html:not([data-plain="on"]) .topbar {
+    backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat))
+                     brightness(var(--glass-bright)) url(#glass-refract);
+  }
 }
+@media (prefers-reduced-transparency: reduce) {
+  .topbar { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
 .brand { gap: 11px; }
 .brand-mark { border-radius: 12px; font: 750 22px/36px var(--sans); letter-spacing: -.08em; width: 36px; height: 36px; text-align: center; padding: 0 3px 3px 0; }
 .brand-name { font-size: 14px; letter-spacing: -.03em; }
@@ -307,13 +319,10 @@ html[data-theme="dark"] .cm-s-material-darker .CodeMirror-gutters { background: 
   .lesson { padding: 20px; }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .topbar { background: var(--panel); border: 1px solid var(--line); }
-  .topbar::after { display: none; }
+  .topbar { background: var(--panel); }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .topbar { background: var(--panel); border: 1px solid var(--line);
-    backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .topbar::after { display: none; }
+  .topbar { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
   .ambient { display: none; }
 }
 /* Reduced motion, asked for by the system or by the accessibility menu. The menu's flag needs
@@ -520,14 +529,6 @@ html[data-theme="light"] .btn-danger { color: #fff; }
   display: flex; align-items: center; justify-content: center;
   font: 600 11px/1 var(--sans); letter-spacing: .04em; color: var(--text);
 }
-.glass-sample-chip::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  padding: 1px; background: var(--glass-rim);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-}
 
 /* ------------------------------------------------------- what the settings do */
 
@@ -550,10 +551,7 @@ html[data-plain="on"] .a11y-menu,
 html[data-plain="on"] .ask {
   backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
 }
-html[data-plain="on"] .topbar { border: 1px solid var(--line); }
-/* Reduce transparency outranks the settings sliders, so the rim and the preview go too. */
-html[data-plain="on"] .topbar::after,
-html[data-plain="on"] .glass-sample::after { display: none; }
+/* Reduce transparency outranks the settings sliders. */
 html[data-plain="on"] .glass-sample-chip {
   backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
 }
