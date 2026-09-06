@@ -1,3 +1,14 @@
+# Doubled question bank review
+
+Branch: `double-bank-fix`
+Base: `6f621a4`
+
+Fixed Base Parade's shared tie-breaking bug and Postfix Machine's minimum-integer division bug. Corrected 38 multiple-choice entries, clarified programming statements and explanations, repaired an out-of-range test input, and added independent boundary cases. Choice-position references now have a regression check. Stamping also rebuilds the sitemap.
+
+Validation passed: 46 browser tests, 8 verifier regressions, 2,400 generated questions, runtime checks, and all 48 programming references with 101 boundary cases.
+
+See [CONTENT_REVIEW.md](CONTENT_REVIEW.md) for examples, scope, and the limits of the existing verification claims.
+
 # Fifth sanity check: dialogs and accessibility
 
 Branch: `experimental/guide-audit-fixes`

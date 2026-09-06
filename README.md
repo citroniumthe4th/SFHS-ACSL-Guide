@@ -24,7 +24,7 @@ Bookmarks save questions for later, and generated questions retain their seeds i
 **Guide.** Sixteen pages, one per category per division, covering the material and ending with
 the checks to run before writing an answer down. Full-text search covers both divisions.
 
-**Practice.** 229 multiple-choice practice questions: five choices
+**Practice.** 458 multiple-choice practice questions: five choices
 with "None of the above" as E, which is the correct answer about 10 percent of the time. Choices
 are shuffled on the way to the screen, so the position of the right answer carries no
 information. Every question shows its reasoning once you answer. Anything you get wrong lands in
@@ -44,7 +44,8 @@ Because the paper follows the published topic table, What Does This Program Do a
 Junior contest, as branching, looping, arrays, and strings respectively, and in Senior only in
 Contest 1. Senior Contest 2 is LISP. Where it does appear it is sorted to the end of the paper.
 
-**Programming.** Twenty four problems, twelve Junior and twelve Senior, three per contest each,
+**Programming.** Forty eight problems, twenty four Junior and twenty four Senior, six per contest
+each,
 written the way the finals problems are written: a narrative statement, a worked example, an input
 and output spec, three sets of sample data, twelve test cases with the last six hidden, a named
 function to complete, and constraints. You write inside the function, a visible driver reads the
@@ -345,7 +346,7 @@ api/run.js             Vercel function, compiles through a remote sandbox
 vercel.json            static host config, rewrites, response headers
 cppinclude/            a <bits/stdc++.h> shim, since libc++ does not ship one
 content/
-  frq_a..frq_f.py      the twenty four programming problems, four to a file
+  frq_a..frq_j.py      the forty eight programming problems, grouped by division and contest
   codegen.py           turns a task signature into starter code and a driver
   build.py             generates and cross checks public/data/frq.js
   solvers.py           reference implementations, plus the ACSL convention self check

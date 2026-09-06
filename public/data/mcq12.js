@@ -317,3 +317,342 @@ of those counts. The loop stops at index 3 precisely so that s[i + 1] stays insi
 5.` }
 
 ]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"as-13", kind:"concept", topic:"assembly", level:"s",
+  q:`What is the difference between LOAD =5 and LOAD FIVE?`,
+  choices:["the first loads the number 5, the second loads the contents of the word named FIVE","the first loads the contents of word 5, the second loads the number 5","they are the same instruction written two ways","the first is illegal, since operands must be names","None of the above"], ans:0,
+  why:`The equals sign marks an immediate value, meaning the operand is the number itself rather
+than the name of a place to look. Without it, the operand names a memory word and the instruction
+fetches whatever is stored there. Every arithmetic instruction accepts both forms, which is why
+ADD =1 and ADD ONE can do completely different things in the same program.` },
+
+{ id:"as-14", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>    LOAD  =100
+    SUB   =40
+    DIV   =3
+    STORE X
+    PRINT X
+    END</code></pre>What is printed?`,
+  choices:["20","33","60","0","None of the above"], ans:0,
+  check:`machine("LOAD =100; SUB =40; DIV =3; STORE X; PRINT X; END#")`,
+  why:`Each instruction acts on whatever the accumulator already holds, so the three arithmetic
+lines chain together: 100, then 60, then 20. The division comes out even here, so the truncation never
+shows itself. The distractor 33 is what dividing 100 by 3 first would give, which is what reading the
+instructions out of order produces.` },
+
+{ id:"as-15", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>    READ  A
+    READ  B
+    LOAD  A
+    ADD   B
+    DIV   =2
+    STORE M
+    PRINT M
+    END</code></pre>The input values are 7 and 10. What is printed?`,
+  choices:["8","8.5","9","17","None of the above"], ans:0,
+  check:`machine("READ A; READ B; LOAD A; ADD B; DIV =2; STORE M; PRINT M; END#7 10")`,
+  why:`The two values sum to 17, and DIV keeps only the signed integer part, so 17 divided by 2 is
+8 and the remainder is discarded. There is no floating point anywhere on this machine, which is why
+8.5 cannot be the answer however natural it looks. READ consumes the input values in the order the READ
+instructions execute, so A takes 7.` },
+
+{ id:"as-16", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>    READ  N
+    LOAD  =0
+    STORE C
+TOP LOAD  N
+    BE    OUT
+    LOAD  C
+    ADD   =1
+    STORE C
+    LOAD  N
+    DIV   =2
+    STORE N
+    BU    TOP
+OUT PRINT C
+    END</code></pre>The input value is 40. What is printed?`,
+  choices:["5", "20", "40", "7", "None of the above"], ans:4,
+  check:`machine("READ N; LOAD =0; STORE C; TOP LOAD N; BE OUT; LOAD C; ADD =1; STORE C; LOAD N; DIV =2; STORE N; BU TOP; OUT PRINT C; END#40")`,
+  why:`Each pass adds 1 to the counter and halves N with the fraction discarded, and the loop exits
+when N reaches 0 rather than 1. N runs 20, 10, 5, 2, 1, and then 0, which is six passes. Counting only
+down to 1 gives 5, which is the distractor. Any loop that divides finishes in roughly the logarithm of
+the starting value, so the count is always far smaller than the input suggests. Since 6 is not among the
+four choices offered, the answer is None of the above.` },
+
+{ id:"as-17", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>    READ  N
+    LOAD  N
+    DIV   =3
+    MULT  =3
+    STORE T
+    LOAD  N
+    SUB   T
+    STORE R
+    PRINT R
+    END</code></pre>The input value is 17. What is printed?`,
+  choices:["2","5","15","17","None of the above"], ans:0,
+  check:`machine("READ N; LOAD N; DIV =3; MULT =3; STORE T; LOAD N; SUB T; STORE R; PRINT R; END#17")`,
+  why:`This is how a remainder is computed on a machine with no modulo instruction. Dividing 17
+by 3 gives 5, and multiplying back by 3 gives 15, which is the part of 17 that divides evenly.
+Subtracting that from the original leaves 2. Note that N has to be loaded a second time, since the
+accumulator no longer holds it once the arithmetic has run.` },
+
+{ id:"as-18", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>     LOAD  =5
+     STORE X
+TOP  LOAD  X
+     BE    DONE
+     PRINT X
+     LOAD  X
+     SUB   =1
+     STORE X
+     BU    TOP
+DONE END</code></pre>What is printed?`,
+  choices:["5 4 3 2 1","5 4 3 2 1 0","1 2 3 4 5","5","None of the above"], ans:0,
+  check:`machine("LOAD =5; STORE X; TOP LOAD X; BE DONE; PRINT X; LOAD X; SUB =1; STORE X; BU TOP; DONE END#")`,
+  why:`The exit test runs before the print, so once X reaches 0 the BE fires and control jumps to
+DONE without printing it. The values printed are therefore 5 down to 1. Printing before this zero test would include 0. A test at the bottom is not enough by itself to decide whether 0 is printed, because the position of the decrement matters too.` },
+
+{ id:"as-19", kind:"concept", topic:"assembly", level:"s",
+  q:`After STORE X executes, what does the accumulator hold?`,
+  choices:["the same value it held before","zero","the previous contents of X","it is undefined","None of the above"], ans:0,
+  why:`STORE copies the accumulator into memory and leaves the accumulator itself untouched,
+which is what makes it possible to store the same value into two places in a row without reloading it.
+LOAD is the instruction that goes the other way. Keeping this straight is what lets you read a run of
+arithmetic instructions as a chain acting on one running value.` },
+
+{ id:"as-20", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>    LOAD  =999999
+    ADD   =3
+    STORE X
+    PRINT X
+    END</code></pre>What is printed?`,
+  choices:["2","1000002","999999","0","None of the above"], ans:0,
+  check:`machine("LOAD =999999; ADD =3; STORE X; PRINT X; END#")`,
+  why:`READ, ADD, SUB, and MULT all work modulo 1,000,000 on this machine, so 1000002 wraps round
+to 2. DIV is the one arithmetic instruction that does not wrap. The modulus is easy to forget precisely
+because almost every program stays well below it, and it only ever bites on a question built to reach
+it.` },
+
+{ id:"as-21", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>    READ  N
+    LOAD  =0
+    STORE S
+TOP LOAD  N
+    BE    OUT
+    LOAD  N
+    DIV   =10
+    MULT  =10
+    STORE T
+    LOAD  N
+    SUB   T
+    ADD   S
+    STORE S
+    LOAD  N
+    DIV   =10
+    STORE N
+    BU    TOP
+OUT PRINT S
+    END</code></pre>The input value is 4821. What is printed?`,
+  choices:["15","4821","1284","4","None of the above"], ans:0,
+  check:`machine("READ N; LOAD =0; STORE S; TOP LOAD N; BE OUT; LOAD N; DIV =10; MULT =10; STORE T; LOAD N; SUB T; ADD S; STORE S; LOAD N; DIV =10; STORE N; BU TOP; OUT PRINT S; END#4821")`,
+  why:`The block in the middle is the remainder idiom from earlier: divide by 10, multiply back by
+10, and subtract, which leaves the last digit. Each pass adds that digit to a running sum and then drops
+it from N, so the loop computes the digit sum: 4 plus 8 plus 2 plus 1. Recognizing the idiom is what
+turns twenty lines of assembly into one sentence.` },
+
+{ id:"as-22", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>    READ  N
+    LOAD  =1
+    STORE P
+TOP LOAD  N
+    BE    OUT
+    LOAD  P
+    MULT  =2
+    STORE P
+    LOAD  N
+    SUB   =1
+    STORE N
+    BU    TOP
+OUT PRINT P
+    END</code></pre>The input value is 7. What is printed?`,
+  choices:["128","64","14","127","None of the above"], ans:0,
+  check:`machine("READ N; LOAD =1; STORE P; TOP LOAD N; BE OUT; LOAD P; MULT =2; STORE P; LOAD N; SUB =1; STORE N; BU TOP; OUT PRINT P; END#7")`,
+  why:`P starts at 1 and doubles once per pass, and the loop runs while N is nonzero, so it runs
+7 times and P finishes at 2 to the seventh. The accumulator has to be reloaded before each of the two
+independent updates, which is why the body is longer than the one line of arithmetic it performs. The
+distractor 64 is what six passes would give.` },
+
+{ id:"as-23", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>    LOAD  =-17
+    DIV   =5
+    STORE Q
+    PRINT Q
+    END</code></pre>What is printed?`,
+  choices:["-3","-4","-3.4","3","None of the above"], ans:0,
+  check:`machine("LOAD =-17; DIV =5; STORE Q; PRINT Q; END#")`,
+  why:`DIV keeps the signed integer part, which truncates toward zero rather than flooring, so
+-17 divided by 5 is -3 and not -4. Python's default integer division would give -4, and that difference
+only ever shows on negative operands, which is why it is worth checking the sign before trusting a
+division you did by habit.` },
+
+{ id:"as-24", kind:"problem", topic:"assembly", level:"s",
+  q:`<pre><code>     READ  A
+     READ  B
+     READ  C
+     LOAD  A
+     SUB   B
+     BG    L1
+     LOAD  B
+     STORE M
+     BU    L2
+L1   LOAD  A
+     STORE M
+L2   LOAD  M
+     SUB   C
+     BG    DONE
+     LOAD  C
+     STORE M
+DONE PRINT M
+     END</code></pre>The input values are 3, 9, and 5. What is printed?`,
+  choices:["9","5","3","17","None of the above"], ans:0,
+  check:`machine("READ A; READ B; READ C; LOAD A; SUB B; BG L1; LOAD B; STORE M; BU L2; L1 LOAD A; STORE M; L2 LOAD M; SUB C; BG DONE; LOAD C; STORE M; DONE PRINT M; END#3 9 5")`,
+  why:`There is no compare instruction here, so each comparison is a subtraction followed by a
+test on the sign. A minus B is 3 minus 9, which is negative, so BG does not fire and M takes B, or 9.
+Then M minus C is 9 minus 5, which is positive, so BG jumps straight to DONE and M keeps its 9. The
+program reports the largest of the three, and the unconditional BU exists purely to skip the block
+belonging to the branch that did not fire.` }
+
+]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"ws-11", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "ALGORITHM", what is S[3:6]?`,
+  choices:["ORI","ORIT","GOR","RIT","None of the above"], ans:1,
+  check:`substr("ALGORITHM", 3, 6)`,
+  why:`Positions start at 0, so the letters sit as A at 0, L at 1, G at 2, O at 3, R at 4, I at 5,
+T at 6, H at 7, and M at 8. Both bounds are written, so they are positions and the second is included,
+which collects positions 3, 4, 5, and 6. That is four characters, ORIT, not three. Counting 6 minus 3
+uses the Python rule, where the second bound stops the substring rather than joining it, and gives
+ORI.` },
+
+{ id:"ws-12", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "KEYBOARD", what is S[:4] + S[3:]?`,
+  choices:["KEYBARD","KEYBOARD","KEYBBOARD","KEYBOAR","None of the above"], ans:0,
+  check:`substr("KEYBOARD", None, 4) + substr("KEYBOARD", 3, None)`,
+  why:`A substring written with one bound is a count, taken from whichever end the colon leans
+toward. So S[:4] is the first four characters, KEYB, and S[3:] is the last three, ARD, since KEYBOARD
+has eight letters. Joining them gives KEYBARD, with the O at position 4 the only letter dropped.
+Reading S[3:] as everything from position 3 onward would give BOARD instead.` },
+
+{ id:"ws-13", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "ALPHABET", what does this print?
+<pre><code>T = ""
+for I = 1 to 7 step 2
+    T = T + S[I]
+next I
+output T</code></pre>`,
+  choices:["LHBT","APAE","ALPHABET","TBHL","None of the above"], ans:0,
+  check:`
+S = "ALPHABET"
+RESULT = "".join(S[I] for I in range(1,8,2))`,
+  why:`A step of 2 starting from 1 visits indices 1, 3, 5, and 7, collecting L, H, B, and T.
+Starting at 0 instead would give APAE, so the starting index alone decides which half of the string you
+end up with. Since the body appends rather than prepends, the letters appear in the order they were
+collected.` },
+
+{ id:"ws-14", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "DICTIONARY", how many of its letters are vowels, counting A, E, I, O, and U?`,
+  choices:["3", "5", "6", "2", "None of the above"], ans:4,
+  check:`str(sum(1 for c in "DICTIONARY" if c in "AEIOU"))`,
+  why:`Walk the word one letter at a time rather than trying to see them all at once: D, I, C, T,
+I, O, N, A, R, Y. The vowels are the I at index 1, the I at index 4, the O at index 5, and the A at
+index 7, which is four. The Y is not counted, since the question names the five letters that count.
+Since 4 is not among the four choices offered, the answer is None of the above.` },
+
+{ id:"ws-15", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "RACECAR", what does this print?
+<pre><code>C = 0
+for I = 0 to 2
+    if S[I] == S[6 - I] then
+        C = C + 1
+    end if
+next I
+output C</code></pre>`,
+  choices:["3","7","4","0","None of the above"], ans:0,
+  check:`
+S = "RACECAR"
+RESULT = sum(1 for I in range(3) if S[I] == S[6-I])`,
+  why:`RACECAR is a palindrome, so every letter matches its mirror. The loop stops at index 2
+rather than running the whole way, so it checks three pairs and never compares the middle letter with
+itself. That is what a real palindrome check does: going all the way to index 6 would compare every
+pair twice and report 7 rather than 3.` },
+
+{ id:"ws-16", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "MONITOR", what is S[2:2]?`,
+  choices:["N","the empty string","MO","O","None of the above"], ans:0,
+  check:`substr("MONITOR", 2, 2)`,
+  why:`Both bounds are positions and both ends are included, so S[2:2] runs from position 2 to
+position 2 and collects the single letter sitting there, which is N. A substring with equal bounds has
+length 1 rather than length 0. The empty string is the answer under the Python rule, where the second
+bound stops the substring before it starts, and that is why it appears here.` },
+
+{ id:"ws-17", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "ABCD", what does this print?
+<pre><code>T = ""
+for I = 0 to 3
+    T = T + S[3 - I]
+next I
+output T</code></pre>`,
+  choices:["DCBA","ABCD","ADBC","DABC","None of the above"], ans:0,
+  check:`
+S = "ABCD"
+T = ""
+for I in range(4):
+    T = T + S[3-I]
+RESULT = T`,
+  why:`The index runs backwards even though the loop counter runs forwards, so the letters are
+read D, C, B, A and appended in that order. There are two ways to reverse a string, and this is the
+other one: reading backwards while appending gives the same result as reading forwards while
+prepending. Doing both at once would leave the string unchanged.` },
+
+{ id:"ws-18", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "KEYBOARD", what is the index of the first O?`,
+  choices:["4","5","3","6","None of the above"], ans:0,
+  check:`str("KEYBOARD".index("O"))`,
+  why:`Counting from 0, the letters sit as K at 0, E at 1, Y at 2, B at 3, O at 4, A at 5, R at 6,
+and D at 7. So the O is at index 4. Answering 5 means you counted from 1, which is the single most
+common slip in this category and worth checking every time a question asks for a position rather than a
+character.` },
+
+{ id:"ws-19", kind:"problem", topic:"wdtpd-strings", level:"j",
+  q:`For S equal to "BANANAS", what does this print?
+<pre><code>C = 0
+for I = 0 to 6
+    if S[I] == "A" then
+        C = C + 1
+    end if
+next I
+output C</code></pre>`,
+  choices:["3","2","4","7","None of the above"], ans:0,
+  check:`
+S = "BANANAS"
+RESULT = sum(1 for I in range(7) if S[I] == "A")`,
+  why:`The letters sit as B at 0, A at 1, N at 2, A at 3, N at 4, A at 5, and S at 6, so the A
+appears three times. The loop runs from 0 to 6 because a string of seven characters has its last index
+at 6, and going one further would read past the end. Counting the As at a glance is where this question
+goes wrong; reading the indices out loud is slower and reliable.` },
+
+{ id:"ws-20", kind:"concept", topic:"wdtpd-strings", level:"j",
+  q:`For a string S of length N, what does S[:N] give?`,
+  choices:["the whole string","the whole string except the last character","an error, since N is past the end","the first character","None of the above"], ans:0,
+  check:`"the whole string" if substr("MONITOR", None, 7) == "MONITOR" else "unverified"`,
+  why:`A substring written with only the second bound is a count of characters taken from the
+front, so S[:N] asks for the first N of them, which is all of them. The bound is a count here rather
+than a position, so there is nothing out of range about it. Compare S[N] on its own, which really would
+run off the end, since the last valid index is N minus 1.` }
+
+]);

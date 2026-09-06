@@ -23,7 +23,8 @@ import html as _html
 import re as _re
 
 LANGS = ["python", "java", "cpp"]
-MODULES = ("frq_a", "frq_b", "frq_c", "frq_d", "frq_e", "frq_f")
+MODULES = ("frq_a", "frq_b", "frq_c", "frq_d", "frq_e", "frq_f",
+           "frq_g", "frq_h", "frq_i", "frq_j")
 
 
 def as_block(case):

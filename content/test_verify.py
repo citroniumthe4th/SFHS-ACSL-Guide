@@ -1,4 +1,5 @@
 """Checks should detect wrong answer text and equivalent duplicate choices."""
+import re
 import unittest
 from verify import ENV, choice_key, load_bank, run_check
 from solvers import machine, postfix_eval, lisp
@@ -49,6 +50,12 @@ class VerificationTests(unittest.TestCase):
     def test_positional_check_is_rejected(self):
         with self.assertRaisesRegex(ValueError, 'independently'):
             run_check('CHOICES[0] if 2 + 2 == 4 else "bad"', dict(ENV, CHOICES=['wrong']))
+
+    def test_explanations_do_not_refer_to_shuffled_choice_positions(self):
+        for q in self.bank.values():
+            self.assertIsNone(re.search(
+                r"\b(?:first|second|third|fourth|[A-D]) (?:choice|option)\b|\bchoice [A-D]\b",
+                q['why']), q['id'])
 
     def test_reordered_choices_do_not_change_expected_answer(self):
         for q in self.bank.values():

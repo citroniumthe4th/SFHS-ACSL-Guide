@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#11191c">
+<script src="/appearance.js?v=df28388a"></script>
+<title>Stair Hops | SFHS ACSL Guide</title>
+<meta name="description" content="Climb a staircase one or two steps at a time and count the distinct routes. An ACSL style programming problem you can solve in Python, Java, or C++ in the browser.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://www.sfhsacsl.org/problem/stair-hops">
+<meta property="og:site_name" content="SFHS ACSL Guide">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Stair Hops | SFHS ACSL Guide">
+<meta property="og:description" content="Climb a staircase one or two steps at a time and count the distinct routes. An ACSL style programming problem you can solve in Python, Java, or C++ in the browser.">
+<meta property="og:url" content="https://www.sfhsacsl.org/problem/stair-hops">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%2391e2d2%22%2F%3E%3Ctext%20x%3D%2216%22%20y%3D%2223%22%20text-anchor%3D%22middle%22%20fill%3D%22%23102c27%22%20font-family%3D%22-apple-system%2CBlinkMacSystemFont%2CSegoe%20UI%2CHelvetica%2CArial%2Csans-serif%22%20font-size%3D%2219%22%20font-weight%3D%22700%22%20letter-spacing%3D%22-1.6%22%3Esf.%3C%2Ftext%3E%3C%2Fsvg%3E">
+<link rel="stylesheet" href="/vendor/codemirror/lib/codemirror.css?v=97f897fa">
+<link rel="stylesheet" href="/vendor/codemirror/theme/material-darker.css?v=e2d34217">
+<link rel="stylesheet" href="/vendor/codemirror/addon/dialog/dialog.css?v=f870660a">
+<link rel="stylesheet" href="/style.css?v=6e7d6689">
+<link rel="stylesheet" href="/experience.css?v=6bc58dc7">
+</head>
+<body>
+<div class="ambient" aria-hidden="true"><span>{ }</span><span>01</span><span>λ</span><span>[ ]</span><span>⊕</span><span>∧</span></div>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <a class="brand" href="/guide">
+    <span class="brand-mark" aria-hidden="true">sf.</span>
+    <span class="brand-name">SFHS ACSL Guide</span>
+  </a>
+
+  <nav class="tabs" id="section-tabs">
+    <a href="/guide" data-section="guide">Guide</a>
+    <a href="/practice" data-section="practice">Practice</a>
+    <a href="/exam" data-section="exam">Mock exam</a>
+    <a href="/bookmarks" data-section="bookmarks">Bookmarks</a>
+    <a href="/problems" data-section="problems">Programming</a>
+  </nav>
+
+  <div class="topbar-right">
+    <span class="seg-label" id="division-label">Division:</span>
+    <div class="seg" id="division-switch" role="group" aria-labelledby="division-label">
+      <button data-div="junior">Junior</button>
+      <button data-div="senior">Senior</button>
+    </div>
+    <details class="a11y" id="a11y">
+      <summary class="icon-btn" title="Accessibility settings" aria-label="Accessibility settings">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="currentColor">
+          <circle cx="12" cy="3.6" r="2.1"/>
+          <path d="M21 7.4a1.05 1.05 0 0 0-1.3-.7l-4.6 1.4a10 10 0 0 1-6.2 0L4.3 6.7A1.05 1.05 0 0 0 3.7 8.7l4.5 1.4v3.1l-2 7.1a1.05 1.05 0 0 0 2 .6l1.8-6.2h.1l1.8 6.2a1.05 1.05 0 0 0 2-.6l-2-7.1v-3.1l4.5-1.4c.55-.17.86-.75.6-1.3z"/>
+        </svg>
+      </summary>
+      <div class="a11y-menu" role="group" aria-label="Accessibility settings">
+        <p class="a11y-lead">These are remembered in this browser.</p>
+        <label><input type="checkbox" id="a11y-motion"> <span>Reduce motion<small id="a11y-motion-note"></small></span></label>
+        <label><input type="checkbox" id="a11y-contrast"> <span>Higher contrast<small>Stronger text and borders.</small></span></label>
+        <label><input type="checkbox" id="a11y-plain"> <span>Reduce transparency<small>Solid toolbar instead of frosted glass.</small></span></label>
+        <label><input type="checkbox" id="a11y-text"> <span>Larger text<small>Raises the base size across the site.</small></span></label>
+        <label><input type="checkbox" id="a11y-underline"> <span>Underline links<small>Marks links by more than colour.</small></span></label>
+        <button class="linkish" id="a11y-reset">Reset these to default</button>
+      </div>
+    </details>
+    <button class="icon-btn" id="theme-btn" title="Toggle light and dark" aria-label="Toggle theme">&#9681;</button>
+  </div>
+</header>
+
+<!-- Stands in for the sidebar on narrow screens, where the sidebar is hidden. A real select,
+     so phones give it their own picker and it works with a keyboard and a screen reader for free. -->
+<nav class="topicbar" id="topicbar" aria-label="Category"></nav>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main" id="main"></main>
+</div>
+
+<!-- One dialog, reused. A native <dialog> brings the focus trap, the Escape key, the
+     backdrop and the top layer with it, so none of that is reimplemented here. -->
+<dialog class="ask" id="ask" aria-labelledby="ask-title" aria-describedby="ask-body">
+  <form method="dialog">
+    <h2 id="ask-title"></h2>
+    <p id="ask-body"></p>
+    <div class="ask-row">
+      <button type="submit" value="no" class="btn" id="ask-no">Cancel</button>
+      <button type="submit" value="yes" class="btn btn-primary" id="ask-yes">Continue</button>
+    </div>
+  </form>
+</dialog>
+
+<footer class="footer" id="footer">
+  <span>Your division, your answers, and the code you write are stored in this browser. When you
+  press Run or Submit, your code and its test input are sent to our code runner so it can be
+  compiled and executed. No account is required and we set no cookies. <a href="/privacy">What is
+  stored and what is sent</a>.</span>
+  <span class="footer-links">
+    <a href="mailto:contact@sfhsacsl.org">Found a mistake? Write an email to contact@sfhsacsl.org</a>
+    <button class="linkish" id="export-progress">Export progress</button>
+    <button class="linkish" id="import-progress">Import progress</button>
+    <input type="file" id="backup-file" accept=".json,application/json" hidden>
+    <button class="linkish" id="wipe">Clear my progress</button>
+  </span>
+  <span id="backup-status" role="status"></span>
+  <span class="footer-note">&copy; 2026 Shicheng Wei. The lessons, questions, and problems here are
+  not licensed for reuse. If you want to use them, ask at
+  <a href="mailto:contact@sfhsacsl.org">contact@sfhsacsl.org</a>. Not affiliated with the American
+  Computer Science League.</span>
+</footer>
+
+<script src="/vendor/codemirror/lib/codemirror.js?v=3c07a1e0"></script>
+<script src="/vendor/codemirror/mode/python/python.js?v=18c8234d"></script>
+<script src="/vendor/codemirror/mode/clike/clike.js?v=f47d44a9"></script>
+<script src="/vendor/codemirror/addon/edit/closebrackets.js?v=248b45be"></script>
+<script src="/vendor/codemirror/addon/comment/comment.js?v=29442cfb"></script>
+<script src="/vendor/codemirror/addon/dialog/dialog.js?v=14cccbeb"></script>
+<script src="/vendor/codemirror/addon/search/searchcursor.js?v=6bc4c36e"></script>
+<script src="/vendor/codemirror/addon/search/search.js?v=aa36dc4a"></script>
+<script src="/vendor/codemirror/addon/search/jump-to-line.js?v=4b8098d4"></script>
+<script src="/vendor/codemirror/addon/edit/matchbrackets.js?v=1555a871"></script>
+<script src="/vendor/codemirror/addon/selection/active-line.js?v=3d950f50"></script>
+<script src="/data/topics.js?v=cc004c45"></script>
+<script src="/data/guide1.js?v=1069712d"></script>
+<script src="/data/guide2.js?v=3c97c11e"></script>
+<script src="/data/guide3.js?v=d39e0914"></script>
+<script src="/data/guide4.js?v=dfc0e412"></script>
+<script src="/data/guide5.js?v=55b917b3"></script>
+<script src="/data/guide6.js?v=9835f43c"></script>
+<script src="/data/guide7.js?v=52d4f1d4"></script>
+<script src="/data/guide8.js?v=af1208fb"></script>
+<script src="/data/mcq1.js?v=30959745"></script>
+<script src="/data/mcq2.js?v=d3dd7869"></script>
+<script src="/data/mcq3.js?v=9cbd7e48"></script>
+<script src="/data/mcq4.js?v=c5ff0c12"></script>
+<script src="/data/mcq5.js?v=8d48007e"></script>
+<script src="/data/mcq6.js?v=2d29eb32"></script>
+<script src="/data/mcq7.js?v=c9842f8c"></script>
+<script src="/data/mcq8.js?v=cd47c5c2"></script>
+<script src="/data/mcq9.js?v=13fb1dbf"></script>
+<script src="/data/mcq10.js?v=e25a35fe"></script>
+<script src="/data/mcq11.js?v=24c3703b"></script>
+<script src="/data/mcq12.js?v=050e5682"></script>
+<script src="/data/gen.js?v=7ac382b1"></script>
+<script src="/data/frq.js?v=7b965156"></script>
+<script src="/app.js?v=2ecc807b"></script>
+</body>
+</html>

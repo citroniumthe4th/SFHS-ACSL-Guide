@@ -146,3 +146,149 @@ by its opposite is not generally an identity and the discarded bits are worth ch
 assume it is. Complementing what remains gives 000111000111.` }
 
 ]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"bs-17", kind:"problem", topic:"bit-string-flicking", level:"b",
+  q:`Evaluate (RCIRC-2 10011) &amp; (LSHIFT-1 11100).`,
+  choices:["11000","11100","10000","01100","None of the above"], ans:0,
+  check:`flick('(RCIRC-2 10011) & (LSHIFT-1 11100)')`,
+  why:`Resolve each mover on its own before combining them. Circulating 10011 right by two
+carries the trailing 11 round to the front, giving 11100, while shifting 11100 left by one drops the
+leading 1 and pads a zero on the right, giving 11000. Writing the two results one above the other and
+reading down the columns, the and gives 11000.` },
+
+{ id:"bs-18", kind:"problem", topic:"bit-string-flicking", level:"b",
+  q:`Evaluate ~1010 | 0110.`,
+  choices:["0111","1111","0101","0010","None of the above"], ans:0,
+  check:`flick('~1010 | 0110')`,
+  why:`The complement is a unary operator and binds tighter than any of the binary ones, so it
+applies to 1010 alone rather than to the whole line. That gives 0101, and 0101 ored with 0110 sets a
+bit wherever either operand has one, producing 0111. Complementing the result of the or instead would
+give 0001, which is a different answer entirely.` },
+
+{ id:"bs-19", kind:"problem", topic:"bit-string-flicking", level:"j",
+  q:`What is LCIRC-7 applied to 1100?`,
+  choices:["0110","1001","0011","1100","None of the above"], ans:0,
+  check:`flick('LCIRC-7 1100')`,
+  why:`Reduce the count modulo the length first. The string is 4 bits long and 7 modulo 4 is 3,
+so the instruction collapses to LCIRC-3, which carries the leading 110 round to the back and leaves
+0110. Circulating by a multiple of the length returns the string unchanged, which is the fact that
+makes the reduction legitimate.` },
+
+{ id:"bs-20", kind:"problem", topic:"bit-string-flicking", level:"j",
+  q:`What is RSHIFT-3 applied to 10111?`,
+  choices:["00010","11110","10100","11101","None of the above"], ans:0,
+  check:`flick('RSHIFT-3 10111')`,
+  why:`A shift throws away whatever falls off the end rather than wrapping it round. Dropping the
+trailing 111 leaves 10, and padding three zeros onto the front to preserve the length gives 00010. The
+distractor 11110 is what RCIRC-3 would produce, where those three bits reappear at the front instead
+of vanishing.` },
+
+{ id:"bs-21", kind:"problem", topic:"bit-string-flicking", level:"s",
+  q:`Evaluate (11011 ^ 10101) | ~11110.`,
+  choices:["01111","01110","11111","00001","None of the above"], ans:0,
+  check:`flick('(11011 ^ 10101) | ~11110')`,
+  why:`The exclusive or sets a bit wherever the two operands differ, and 11011 against 10101
+differ in the second, third and fourth positions, giving 01110. The complement of 11110 is 00001.
+Oring those together sets the last bit as well, producing 01111. Doing both bracketed halves in full
+before touching the or is what keeps a line with three operators manageable.` },
+
+{ id:"bs-22", kind:"problem", topic:"bit-string-flicking", level:"s",
+  q:`Start with 11001 and apply NOT, then RCIRC-1, then AND-10111. What is the result?`,
+  choices:["00110", "10011", "00001", "10110", "None of the above"], ans:4,
+  check:`mask_run('11001', ['NOT','RCIRC-1','AND-10111'])`,
+  why:`Apply the operations strictly in order, handing each result to the next step.
+Complementing 11001 gives 00110. Circulating right by one carries the trailing 0 to the front, giving
+00011. Anding that against 10111 leaves 00011, since the mask has ones everywhere the string does.
+Since 00011 is not among the four choices offered, the answer is None of the above.` },
+
+{ id:"bs-23", kind:"concept", topic:"bit-string-flicking", level:"b",
+  q:`In the ACSL precedence table, which list orders the operators from most tightly binding to
+least?`,
+  choices:["NOT, then shifts and circulates, then AND, then XOR, then OR","AND, then OR, then XOR, then NOT","OR, then XOR, then AND, then NOT","NOT, then OR, then AND, then XOR","None of the above"], ans:0,
+  why:`The ACSL table lists NOT first, then shifts and circulates, then AND, XOR, and OR. Unary operators bind from right to left, so in LCIRC-3 RCIRC-5 110010 the right circulate acts first. Equal-precedence binary operators are evaluated from left to right. AND therefore acts before OR in 10110 | 01001 &amp; 11100.` },
+
+{ id:"bs-24", kind:"problem", topic:"bit-string-flicking", level:"s",
+  q:`Evaluate LCIRC-3 RCIRC-5 110010.`,
+  choices:["101100","110010","010110","011001","None of the above"], ans:0,
+  check:`flick('LCIRC-3 RCIRC-5 110010')`,
+  why:`Unary operators associate from the right, so RCIRC-5 goes first and LCIRC-3 acts on its
+result. Circulating 110010 right by five gives 100101, and circulating that left by three gives
+101100. There is a shortcut worth noticing: on a 6 bit string, right by 5 is the same as left by 1, so
+the pair together is a left circulate by 4.` },
+
+{ id:"bs-25", kind:"problem", topic:"bit-string-flicking", level:"b",
+  q:`Evaluate ~(10101 | 01010).`,
+  choices:["00000","11111","10101","01010","None of the above"], ans:0,
+  check:`flick('~(10101 | 01010)')`,
+  why:`The two operands are complements of one another, so between them they cover every
+position and their or is 11111. Complementing a solid row of ones gives a solid row of zeros. DeMorgan
+reaches the same place by another route, since the complement of an or is the and of the complements,
+and 01010 anded with 10101 has no position where both are set.` },
+
+{ id:"bs-26", kind:"problem", topic:"bit-string-flicking", level:"b",
+  q:`Evaluate 1111 &amp; 1010 ^ 0101.`,
+  choices:["1111","0000","1010","0101","None of the above"], ans:0,
+  check:`flick('1111 & 1010 ^ 0101')`,
+  why:`And binds more tightly than exclusive or, so the line means (1111 &amp; 1010) ^ 0101. The
+and leaves 1010, since anding against a row of ones changes nothing, and 1010 exclusive-ored with 0101
+sets every position, because the two disagree everywhere. Doing the XOR first would give
+1111 &amp; 1111, which is also 1111 here by coincidence, so this one is worth working through properly
+rather than trusting the matching answer.` },
+
+{ id:"bs-27", kind:"problem", topic:"bit-string-flicking", level:"s",
+  q:`How many 4 bit strings X satisfy (X &amp; 1100) equal to 1000?`,
+  choices:["4","1","2","8","None of the above"], ans:0,
+  check:`str(len([x for x in ['{:04b}'.format(i) for i in range(16)] if flick(x + ' & 1100') == '1000']))`,
+  why:`Work position by position against the mask 1100 and the required result 1000. The first
+position has a mask bit of 1 and needs a 1, so X must hold a 1 there. The second has a mask bit of 1
+and needs a 0, so X must hold a 0. The last two are anded against 0 and give 0 whatever X holds, which
+leaves them free. Two free positions gives 2 squared, or 4 strings.` },
+
+{ id:"bs-28", kind:"problem", topic:"bit-string-flicking", level:"s",
+  q:`Evaluate (LSHIFT-2 111111) ^ (RSHIFT-2 111111).`,
+  choices:["000000", "111111", "001100", "110000", "None of the above"], ans:4,
+  check:`flick('(LSHIFT-2 111111) ^ (RSHIFT-2 111111)')`,
+  why:`Shifting 111111 left by two drops the leading pair and pads on the right, giving 111100,
+while shifting right by two pads on the left, giving 001111. Those two differ in the first two and the
+last two positions and agree in the middle two, so the exclusive or is 110011. A shift and its opposite
+are not inverses of one another, because each discards bits the other cannot restore. Since 110011 is
+not among the four choices offered, the answer is None of the above.` },
+
+{ id:"bs-29", kind:"problem", topic:"bit-string-flicking", level:"s",
+  q:`Start with 101010 and apply LSHIFT-2, then OR-110000, then NOT. What is the result?`,
+  choices:["000111","111000","010111","001000","None of the above"], ans:0,
+  check:`mask_run('101010', ['LSHIFT-2','OR-110000','NOT'])`,
+  why:`Shifting 101010 left by two drops the leading 10 and pads two zeros on the right, giving
+101000. Oring that against 110000 sets the second position as well, giving 111000. Complementing that
+gives 000111. Each step feeds the next, so a mistake in the first operation propagates all the way
+through, which is why it is worth writing each intermediate string on its own line.` },
+
+{ id:"bs-30", kind:"problem", topic:"bit-string-flicking", level:"j",
+  q:`What is RCIRC-4 applied to 10110000?`,
+  choices:["00001011","00001101","10110000","00000101","None of the above"], ans:0,
+  check:`flick('RCIRC-4 10110000')`,
+  why:`Circulating right by four on an 8 bit string takes the last four bits, which are 0000, and
+places them in front of the first four, which are 1011, giving 00001011. On a string of even length, a
+circulate by half the length simply swaps the two halves, and recognizing that saves counting positions
+one at a time.` },
+
+{ id:"bs-31", kind:"problem", topic:"bit-string-flicking", level:"s",
+  q:`Evaluate ~~~1001.`,
+  choices:["0110","1001","1111","0000","None of the above"], ans:0,
+  check:`flick('~~~1001')`,
+  why:`Complements cancel in pairs, so a run of them reduces to a single complement when the
+count is odd and to nothing at all when it is even. Three is odd, so this is just ~1001, which is 0110.
+Counting the tildes before doing anything else turns what looks like three operations into one.` },
+
+{ id:"bs-32", kind:"problem", topic:"bit-string-flicking", level:"s",
+  q:`For how many 4 bit strings X does LCIRC-1 X equal RCIRC-1 X?`,
+  choices:["4","2","1","16","None of the above"], ans:0,
+  check:`str(len([x for x in ['{:04b}'.format(i) for i in range(16)] if flick('LCIRC-1 ' + x) == flick('RCIRC-1 ' + x)]))`,
+  why:`Write X as abcd. Circulating left by one gives bcda and circulating right by one gives
+dabc, and setting those equal position by position forces a to equal c and b to equal d. Both halves
+are then free but must match, so there are 2 times 2 strings: 0000, 0101, 1010, and 1111. Read another
+way, these are exactly the strings that a circulate by two leaves unchanged.` }
+
+]);

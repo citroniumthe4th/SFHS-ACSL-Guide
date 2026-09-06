@@ -89,8 +89,8 @@ often quicker, because the last operator you meet that way is always the outermo
   check:`to_postfix('A*B/C*D')`,
   why:`Multiplication and division share a precedence level and group to the left, so the
 expression is ((A * B) / C) * D, and each operator lands immediately after whichever operand completed
-it. Reading them as right associative would give A B C D * / *, which is the first distractor and
-looks plausible enough that it is worth ruling out deliberately.` },
+it. Reading them as right associative would group the expression as A * (B / (C * D)) and give
+A B C D * / *, which looks plausible enough that it is worth ruling out deliberately.` },
 
 { id:"pp-11", kind:"problem", topic:"prefix-postfix", level:"s",
   q:`Evaluate the postfix expression 6 2 / 3 - 4 *.`,
@@ -145,5 +145,164 @@ comes out as P Q - R - S - with the operators interleaved instead.` },
   why:`Working left to right, 9 minus 5 is 4, then 4 minus 2 is 2, then 2 minus 1 is 1. Written
 in infix this is ((9 - 5) - 2) - 1, which is exactly what a plain left to right chain of subtractions
 means, so the postfix form here is simply that chain with the brackets removed.` }
+
+]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"pp-17", kind:"problem", topic:"prefix-postfix", level:"b",
+  q:`Convert the infix expression A + B * C - D to postfix.`,
+  choices:["A B C * + D -","A B + C * D -","A B C D * + -","A B C * D - +","None of the above"], ans:0,
+  check:`to_postfix('A+B*C-D')`,
+  why:`Multiplication binds tighter than the two additive operators, and those group to the
+left, so the expression is really (A + (B * C)) - D. The star lands immediately after B and C, the
+plus follows once its right operand is complete, and the minus comes last because it is the final
+operation performed. The operands never move, so any choice that reorders A, B, C, and D can be
+dismissed on sight.` },
+
+{ id:"pp-18", kind:"problem", topic:"prefix-postfix", level:"b",
+  q:`Convert the infix expression (A + B) * (C &minus; D) to postfix.`,
+  choices:["A B + C D - *","A B C D + - *","A B + C - D *","A B C + D - *","None of the above"], ans:0,
+  check:`to_postfix('(A+B)*(C-D)')`,
+  why:`Two independent bracketed groups each resolve before the multiplication can use them, so
+write each one out and then join them. A + B becomes A B +, C - D becomes C D -, and the star that
+combines the two results comes last. When both operands of an operator are themselves complete
+expressions, the postfix form is simply one after the other followed by the operator.` },
+
+{ id:"pp-19", kind:"problem", topic:"prefix-postfix", level:"s",
+  q:`Convert the infix expression A * (B + C * (D &minus; E)) to postfix.`,
+  choices:["A B C D E - * + *","A B C D E * - + *","A B C + D E - * *","A B C D E - + * *","None of the above"], ans:0,
+  check:`to_postfix('A*(B+C*(D-E))')`,
+  why:`Resolve the innermost bracket first and work outward. D - E becomes D E -, then C times
+that group becomes C D E - *, then B plus that becomes B C D E - * +, and finally A times the whole
+thing appends the last star. Nesting that runs inward like this always stacks its operators at the end
+in the reverse of the order the brackets were opened.` },
+
+{ id:"pp-20", kind:"problem", topic:"prefix-postfix", level:"b",
+  q:`Evaluate the postfix expression 4 2 3 * +.`,
+  choices:["10","18","24","14","None of the above"], ans:0,
+  check:`postfix_eval('4 2 3 * +'.split())`,
+  why:`Push 4, 2, and 3. The star pops 2 and 3 and pushes 6, then the plus pops 4 and 6 and
+pushes 10, so the infix form is 4 + (2 * 3). Compare it against 4 2 * 3 +, which is (4 * 2) + 3, or
+11: identical operands in identical order, and only the operator positions differ. The distractor 18 is
+what (4 + 2) * 3 would give.` },
+
+{ id:"pp-21", kind:"problem", topic:"prefix-postfix", level:"s",
+  q:`Evaluate the postfix expression 12 3 / 2 4 * +.`,
+  choices:["18", "20", "10", "24", "None of the above"], ans:4,
+  check:`postfix_eval('12 3 / 2 4 * +'.split())`,
+  why:`Work the stack down the page. Push 12 and 3, and the slash pops both to push 4. Push 2 and
+4, and the star pops both to push 8. The plus then pops 4 and 8 to push 12, so the infix form is
+(12 / 3) + (2 * 4). Two independent subexpressions each finish before the operator that joins them,
+which is what the run of two operands followed by an operator, twice over, is telling you. Since 12 is
+not among the four choices offered, the answer is None of the above.` },
+
+{ id:"pp-22", kind:"problem", topic:"prefix-postfix", level:"b",
+  q:`Convert the infix expression A &minus; B / C to prefix.`,
+  choices:["- A / B C","/ - A B C","- / A B C","- A B / C","None of the above"], ans:0,
+  check:`to_prefix('A-B/C')`,
+  why:`Division binds tighter than subtraction, so the expression is A - (B / C) and the
+subtraction is the last operation performed. In prefix the last operation is written first, so the
+minus leads, followed by A and then the prefix form of B / C, which is / B C. The distractor
+/ - A B C is the prefix form of (A - B) / C, which is what reading the operators left to right without
+regard to precedence would give.` },
+
+{ id:"pp-23", kind:"problem", topic:"prefix-postfix", level:"s",
+  q:`Convert the infix expression (A &minus; B) * (C + D) to prefix.`,
+  choices:["* - A B + C D","* + C D - A B","- A B * + C D","* - A B C + D","None of the above"], ans:0,
+  check:`to_prefix('(A-B)*(C+D)')`,
+  why:`The multiplication is performed last, so its symbol comes first, and it is then followed
+by the prefix form of each operand in the order they appear. That gives - A B for the left group and
++ C D for the right. The operands keep their original left to right order in prefix just as they do in
+postfix, which is what rules out the choice that puts C and D before A and B.` },
+
+{ id:"pp-24", kind:"problem", topic:"prefix-postfix", level:"s",
+  q:`Convert the postfix expression A B + C D + * to infix.`,
+  choices:["((A+B)*(C+D))","(A+(B*(C+D)))","(((A+B)*C)+D)","((A+B)+(C*D))","None of the above"], ans:0,
+  check:`post_to_infix('A B + C D + *')`,
+  why:`Scan from the left for the first operator with two operands sitting immediately in front
+of it. That is the first plus with A and B, which becomes (A + B). Restarting the scan, the second plus
+now has C and D in front of it and becomes (C + D). The star finally has those two groups available.
+Always restarting from the left is what keeps the grouping correct on an expression with two separate
+subtrees.` },
+
+{ id:"pp-25", kind:"problem", topic:"prefix-postfix", level:"b",
+  q:`Convert the prefix expression + A * &minus; B C D to infix.`,
+  choices:["(A+((B-C)*D))","((A+(B-C))*D)","(((A+B)-C)*D)","((A*B)-(C+D))","None of the above"], ans:0,
+  check:`pre_to_infix('+ A * - B C D')`,
+  why:`Scanning a prefix expression from the right is usually quicker, because the last operator
+you meet that way is the outermost one. Working from the right, D, C, and B are operands, and the minus
+takes B and C to give (B - C). The star then has that group and D, giving ((B - C) * D), and the plus
+finally combines A with it.` },
+
+{ id:"pp-26", kind:"problem", topic:"prefix-postfix", level:"b",
+  q:`Convert the infix expression A + B ^ C ^ D * E to postfix.`,
+  choices:["A B C D ^ ^ E * +","A B C ^ D ^ E * +","A B C D ^ ^ * E +","A B C D E ^ ^ * +","None of the above"], ans:0,
+  check:`to_postfix('A+B^C^D*E')`,
+  why:`Exponentiation binds tightest and associates to the right, so B ^ C ^ D is B ^ (C ^ D) and
+resolves first, giving B C D ^ ^. Multiplication comes next, taking that whole result and E, and the
+addition is last. Fully parenthesized the expression reads A + ((B ^ (C ^ D)) * E). Treating the caret
+as left associative would give A B C ^ D ^ E * +.` },
+
+{ id:"pp-27", kind:"problem", topic:"prefix-postfix", level:"s",
+  q:`Evaluate the postfix expression 20 4 - 3 - 2 /.`,
+  choices:["6.5","13","8.5","6","None of the above"], ans:0,
+  check:`postfix_eval('20 4 - 3 - 2 /'.split())`,
+  why:`The value popped first is the right operand, so this is ((20 - 4) - 3) / 2, which runs 16,
+then 13, then 6.5. The expression does not specify integer division, so keep the fraction rather than
+truncating to 6. Reversing the pop order would turn the first step into 4 minus 20, and that bug never
+shows up on addition or multiplication, only on subtraction and division.` },
+
+{ id:"pp-28", kind:"problem", topic:"prefix-postfix", level:"b",
+  q:`A postfix expression contains 9 binary operators and no unary operators. How many operands
+does it contain?`,
+  choices:["10","9","8","18","None of the above"], ans:0,
+  check:`str(9+1)`,
+  why:`Each binary operator joins two loose pieces into one, so every operator reduces the count
+of loose pieces by exactly one. Finishing with a single value after 9 operators means starting with 10
+operands. It is the same counting argument that gives a full binary tree with 9 internal nodes exactly
+10 leaves, and it holds whatever the shape of the expression turns out to be.` },
+
+{ id:"pp-29", kind:"problem", topic:"prefix-postfix", level:"s",
+  q:`Convert the postfix expression A B C &minus; * D + to prefix.`,
+  choices:["+ - * A B C D","* A - B C + D","+ * A B - C D","+ A * - B C D","None of the above"], ans:4,
+  check:`to_prefix(post_to_infix('A B C - * D +'))`,
+  why:`Go through infix rather than trying to rearrange the symbols directly. Scanning the
+postfix from the left, the minus takes B and C to give (B - C), the star takes A and that group to give
+(A * (B - C)), and the plus adds D, so the infix form is ((A * (B - C)) + D). Writing each operator in
+front of its two operands then gives + * A - B C D. Since that string is not among the four choices
+offered, the answer is None of the above.` },
+
+{ id:"pp-30", kind:"problem", topic:"prefix-postfix", level:"j",
+  q:`Evaluate the postfix expression 3 4 + 5 *.`,
+  choices:["35","23","17","60","None of the above"], ans:0,
+  check:`postfix_eval('3 4 + 5 *'.split())`,
+  why:`Push 3 and 4, and the plus pops both to push 7. Push 5, and the star pops 7 and 5 to push
+35, so the infix form is (3 + 4) * 5. The distractor 23 is what 3 + (4 * 5) would give, which in
+postfix is written 3 4 5 * + instead. Where the operators sit is the entire difference between the
+two.` },
+
+{ id:"pp-31", kind:"problem", topic:"prefix-postfix", level:"b",
+  q:`Convert the infix expression ((A &minus; B) * C) / (D + E) to postfix.`,
+  choices:["A B - C * D E + /","A B C - * D E + /","A B - C D E + * /","A B - C * D + E /","None of the above"], ans:0,
+  check:`to_postfix('((A-B)*C)/(D+E)')`,
+  why:`Every operation here is already bracketed, so the work is mechanical: move each operator
+out past its own closing bracket and then drop the brackets. A - B becomes A B -, multiplying by C
+appends the star, D + E becomes D E +, and the division that joins the two halves comes last. When an
+expression is fully parenthesized there is nothing left for precedence to decide.` },
+
+{ id:"pp-32", kind:"problem", topic:"prefix-postfix", level:"s",
+  q:`What is the greatest number of values on the stack at any moment while evaluating the postfix
+expression 2 3 + 4 5 + *?`,
+  choices:["3","2","4","7","None of the above"], ans:0,
+  check:`
+depth = mx = 0
+for t in '2 3 + 4 5 + *'.split():
+    depth = depth - 1 if t in '+-*/' else depth + 1
+    mx = max(mx, depth)
+RESULT = mx`,
+  why:`Each operand adds one to the stack and each binary operator removes two and pushes one,
+for a net loss of one. Tracing the depth gives 1, 2, 1, 2, 3, 2, and finally 1, so the peak is 3. The
+depth reached is a property of the shape of the expression rather than its length, and a left-grouped chain such as 2 3 + 4 + 5 + needs only two stack slots. A right-grouped expression such as 2 3 4 5 + + + pushes all four operands before reducing them.` }
 
 ]);
