@@ -29,6 +29,7 @@ window.applyGlass = function (glass, theme) {
   root.setProperty('--glass-a', String(Math.round((1 - 0.78 * glass.clear / 100) * 1000) / 1000));
   root.setProperty('--glass-frost', glass.frost + 'px');
   root.setProperty('--glass-sat', (100 + glass.frost * 2) + '%');
+  if (window.updateGlassOptics) window.updateGlassOptics(glass);
 };
 
 window.readGlass = function () {

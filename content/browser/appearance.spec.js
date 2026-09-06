@@ -202,37 +202,72 @@ test('reduce transparency outranks the glass sliders', async ({ page }) => {
   expect(bar.bg).not.toContain('rgba');
 });
 
-test('the glass keeps its plain border and refracts only where it can', async ({ page }) => {
+test('glass optics follow the surface and respect the solid-panel setting', async ({ page }) => {
   await page.goto('/guide');
-  const bar = () => page.evaluate(() => {
-    const el = document.querySelector('.topbar');
-    const cs = getComputedStyle(el);
-    return {
-      border: cs.borderTopWidth,
-      rim: getComputedStyle(el, '::after').content,
-      filter: cs.backdropFilter || cs.webkitBackdropFilter || 'none',
-      supportsUrl: CSS.supports('backdrop-filter', 'url(#glass-refract)'),
-      hasFilter: !!document.getElementById('glass-refract'),
-    };
-  });
-
-  // One plain border, and no gradient ring stacked on top of it.
-  const glass = await bar();
-  expect(glass.border).toBe('1px');
-  expect(glass.rim).toBe('none');
-
-  // The refraction is a progressive enhancement. Where the browser can resolve a url() inside
-  // backdrop-filter the displacement is appended after the scattering; where it cannot, the
-  // bar still has its blur rather than losing the material entirely.
-  expect(glass.hasFilter).toBe(true);
-  expect(glass.filter).toContain('blur(');
-  if (glass.supportsUrl) expect(glass.filter).toContain('glass-refract');
-
-  // Reduce transparency drops the whole material, refraction included.
+  const bar = page.locator('.topbar');
+  await expect(bar).toHaveCSS('backdrop-filter', /glass-toolbar/);
+  await expect(bar).toHaveCSS('border-top-width', '1px');
+  await page.setViewportSize({ width: 650, height: 800 });
+  await expect.poll(async () => page.evaluate(() => {
+    const rect = document.querySelector('.topbar').getBoundingClientRect();
+    const filter = document.getElementById('glass-toolbar');
+    return +filter.getAttribute('width') === Math.round(rect.width) &&
+      +filter.getAttribute('height') === Math.round(rect.height);
+  })).toBe(true);
+  await openSettings(page);
+  await expect(page.locator('.glass-sample-chip')).toHaveCSS('backdrop-filter', /glass-preview/);
+  await page.locator('#settings > summary').click();
   await openA11y(page);
   await page.locator('#a11y-plain').check();
-  const plain = await bar();
-  expect(plain.filter).toBe('none');
-  expect(plain.border).toBe('1px');
+  await expect(bar).toHaveCSS('backdrop-filter', 'none');
+  expect(await bar.evaluate(el => getComputedStyle(el, '::after').display)).toBe('none');
 });
 
+test('rendered lens bends both axes at the rim without translating the center', async ({ page }) => {
+  await page.goto('/guide');
+  const bar = page.locator('.topbar');
+  await expect(bar).toHaveCSS('backdrop-filter', /glass-toolbar/);
+  await page.evaluate(() => {
+    window.applyGlass({ clear: 100, frost: 0, tint: 0 }, 'light');
+    const grid = document.createElement('div');
+    grid.style = 'position:fixed;inset:0;z-index:30;background:conic-gradient(#fff 25%,#000 0 50%,#fff 0 75%,#000 0) 0 0 / 16px 16px';
+    document.body.append(grid);
+  });
+  await page.addStyleTag({ content: `
+    .topbar { background: transparent !important; --glass-bright: 1; box-shadow: none !important; }
+    .topbar::after { display: none !important; }
+    .topbar > * { visibility: hidden !important; }
+  ` });
+  const lens = await bar.screenshot();
+  await bar.evaluate(el => el.style.backdropFilter = 'none');
+  const flat = await bar.screenshot();
+  // Decode actual browser screenshots, not just the generated displacement map.
+  const difference = await page.evaluate(async ({ lens, flat }) => {
+    async function pixels(bytes) {
+      const image = await createImageBitmap(new Blob([new Uint8Array(bytes)], { type: 'image/png' }));
+      const canvas = document.createElement('canvas');
+      canvas.width = image.width; canvas.height = image.height;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
+      return ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
+    const a = await pixels(lens), b = await pixels(flat);
+    function mean(x0, y0, x1, y1) {
+      let sum = 0, n = 0;
+      for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+        const i = (y * a.width + x) * 4;
+        sum += Math.abs(a.data[i] - b.data[i]); n++;
+      }
+      return sum / n;
+    }
+    return {
+      center: mean(30, 22, a.width - 30, a.height - 22),
+      top: mean(30, 2, a.width - 30, 8),
+      left: mean(2, 25, 8, a.height - 25),
+      corner: mean(4, 4, 20, 20),
+    };
+  }, { lens: [...lens], flat: [...flat] });
+  expect(difference.center).toBeLessThan(2);
+  expect(difference.top).toBeGreaterThan(15);
+  expect(difference.left).toBeGreaterThan(15);
+  expect(difference.corner).toBeGreaterThan(15);
+});

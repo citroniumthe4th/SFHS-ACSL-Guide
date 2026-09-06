@@ -95,30 +95,23 @@ p { text-wrap: pretty; }
   -webkit-backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   box-shadow: inset 0 1px 0 var(--sheen), var(--shadow);
 }
-/* Refraction at the rounded edge.
-
-   The bar is a slab of glass with a filleted rim, so its surface is not uniform: flat across
-   the middle, curving down through the last third at each edge. A ray crossing the flat part
-   meets the surface square on and passes straight through, which is why the middle only ever
-   scatters. A ray crossing the fillet meets a tilted surface and bends by Snell's law, so
-   content there is displaced toward the edge and squeezed against it.
-
-   The displacement map encodes that profile, and it falls off the way the physics does rather
-   than linearly: the deviation is largest right at the rim, where the surface is nearly
-   vertical, and is already down to 30 percent of it a quarter of the way in. That tight band
-   is what separates glass from a smear.
-
-   It runs last in the chain, after the tint and the scattering, because the curvature acts on
-   the light as it leaves. Only Chromium resolves url() inside backdrop-filter today, so the
-   whole thing is a progressive enhancement and every other browser keeps the flat material. */
-@supports (backdrop-filter: url(#glass-refract)) {
-  html:not([data-plain="on"]) .topbar {
-    backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat))
-                     brightness(var(--glass-bright)) url(#glass-refract);
-  }
+/* The refraction map and specular rim follow the measured border radius. The filter
+   combines a lightly scattered lens edge with the user's frosted center. */
+.topbar, .glass-sample-chip {
+  --glass-filter: blur(var(--glass-frost));
+  backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  -webkit-backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+}
+.topbar::after, .glass-sample-chip::after {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit;
+  background-image: var(--glass-highlight); background-size: 100% 100%;
+  pointer-events: none;
 }
 @media (prefers-reduced-transparency: reduce) {
-  .topbar { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  html .topbar, html .glass-sample-chip {
+    backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
+  }
+  .topbar::after, .glass-sample-chip::after { display: none; }
 }
 
 .brand { gap: 11px; }
@@ -514,17 +507,14 @@ html[data-theme="light"] .btn-danger { color: #fff; }
    against it; this strip gives them something with real contrast behind. */
 .glass-sample {
   position: relative; height: 62px; margin: 12px 0 2px; border-radius: 12px; overflow: hidden;
-  background:
-    radial-gradient(circle at 18% 30%, #7ee0c8 0%, transparent 46%),
-    radial-gradient(circle at 52% 78%, #f0b3d0 0%, transparent 44%),
-    radial-gradient(circle at 84% 26%, #8fb6f2 0%, transparent 46%),
-    linear-gradient(120deg, #2b4c55, #1d3138);
+  background: repeating-linear-gradient(115deg,
+    #7ee0c8 0 14px, #2b4c55 14px 28px, #8fb6f2 28px 42px, #1d3138 42px 56px);
 }
 .glass-sample-chip {
   position: absolute; inset: 14px 12px; border-radius: 9px;
   background: var(--glass);
-  backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
-  -webkit-backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  -webkit-backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   box-shadow: inset 0 1px 0 var(--sheen);
   display: flex; align-items: center; justify-content: center;
   font: 600 11px/1 var(--sans); letter-spacing: .04em; color: var(--text);
@@ -555,6 +545,8 @@ html[data-plain="on"] .ask {
 html[data-plain="on"] .glass-sample-chip {
   backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
 }
+html[data-plain="on"] .topbar::after,
+html[data-plain="on"] .glass-sample-chip::after { display: none; }
 html[data-plain="on"] .glass-rows { opacity: .45; pointer-events: none; }
 html[data-plain="on"] .ask::backdrop { backdrop-filter: none; background: rgb(6 12 14 / .8); }
 
