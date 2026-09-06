@@ -152,3 +152,24 @@ test('accessibility menu fits short and narrow screens with every control reacha
     await page.locator('#a11y-reset').click();
   }
 });
+
+test('the rule closing the guide list runs the full content width', async ({ page }) => {
+  for (const width of [1180, 640]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/guide');
+    const spans = await page.evaluate(() => {
+      const results = document.getElementById('guide-results');
+      const section = results.closest('.lesson-library');
+      const rule = results.getBoundingClientRect();
+      const content = section.getBoundingClientRect();
+      return {
+        matches: Math.round(rule.left) === Math.round(content.left)
+          && Math.round(rule.right) === Math.round(content.right),
+        // The rule must not be back on the note, whose width is capped for reading.
+        onNote: getComputedStyle(document.querySelector('.syllabus-note')).borderTopWidth,
+      };
+    });
+    expect(spans.matches).toBe(true);
+    expect(spans.onNote).toBe('0px');
+  }
+});

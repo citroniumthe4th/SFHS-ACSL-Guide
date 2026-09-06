@@ -133,7 +133,11 @@ body[data-section="guide"][data-view="index"] .main { padding-top: 26px; }
 .guide-search { background: var(--panel); border-radius: 12px; margin-bottom: 0; padding: 12px 16px; font-size: 13px; }
 .guide-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 #search-count:empty { display: none; }
-#guide-results { display: grid; grid-template-columns: 135px minmax(0,1fr); margin-top: 12px; }
+/* The rule that closes the list belongs here, not on the note below it: .note caps its own
+   width at 78ch for readability, so a border drawn on the note stopped two thirds of the way
+   across while every divider above it ran the full column. */
+#guide-results { display: grid; grid-template-columns: 135px minmax(0,1fr); margin-top: 12px;
+  border-bottom: 1px solid var(--line); }
 :root { --contest-rule: 1.5px solid color-mix(in srgb, var(--text-faint) 45%, var(--line)); }
 #guide-results > .contest-heading { font-size: 13px; margin: 0; padding: 24px 0;
   border-top: var(--contest-rule); }
@@ -155,7 +159,7 @@ body[data-section="guide"][data-view="index"] .main { padding-top: 26px; }
 #guide-results .card p { font-size: 13px; }
 #guide-results .card .chip { justify-self: end; font-size: 10px; white-space: normal; text-align: right; border: 0; padding: 0; background: transparent; }
 #guide-results .card:hover { background: var(--panel); transform: translateX(3px); }
-.syllabus-note { padding: 24px 0; border-top: 1px solid var(--line); margin-top: 0; }
+.syllabus-note { padding: 24px 0; margin-top: 0; }
 /* Topic collections, exercises and quiet reading surfaces. */
 /* Separated on both sides by the same amount. Without the lower half, the paragraph that
    follows the missed questions card sat right against it while every other block on the
