@@ -95,8 +95,8 @@ p { text-wrap: pretty; }
   -webkit-backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   box-shadow: inset 0 1px 0 var(--sheen), var(--shadow);
 }
-/* The refraction map and specular rim follow the measured border radius. The filter
-   combines a lightly scattered lens edge with the user's frosted center. */
+/* Refraction and reflections follow the measured border radius. The user's Frost
+   setting applies uniformly across the entire surface. */
 .topbar, .glass-sample-chip {
   --glass-filter: blur(var(--glass-frost));
   backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));

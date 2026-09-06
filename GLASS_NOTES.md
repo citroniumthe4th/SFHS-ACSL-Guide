@@ -15,8 +15,9 @@ Source: [Apple's Meet Liquid Glass presentation](https://developer.apple.com/vid
 - Used Snell's law with index of refraction 1.5 and an elliptical bevel to calculate
   edge displacement. This is a simplified glass-backed image-plane model, not a
   simulation of a complete three-dimensional environment.
-- Kept the flat center neutral. A separate edge mask mixes the clearer refracted
-  rim with the frosted center, so the Frost slider no longer erases the lens detail.
+- Kept the flat center neutral. Frost applies uniformly across the surface before
+  refraction; there is no separate clear strip around a frosted center. High Frost
+  values naturally make distortion harder to see because backdrop detail is blurred.
 - Added a restrained reflection rim using Schlick reflectance and a fixed light
   direction. It follows the same corner geometry rather than using a decorative
   animated gradient.

@@ -33,9 +33,9 @@
     return c;
   }
   function maps(w, h, radius) {
-    var map = canvas(w, h), mask = canvas(w, h), shine = canvas(w, h);
-    var ctx = map.getContext('2d'), mctx = mask.getContext('2d'), sctx = shine.getContext('2d');
-    var data = ctx.createImageData(w, h), alpha = mctx.createImageData(w, h);
+    var map = canvas(w, h), shine = canvas(w, h);
+    var ctx = map.getContext('2d'), sctx = shine.getContext('2d');
+    var data = ctx.createImageData(w, h);
     var light = sctx.createImageData(w, h);
     var bevel = Math.min(12, radius, h / 3), thickness = bevel * 1.5;
     for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) {
@@ -46,13 +46,12 @@
       var nx = len ? ex / len : (qx > qy ? 1 : 0);
       var ny = len ? ey / len : (qy >= qx ? 1 : 0);
       nx *= Math.sign(px); ny *= Math.sign(py);
-      var shift = 0, edge = 0, reflection = 0;
+      var shift = 0, reflection = 0;
       if (d >= 0 && d < bevel) {
         var u = d / bevel, arc = Math.sqrt(Math.max(.0001, 1 - (1 - u) * (1 - u)));
         var slope = thickness / bevel * (1 - u) / arc;
         var incidence = Math.atan(slope), transmitted = Math.asin(Math.sin(incidence) / 1.5);
         shift = thickness * arc * Math.tan(incidence - transmitted);
-        edge = 1 - smooth(.35, 1, u);
         // Schlick reflectance, with a fixed upper-left light and a weaker opposite rim.
         var fresnel = .04 + .96 * Math.pow(1 - Math.cos(incidence), 5);
         var facing = Math.max(0, -.55 * nx - .83 * ny);
@@ -64,13 +63,11 @@
       data.data[i] = Math.round(128 - nx * shift * 255 / 32);
       data.data[i + 1] = Math.round(128 - ny * shift * 255 / 32);
       data.data[i + 2] = 128; data.data[i + 3] = 255;
-      alpha.data[i] = alpha.data[i + 1] = alpha.data[i + 2] = 255;
-      alpha.data[i + 3] = Math.round(edge * 255);
       light.data[i] = light.data[i + 1] = light.data[i + 2] = 255;
       light.data[i + 3] = Math.round(reflection * 255);
     }
-    ctx.putImageData(data, 0, 0); mctx.putImageData(alpha, 0, 0); sctx.putImageData(light, 0, 0);
-    return { displacement: map.toDataURL(), mask: mask.toDataURL(), light: shine.toDataURL() };
+    ctx.putImageData(data, 0, 0); sctx.putImageData(light, 0, 0);
+    return { displacement: map.toDataURL(), light: shine.toDataURL() };
   }
   function attach(el, id) {
     if (!el) return;
@@ -82,16 +79,12 @@
     ['R', 'G'].forEach(function (c) {
       node('feFunc' + c, { type: 'linear', slope: 1, intercept: -0.5 / 255 }, neutral);
     });
-    var edgeBlur = node('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: .5, result: 'clear' }, filter);
-    node('feDisplacementMap', { in: 'clear', in2: 'normals', scale: 32,
-      xChannelSelector: 'R', yChannelSelector: 'G', result: 'refracted' }, filter);
+    // One scattering level across the surface; curvature changes sampling, not clarity.
     var frost = node('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: 30, result: 'frosted' }, filter);
-    var mask = node('feImage', { result: 'edge', preserveAspectRatio: 'none' }, filter);
-    node('feComposite', { in: 'refracted', in2: 'edge', operator: 'in', result: 'rim' }, filter);
-    node('feComposite', { in: 'frosted', in2: 'edge', operator: 'out', result: 'center' }, filter);
-    node('feComposite', { in: 'rim', in2: 'center', operator: 'arithmetic', k2: 1, k3: 1 }, filter);
-    var surface = { el: el, id: id, filter: filter, frost: frost, edgeBlur: edgeBlur,
-      displacement: displacement, mask: mask, size: '' };
+    node('feDisplacementMap', { in: 'frosted', in2: 'normals', scale: 32,
+      xChannelSelector: 'R', yChannelSelector: 'G' }, filter);
+    var surface = { el: el, id: id, filter: filter, frost: frost,
+      displacement: displacement, size: '' };
     surfaces.push(surface);
     new ResizeObserver(function () { resize(surface); }).observe(el);
   }
@@ -105,24 +98,19 @@
     s.size = size;
     var images = maps(w, h, radius);
     s.filter.setAttribute('width', w); s.filter.setAttribute('height', h);
-    [s.displacement, s.mask].forEach(function (el) {
-      el.setAttribute('x', 0); el.setAttribute('y', 0);
-      el.setAttribute('width', w); el.setAttribute('height', h);
-    });
+    s.displacement.setAttribute('x', 0); s.displacement.setAttribute('y', 0);
+    s.displacement.setAttribute('width', w); s.displacement.setAttribute('height', h);
     s.displacement.setAttribute('href', images.displacement);
-    s.mask.setAttribute('href', images.mask);
     s.el.style.setProperty('--glass-highlight', 'url("' + images.light + '")');
-    // Do not swap the CSS fallback out while its replacement images are still decoding.
-    Promise.all([images.displacement, images.mask].map(function (src) {
-      var image = new Image(); image.src = src; return image.decode();
-    })).then(function () {
+    // Keep the CSS fallback until the displacement image has decoded.
+    var image = new Image(); image.src = images.displacement;
+    image.decode().then(function () {
       if (s.size === size && supported) s.el.style.setProperty('--glass-filter', 'url(#' + s.id + ')');
     }).catch(function () { /* Retain the CSS blur if a map cannot be decoded. */ });
   }
   window.updateGlassOptics = function (settings) {
     surfaces.forEach(function (s) {
       s.frost.setAttribute('stdDeviation', settings.frost);
-      s.edgeBlur.setAttribute('stdDeviation', Math.min(1.2, settings.frost / 20));
     });
   };
   attach(document.querySelector('.topbar'), 'glass-toolbar');
