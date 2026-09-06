@@ -21,7 +21,7 @@
   --glass-edge: rgb(218 250 248 / .22);
   /* Thin, lightly frosted, and pulled a little toward the accent. The tint is the neutral
      panel color mixed 15 percent toward --accent, which is why it is not a round number.
-     Frost drives saturation with it: a material this thin would read as grey without it. */
+     Frost drives saturation with it: a material this thin would read as gray without it. */
   --glass: rgb(40 66 67 / .22);
   --glass-frost: 6px;
   --glass-sat: 112%;
