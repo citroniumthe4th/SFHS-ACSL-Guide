@@ -201,3 +201,28 @@ test('reduce transparency outranks the glass sliders', async ({ page }) => {
   // A solid panel, whatever the slider was left on.
   expect(bar.bg).not.toContain('rgba');
 });
+
+test('the toolbar carries exactly one edge, whichever material is in use', async ({ page }) => {
+  await page.goto('/guide');
+  const edge = () => page.evaluate(() => {
+    const bar = document.querySelector('.topbar');
+    return {
+      border: getComputedStyle(bar).borderTopWidth,
+      rim: getComputedStyle(bar, '::after').display,
+    };
+  });
+
+  // With the glass on, the rim is the edge and there is no border under it. A border here
+  // would show as a second ring, thicker where the gradient is opaque than where it fades.
+  const glass = await edge();
+  expect(glass.border).toBe('0px');
+  expect(glass.rim).not.toBe('none');
+
+  // With the glass off, the rim goes and a plain border takes over, so the bar is never
+  // left with no outline at all.
+  await openA11y(page);
+  await page.locator('#a11y-plain').check();
+  const plain = await edge();
+  expect(plain.border).toBe('1px');
+  expect(plain.rim).toBe('none');
+});

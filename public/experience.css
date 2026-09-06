@@ -26,7 +26,6 @@
   --glass-bright: .88;
   --glass-rgb: 28 42 46;
   --glass: rgb(var(--glass-rgb) / var(--glass-a));
-  --glass-edge: rgb(218 250 248 / .22);
   /* Apple's material catches light along one edge and loses it along the opposite one. */
   --glass-rim: linear-gradient(147deg, rgb(228 255 252 / .58) 0%, rgb(228 255 252 / .12) 34%,
                                rgb(228 255 252 / 0) 58%, rgb(150 210 205 / .22) 100%);
@@ -56,7 +55,6 @@ html[data-theme="light"] {
   --code-bg: #edf3f1;
   --glass-bright: 1.05;
   --glass-rgb: 247 253 250;
-  --glass-edge: rgb(255 255 255 / .92);
   --glass-rim: linear-gradient(147deg, rgb(255 255 255 / .96) 0%, rgb(255 255 255 / .42) 34%,
                                rgb(255 255 255 / .06) 58%, rgb(120 160 155 / .30) 100%);
   --sheen: rgb(255 255 255 / .7);
@@ -92,14 +90,17 @@ p { text-wrap: pretty; }
 /* A floating, optically edged navigation surface. Text remains legible without blur. */
 .topbar {
   height: 64px; min-height: 64px; margin: 12px 18px; padding: 0 18px; top: 12px;
-  gap: 24px; border: 1px solid var(--glass-edge); border-radius: 22px;
+  gap: 24px; border: 0; border-radius: 22px;
   background: var(--glass);
   backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   -webkit-backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   box-shadow: inset 0 1px 0 var(--sheen), var(--shadow);
 }
-/* The specular rim. A gradient cannot be a border colour, so it is painted as a one pixel
-   ring: fill the box with the gradient, then mask out everything but the padding edge. */
+/* The specular rim, and the bar's only edge: a plain border underneath it would show as a
+   second ring, thicker wherever the gradient is opaque and thinner where it fades out. A
+   gradient cannot be a border colour, so the ring is painted by filling the box with the
+   gradient and masking out everything but its one pixel edge. The bar carries no border, so
+   the padding box is the border box and the ring lands exactly on the corner curve. */
 .topbar::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   padding: 1px; background: var(--glass-rim);
@@ -306,11 +307,12 @@ html[data-theme="dark"] .cm-s-material-darker .CodeMirror-gutters { background: 
   .lesson { padding: 20px; }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .topbar { background: var(--panel); }
+  .topbar { background: var(--panel); border: 1px solid var(--line); }
   .topbar::after { display: none; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .topbar { background: var(--panel); backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .topbar { background: var(--panel); border: 1px solid var(--line);
+    backdrop-filter: none; -webkit-backdrop-filter: none; }
   .topbar::after { display: none; }
   .ambient { display: none; }
 }
@@ -548,6 +550,7 @@ html[data-plain="on"] .a11y-menu,
 html[data-plain="on"] .ask {
   backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
 }
+html[data-plain="on"] .topbar { border: 1px solid var(--line); }
 /* Reduce transparency outranks the settings sliders, so the rim and the preview go too. */
 html[data-plain="on"] .topbar::after,
 html[data-plain="on"] .glass-sample::after { display: none; }
