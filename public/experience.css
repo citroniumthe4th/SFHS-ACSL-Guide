@@ -59,8 +59,6 @@ html[data-theme="light"] {
   color-scheme: light;
 }
 body { font-size: 15px; line-height: 1.7; isolation: isolate; }
-/* The filter definition is markup, not something to lay out. */
-.glass-filter { position: absolute; width: 0; height: 0; pointer-events: none; }
 .ambient { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
   -webkit-user-select: none; user-select: none; }
 .ambient span { position: absolute; color: var(--text-dim); opacity: .09; font: 400 clamp(35px, 5vw, 70px)/1 var(--mono); animation: drift 22s ease-in-out infinite alternate; }
@@ -95,25 +93,6 @@ p { text-wrap: pretty; }
   -webkit-backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   box-shadow: inset 0 1px 0 var(--sheen), var(--shadow);
 }
-/* Refraction and reflections follow the measured border radius. The user's Frost
-   setting applies uniformly across the entire surface. */
-.topbar, .glass-sample-chip {
-  --glass-filter: blur(var(--glass-frost));
-  backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));
-  -webkit-backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));
-}
-.topbar::after, .glass-sample-chip::after {
-  content: ""; position: absolute; inset: -1px; border-radius: inherit;
-  background-image: var(--glass-highlight); background-size: 100% 100%;
-  pointer-events: none;
-}
-@media (prefers-reduced-transparency: reduce) {
-  html .topbar, html .glass-sample-chip {
-    backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
-  }
-  .topbar::after, .glass-sample-chip::after { display: none; }
-}
-
 .brand { gap: 11px; }
 .brand-mark { border-radius: 12px; font: 750 22px/36px var(--sans); letter-spacing: -.08em; width: 36px; height: 36px; text-align: center; padding: 0 3px 3px 0; }
 .brand-name { font-size: 14px; letter-spacing: -.03em; }
@@ -507,14 +486,17 @@ html[data-theme="light"] .btn-danger { color: #fff; }
    against it; this strip gives them something with real contrast behind. */
 .glass-sample {
   position: relative; height: 62px; margin: 12px 0 2px; border-radius: 12px; overflow: hidden;
-  background: repeating-linear-gradient(115deg,
-    #7ee0c8 0 14px, #2b4c55 14px 28px, #8fb6f2 28px 42px, #1d3138 42px 56px);
+  background:
+    radial-gradient(circle at 18% 30%, #7ee0c8 0%, transparent 46%),
+    radial-gradient(circle at 52% 78%, #f0b3d0 0%, transparent 44%),
+    radial-gradient(circle at 84% 26%, #8fb6f2 0%, transparent 46%),
+    linear-gradient(120deg, #2b4c55, #1d3138);
 }
 .glass-sample-chip {
   position: absolute; inset: 14px 12px; border-radius: 9px;
   background: var(--glass);
-  backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));
-  -webkit-backdrop-filter: var(--glass-filter) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
+  -webkit-backdrop-filter: blur(var(--glass-frost)) saturate(var(--glass-sat)) brightness(var(--glass-bright));
   box-shadow: inset 0 1px 0 var(--sheen);
   display: flex; align-items: center; justify-content: center;
   font: 600 11px/1 var(--sans); letter-spacing: .04em; color: var(--text);
@@ -545,8 +527,6 @@ html[data-plain="on"] .ask {
 html[data-plain="on"] .glass-sample-chip {
   backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--panel);
 }
-html[data-plain="on"] .topbar::after,
-html[data-plain="on"] .glass-sample-chip::after { display: none; }
 html[data-plain="on"] .glass-rows { opacity: .45; pointer-events: none; }
 html[data-plain="on"] .ask::backdrop { backdrop-filter: none; background: rgb(6 12 14 / .8); }
 
