@@ -147,6 +147,16 @@ async function main() {
   assert.equal(storage.has("acsl:theme"), false, "validate everything before writing");
   assert.throws(() => c.validateBackup({ version: 1, entries: JSON.parse('{"__proto__":{}}') }));
   assert.throws(() => c.validateBackup({ version: 1, entries: { "frq:digit-chain": { solved: false, solutionViewed: false, assisted: true } } }));
+  c.restoreBackup({ version: 1, entries: {
+    "glass-clear": 100, "glass-frost": 6, "glass-tint": 15,
+    "code:digit-chain:python": "print(42)"
+  } });
+  assert.equal(storage.get("acsl:code:digit-chain:python"), '"print(42)"',
+    "retired glass preferences must not prevent restoring study data");
+  for (const [key, value] of [["glass-clear", 101], ["glass-frost", -1],
+                             ["glass-tint", "15"], ["glass-unknown", 1]]) {
+    assert.throws(() => c.validateBackup({ version: 1, entries: { [key]: value } }));
+  }
   const before = [...storage];
   let fail = true;
   c.localStorage.setItem = (key, value) => {

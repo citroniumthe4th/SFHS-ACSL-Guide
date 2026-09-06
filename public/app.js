@@ -2103,6 +2103,13 @@ function validSavedEntry(key, value) {
       && A11Y.some(function (s) { return "a11y:" + s.key === key; });
   }
   if (key === "lang") return LANGS.some(function (lang) { return lang.id === value; });
+  // Older backups contain these retired preferences. Keep accepting their original
+  // bounds so removing the sliders does not make saved study data unrestorable.
+  if (key.indexOf("glass-") === 0) {
+    var caps = { "glass-clear": 100, "glass-frost": 60, "glass-tint": 100 };
+    return Object.prototype.hasOwnProperty.call(caps, key)
+      && Number.isInteger(value) && value >= 0 && value <= caps[key];
+  }
   if (key === "editor-font") return Number.isInteger(value) && value >= 11 && value <= 22;
   if (key === "ws-split") return typeof value === "number" && value >= 0.2 && value <= 0.75;
   if (key === "exam") return value === null || !!validExam(value);

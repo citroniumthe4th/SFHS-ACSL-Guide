@@ -136,3 +136,19 @@ test('the toolbar glass is thin, lightly frosted and drops to a panel on request
 
 
 
+
+test('accessibility menu fits short and narrow screens with every control reachable', async ({ page }) => {
+  for (const viewport of [{ width: 667, height: 375 }, { width: 320, height: 568 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/guide');
+    await openA11y(page);
+    const menu = page.locator('.a11y-menu');
+    expect(await menu.evaluate(el => {
+      const r = el.getBoundingClientRect();
+      return r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight;
+    })).toBe(true);
+    await page.locator('#a11y-reset').scrollIntoViewIfNeeded();
+    await expect(page.locator('#a11y-reset')).toBeInViewport();
+    await page.locator('#a11y-reset').click();
+  }
+});
