@@ -183,3 +183,189 @@ in base 4 gives 2 with remainder 2, so the answer is 22, and since 22 is not amo
 choices the correct response is None of the above.` }
 
 ]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"ns-19", kind:"problem", topic:"number-systems", level:"b",
+  q:`Convert 5A3<sub>16</sub> to binary.`,
+  choices:["10110100011","1011010011","10110100111","101101011","None of the above"], ans:0,
+  check:`to_base(from_base('5A3',16),2)`,
+  why:`Every hexadecimal digit is exactly four bits, so this is regrouping rather than
+arithmetic. 5 is 0101, A is 1010, and 3 is 0011, which written end to end gives 0101 1010 0011.
+Dropping the leading zero leaves 10110100011. Count the bits when you finish: three hex digits must
+produce twelve bits before any leading zeros come off, and a result of ten or eleven significant bits
+means one group was written with three bits instead of four.` },
+
+{ id:"ns-20", kind:"problem", topic:"number-systems", level:"s",
+  q:`Evaluate the following and express the answer in octal.
+<div class="expr">777<sub>8</sub> + 111<sub>8</sub></div>`,
+  choices:["1110","888","1000","1100","None of the above"], ans:0,
+  check:`to_base(from_base('777',8)+from_base('111',8),8)`,
+  why:`Add column by column and carry whenever a column reaches 8 rather than 10. The ones
+column is 7 plus 1, which is 8, so it writes 0 and carries 1. Each of the next two columns is then 7
+plus 1 plus the carry, which is 9, writing 1 and carrying 1 again, and the final carry becomes the
+leading digit. The answer is 1110. The choice 888 is what decimal habits produce, and 888 is not even
+a legal octal number, since 8 is not an octal digit.` },
+
+{ id:"ns-21", kind:"problem", topic:"number-systems", level:"j",
+  q:`How many digits does 200<sub>10</sub> have when written in binary?`,
+  choices:["8","7","9","6","None of the above"], ans:0,
+  check:`str(len(to_base(200,2)))`,
+  why:`Find the largest power of two that fits. Since 128 is 2 to the seventh and 256 is 2 to
+the eighth, the highest bit that fires sits in position 7 counting from zero, and positions 0 through
+7 make eight digits. Writing it out confirms it: 200 is 128 plus 64 plus 8, or 11001000.` },
+
+{ id:"ns-22", kind:"problem", topic:"number-systems", level:"b",
+  q:`Evaluate the following and express the answer in binary.
+<div class="expr">1101<sub>2</sub> &times; 101<sub>2</sub></div>`,
+  choices:["1000001","1000011","110001","1000101","None of the above"], ans:0,
+  check:`to_base(from_base('1101',2)*from_base('101',2),2)`,
+  why:`Binary multiplication is easier than decimal multiplication, because every partial
+product is either the top number or nothing at all. The multiplier 101 has ones in the first and third
+positions, so the partial products are 1101 and 1101 shifted two places, giving 110100. Adding those
+gives 1000001. If you would rather check than trust the carries, this is 13 times 5, or 65, and 65 is
+64 plus 1.` },
+
+{ id:"ns-23", kind:"problem", topic:"number-systems", level:"s",
+  q:`What is the last digit of 2026<sub>10</sub> when it is written in base 7?`,
+  choices:["3","4","2","6","None of the above"], ans:0,
+  check:`to_base(2026,7)[-1]`,
+  why:`No conversion is needed. The last digit of a number in base b is its remainder on
+division by b, because every other place value is a multiple of b. Here 7 times 289 is 2023, so the
+remainder is 3. The same shortcut answers any question about the final digit in any base, and it is
+worth reaching for before writing out a full conversion.` },
+
+{ id:"ns-24", kind:"problem", topic:"number-systems", level:"s",
+  q:`How many integers from 1 through 500<sub>10</sub>, inclusive, are palindromes when written in
+binary?`,
+  choices:["30","40","46","62","None of the above"], ans:4,
+  check:`str(len([n for n in range(1,501) if to_base(n,2)==to_base(n,2)[::-1]]))`,
+  why:`Count by length rather than by number. A binary palindrome of length L begins with a 1,
+which forces it to end with a 1, and the middle bits are free in mirrored pairs, so there are 2 to the
+power of the floor of (L minus 2) over 2 palindromes at each length. That gives 1, 1, 2, 2, 4, 4, 8,
+and 8 for lengths 1 through 8, which is 30 through length 8, and length 9 runs from 256 to 511 where
+the palindromes up to 500 add 15 more. The total is 45. Since 45 is not among the four choices
+offered, the answer is None of the above.` },
+
+{ id:"ns-25", kind:"problem", topic:"number-systems", level:"b",
+  q:`Evaluate the following in hexadecimal.
+<div class="expr">DEF<sub>16</sub> &minus; ABC<sub>16</sub></div>`,
+  choices:["333","323","343","332","None of the above"], ans:0,
+  check:`to_base(from_base('DEF',16)-from_base('ABC',16),16)`,
+  why:`Take the columns from the right and remember that no borrow is needed anywhere here.
+F minus C is 15 minus 12, which is 3, then E minus B is 14 minus 11, which is 3, and D minus A is 13
+minus 10, which is 3 again. The answer is 333. When every column of a hexadecimal subtraction has the
+larger digit on top, the arithmetic is no harder than decimal, so check for borrows first and only
+slow down where one is needed.` },
+
+{ id:"ns-26", kind:"problem", topic:"number-systems", level:"j",
+  q:`Convert 1234<sub>5</sub> to base 10.`,
+  choices:["194","294","1234","164","None of the above"], ans:0,
+  check:`to_base(from_base('1234',5),10)`,
+  why:`Write the place values above the digits and multiply. In base 5 those values are 125, 25,
+5, and 1, so the number is 125 plus 2 times 25 plus 3 times 5 plus 4, which is 125 plus 50 plus 15
+plus 4, or 194. Horner's method gets there with less bookkeeping: start at 1, then repeatedly multiply
+by 5 and add the next digit, giving 1, 7, 38, and 194.` },
+
+{ id:"ns-27", kind:"problem", topic:"number-systems", level:"b",
+  q:`What is the sum of the digit values of BEEF<sub>16</sub>, expressed in base 10?`,
+  choices:["54","48","32","20","None of the above"], ans:0,
+  check:`str(sum(int(c,16) for c in 'BEEF'))`,
+  why:`Each letter stands for a number, so translate before adding: B is 11, E is 14, and F is
+15. The sum is 11 plus 14 plus 14 plus 15, which is 54. This has nothing to do with the value of BEEF
+itself, which is 48879, and the question is only asking about the digits. Treating the letters as
+though they were worth nothing gives 0, and treating them as ordinary characters gives no number at
+all.` },
+
+{ id:"ns-28", kind:"problem", topic:"number-systems", level:"s",
+  q:`Evaluate the following and express the answer in hexadecimal.
+<div class="expr">11001100<sub>2</sub> + AB<sub>16</sub></div>`,
+  choices:["177","167","187","1077","None of the above"], ans:0,
+  check:`to_base(from_base('11001100',2)+from_base('AB',16),16)`,
+  why:`The operands are in different bases, so bring them together before adding. Binary and
+hexadecimal share a base of two, so regroup rather than convert: 1100 1100 is CC in hexadecimal.
+Adding CC and AB column by column gives C plus B, which is 23, writing 7 and carrying 1, then C plus A
+plus 1, which is 23 again, writing 7 and carrying 1. The answer is 177.` },
+
+{ id:"ns-29", kind:"problem", topic:"number-systems", level:"s",
+  q:`Solve for the base b.
+<div class="expr">1000<sub>b</sub> = 1728<sub>10</sub></div>`,
+  choices:["12","10","8","16","None of the above"], ans:0,
+  check:`str([b for b in range(2,17) if from_base('1000',b)==1728][0])`,
+  why:`A 1 followed by three zeros is b cubed in any base, so the question is asking for the
+cube root of 1728. That is 12, since 12 times 12 is 144 and 144 times 12 is 1728. The general shape is
+worth carrying: a leading 1 followed by k zeros is always b to the power k, which turns a conversion
+question into a question about powers.` },
+
+{ id:"ns-30", kind:"problem", topic:"number-systems", level:"s",
+  q:`Convert 255<sub>10</sub> to base 3.`,
+  choices:["100110","100100","101110","22200","None of the above"], ans:0,
+  check:`to_base(255,3)`,
+  why:`Divide repeatedly by 3 and read the remainders upward. 255 gives 85 remainder 0, then 28
+remainder 1, then 9 remainder 1, then 3 remainder 0, then 1 remainder 0, and finally 1. Reading those
+from the last quotient back down gives 100110. Checking is quick, since the place values in play are
+243, 9, and 3, and those add to 255. Base 3 has no shortcut through binary, so the division method is
+the whole method.` },
+
+{ id:"ns-31", kind:"problem", topic:"number-systems", level:"s",
+  q:`How many integers from 1 through 1000<sub>10</sub>, inclusive, take exactly four digits when
+written in base 4?`,
+  choices:["191","256","64","128","None of the above"], ans:4,
+  check:`str(len([n for n in range(1,1001) if len(to_base(n,4))==4]))`,
+  why:`A number takes exactly four digits in base 4 when it is at least 4 cubed and less than 4
+to the fourth, which is the range from 64 through 255. Every one of those is below 1000, so the upper
+limit never comes into play, and the count is 255 minus 64 plus 1, or 192. The distractor 191 is what
+you get by forgetting that both endpoints belong in the range. Since 192 is not among the four choices
+offered, the answer is None of the above.` },
+
+{ id:"ns-32", kind:"problem", topic:"number-systems", level:"b",
+  q:`Evaluate the following and express the answer in octal.
+<div class="expr">3F<sub>16</sub> &times; 11<sub>2</sub></div>`,
+  choices:["275","375","175","77","None of the above"], ans:0,
+  check:`to_base(from_base('3F',16)*from_base('11',2),8)`,
+  why:`Both operands have to reach a common base before they can be multiplied, and decimal is
+the easiest one to multiply in. 3F is 63 and 11 in binary is 3, so the product is 189. Pushing 189
+into octal by repeated division gives remainders of 5, then 7, with a final quotient of 2, so the
+answer is 275. Notice that 3F is one less than 64, which makes the multiplication easy to check.` },
+
+{ id:"ns-33", kind:"problem", topic:"number-systems", level:"j",
+  q:`Evaluate the following and express the answer in base 10.
+<div class="expr">1010<sub>2</sub> + 1010<sub>8</sub> + 1010<sub>16</sub></div>`,
+  choices:["4642","3030","1030","4096","None of the above"], ans:0,
+  check:`str(from_base('1010',2)+from_base('1010',8)+from_base('1010',16))`,
+  why:`The three terms look identical and are nothing alike, which is the whole point. In binary
+1010 is 8 plus 2, or 10. In octal it is 512 plus 8, or 520. In hexadecimal it is 4096 plus 16, or
+4112. Those add to 4642. The distractor 3030 comes from adding the digits as though the subscripts
+were decoration.` },
+
+{ id:"ns-34", kind:"problem", topic:"number-systems", level:"b",
+  q:`Evaluate the following in hexadecimal, discarding any remainder.
+<div class="expr">CAFE<sub>16</sub> &divide; 100<sub>16</sub></div>`,
+  choices:["CA","FE","CAF","C","None of the above"], ans:0,
+  check:`to_base(from_base('CAFE',16)//from_base('100',16),16)`,
+  why:`Dividing by 100 in hexadecimal removes two digits from the right, exactly as dividing by
+100 in decimal removes two digits there, because 100 in hexadecimal is 16 squared. So CAFE becomes CA
+and the discarded FE is the remainder. Recognizing that a divisor is a power of the base turns the
+division into shifting, which is where the digits go rather than something to compute.` },
+
+{ id:"ns-35", kind:"problem", topic:"number-systems", level:"s",
+  q:`How many integers from 1 through 100<sub>10</sub>, inclusive, have exactly three 1 bits in
+their binary representation?`,
+  choices:["33","21","35","30","None of the above"], ans:0,
+  check:`str(sum(1 for n in range(1,101) if to_base(n,2).count('1')==3))`,
+  why:`Count by the position of the highest bit. A value below 128 uses at most seven bits, and
+choosing three of the seven positions gives 35 candidates in the range 1 through 127. The two that
+exceed 100 are 1110000, which is 112, and 1101000, which is 104, so 35 minus 2 leaves 33. Counting the
+whole range and then removing the few that overshoot is much less work than listing all 33.` },
+
+{ id:"ns-36", kind:"problem", topic:"number-systems", level:"j",
+  q:`Evaluate the following in octal.
+<div class="expr">7654<sub>8</sub> &minus; 1234<sub>8</sub></div>`,
+  choices:["6420","6520","5420","6410","None of the above"], ans:0,
+  check:`to_base(from_base('7654',8)-from_base('1234',8),8)`,
+  why:`Every column here has the larger digit on top, so no borrow is needed anywhere and the
+subtraction is done digit by digit: 4 minus 4 is 0, 5 minus 3 is 2, 6 minus 2 is 4, and 7 minus 1 is
+6. The answer is 6420. Octal subtraction only becomes different from decimal when a borrow appears, at
+which point the borrow is worth 8 rather than 10.` }
+
+]);

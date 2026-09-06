@@ -449,3 +449,526 @@ times. The pairs are (1, 5), (2, 4), (3, 3), (4, 2), and (5, 1), and it is worth
 counts once rather than twice even though both subscripts agree.` }
 
 ]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"wd-13", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>T = ""
+for I = 1 to 3
+    for J = 1 to I
+        T = T + I
+    next J
+next I
+output T</code></pre>What is printed?`,
+  choices:["122333","123","111222333","321","None of the above"], ans:0,
+  check:`
+T = ""
+for I in range(1,4):
+    for J in range(1,I+1):
+        T = T + str(I)
+RESULT = T`,
+  why:`The inner bound is tied to the outer counter, so the body runs once when I is 1, twice
+when I is 2, and three times when I is 3, and each pass appends the current value of I. That gives one
+1, two 2s, and three 3s in order. Note that J never appears in the body at all; its only job is to
+control how many copies are written.` },
+
+{ id:"wd-14", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>A = 1
+B = 100
+C = 0
+while A &lt; B
+    A = A * 2
+    B = B - 10
+    C = C + 1
+end while
+output C</code></pre>What is printed?`,
+  choices:["6","5","7","10","None of the above"], ans:0,
+  check:`
+A, B = 1, 100
+C = 0
+while A < B:
+    A = A * 2
+    B = B - 10
+    C += 1
+RESULT = C`,
+  why:`Two variables move at once, so the table needs two columns. A runs 2, 4, 8, 16, 32, and
+64 while B runs 90, 80, 70, 60, 50, and 40. After the sixth pass A is 64 and B is 40, so the condition
+fails and the loop stops. One value climbing while the other falls means they cross much sooner than
+either would reach the other alone, which is why the count is far below what watching A on its own
+would suggest.` },
+
+{ id:"wd-15", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>A(1..5) = 5, 2, 9, 1, 7
+for I = 1 to 4
+    if A(I) &gt; A(I + 1) then
+        swap A(I) and A(I + 1)
+    end if
+next I
+output A</code></pre>What is printed?`,
+  choices:["2 5 1 7 9","1 2 5 7 9","2 5 9 1 7","5 2 9 1 7","None of the above"], ans:0,
+  check:`
+A = [5,2,9,1,7]
+for I in range(4):
+    if A[I] > A[I+1]:
+        A[I], A[I+1] = A[I+1], A[I]
+RESULT = " ".join(str(x) for x in A)`,
+  why:`This is a single pass of a bubble sort, not a full sort, so the array does not come out
+ordered. Following it through, 5 and 2 swap, 5 and 9 do not, 9 and 1 swap, and 9 and 7 swap, leaving
+2 5 1 7 9. What one pass does guarantee is that the largest value has been carried to the end, which
+is why a complete bubble sort needs a pass for every element.` },
+
+{ id:"wd-16", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>N = 987
+S = 0
+while N &gt; 0
+    S = S + N % 10
+    N = int(N / 10)
+end while
+output S</code></pre>What is printed?`,
+  choices:["24","987","9","21","None of the above"], ans:0,
+  check:`
+N = 987
+S = 0
+while N > 0:
+    S = S + N % 10
+    N = N // 10
+RESULT = S`,
+  why:`Taking N modulo 10 peels off the last digit and dividing by 10 with the fraction discarded
+removes it, so the loop visits 7, then 8, then 9, adding each to S. The total is 24. This digit sum
+idiom appears constantly, and the pairing to remember is modulo to read a digit and integer division
+to drop it.` },
+
+{ id:"wd-17", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>S = "ABABABA"
+C = 0
+for I = 0 to 5
+    if S[I] == "A" &amp;&amp; S[I + 1] == "B" then
+        C = C + 1
+    end if
+next I
+output C</code></pre>What is printed?`,
+  choices:["3","4","2","6","None of the above"], ans:0,
+  check:`
+S = "ABABABA"
+C = 0
+for I in range(6):
+    if S[I] == "A" and S[I+1] == "B":
+        C += 1
+RESULT = C`,
+  why:`The loop counts places where an A is immediately followed by a B, and those start at
+indices 0, 2, and 4. The A at index 6 is the last character, and the loop stops at index 5 precisely so
+that S[I + 1] never runs off the end. Any loop that looks one place ahead has to stop one place early,
+which is where the upper bound of 5 comes from.` },
+
+{ id:"wd-18", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>N = 50
+K = 0
+while K * K &lt;= N
+    K = K + 1
+end while
+output K - 1</code></pre>What is printed?`,
+  choices:["7","8","6","25","None of the above"], ans:0,
+  check:`
+N, K = 50, 0
+while K*K <= N:
+    K = K + 1
+RESULT = K - 1`,
+  why:`The loop keeps raising K while its square still fits inside 50, so it exits the moment K
+reaches 8, since 64 is over the limit while 49 is not. Printing K minus 1 therefore reports 7, which is
+the integer square root. The subtraction at the end is the whole point: the loop always overshoots by
+one before it can discover it has gone too far.` },
+
+{ id:"wd-19", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>A = 84
+B = 36
+while B &gt; 0
+    T = B
+    B = A % B
+    A = T
+end while
+output A</code></pre>What is printed?`,
+  choices:["12","6","4","3024","None of the above"], ans:0,
+  check:`
+A, B = 84, 36
+while B > 0:
+    T = B
+    B = A % B
+    A = T
+RESULT = A`,
+  why:`This is the Euclidean algorithm written with a temporary, and what it computes is the
+greatest common divisor. The pairs run (84, 36), then (36, 12), then (12, 0), at which point the loop
+stops and A holds 12. The three assignments have to happen in that order, since computing A modulo B
+after A has already been overwritten would use the wrong value.` },
+
+{ id:"wd-20", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>A(1..5) = 3, 9, 2, 9, 4
+M = 1
+for I = 2 to 5
+    if A(I) &gt; A(M) then
+        M = I
+    end if
+next I
+output M</code></pre>What is printed?`,
+  choices:["2","4","9","5","None of the above"], ans:0,
+  check:`
+A = [3,9,2,9,4]
+M = 0
+for I in range(1,5):
+    if A[I] > A[M]:
+        M = I
+RESULT = M + 1`,
+  why:`M tracks the position of the largest value rather than the value itself, so the output is
+a subscript. The 9 at position 2 replaces the initial 3, and the second 9 at position 4 does not
+replace it, because the test is strictly greater than rather than greater than or equal to. The
+program therefore reports the first of the tied maxima, and changing that one comparison would make it
+report the last.` },
+
+{ id:"wd-21", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>N = 91
+C = 0
+for D = 1 to N
+    if N % D == 0 then
+        C = C + 1
+    end if
+next D
+output C</code></pre>What is printed?`,
+  choices:["4","2","91","6","None of the above"], ans:0,
+  check:`
+N = 91
+C = 0
+for D in range(1, N+1):
+    if N % D == 0:
+        C += 1
+RESULT = C`,
+  why:`The loop counts the divisors of 91, and the answer is 4 because 91 is 7 times 13 rather
+than prime, so its divisors are 1, 7, 13, and 91. Answering 2 means you took 91 for a prime, which is
+the trap: it is odd, it is not a multiple of 3 or 5, and 7 is the first divisor anyone has to actually
+test for.` },
+
+{ id:"wd-22", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>S = 0
+for I = 1 to 4
+    for J = 1 to 4
+        if I != J then
+            S = S + I * J
+        end if
+    next J
+next I
+output S</code></pre>What is printed?`,
+  choices:["100", "30", "60", "50", "None of the above"], ans:4,
+  check:`
+S = 0
+for I in range(1,5):
+    for J in range(1,5):
+        if I != J:
+            S = S + I*J
+RESULT = S`,
+  why:`Rather than adding twelve products one at a time, take the whole grid and subtract what
+the condition excludes. The sum over every pair is (1 + 2 + 3 + 4) squared, which is 100, and the
+excluded diagonal contributes 1 + 4 + 9 + 16, or 30, leaving 70. Subtracting the exceptions from a
+total you can compute in one step is nearly always faster than enumerating what remains. Since 70 is
+not among the four choices offered, the answer is None of the above.` },
+
+{ id:"wd-23", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>S = "COMPUTER"
+T = ""
+for I = 0 to 7
+    if S[I] is not a vowel then
+        T = T + S[I]
+    end if
+next I
+output T</code></pre>What is printed?`,
+  choices:["CMPTR","OUE","COMPUTER","CMPTER","None of the above"], ans:0,
+  check:`
+S = "COMPUTER"
+T = ""
+for I in range(8):
+    if S[I] not in "AEIOU":
+        T = T + S[I]
+RESULT = T`,
+  why:`The vowels in COMPUTER are the O at index 1, the U at index 4, and the E at index 6, so
+the surviving characters are C, M, P, T, and R in their original order. Because the body appends
+rather than prepends, the order is preserved. The distractor CMPTER is what you get by missing the E,
+which is easy to do when scanning quickly for vowels near the end of a word.` },
+
+{ id:"wd-24", kind:"problem", topic:"wdtpd", level:"s",
+  q:`<pre><code>X = 0
+Y = 1
+for I = 1 to 6
+    X = X + Y
+    Y = Y + X
+next I
+output X, Y</code></pre>What is printed?`,
+  choices:["144 233","89 144","21 34","233 377","None of the above"], ans:0,
+  check:`
+X, Y = 0, 1
+for I in range(1,7):
+    X = X + Y
+    Y = Y + X
+RESULT = str(X) + " " + str(Y)`,
+  why:`The second assignment uses the value the first has just produced, so each pass advances
+the Fibonacci sequence by two places rather than one. Tracing the pairs gives (1, 2), (3, 5), (8, 13),
+(21, 34), (55, 89), and (144, 233). Reordering those two lines would produce a completely different
+sequence, which is exactly what makes this shape worth reading carefully rather than recognizing.` }
+
+]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"wb-11", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>A = 7
+B = 7
+C = 7
+if A == B then
+    if B == C then
+        output "ALL"
+    else
+        output "TWO"
+    end if
+else if A == C || B == C then
+    output "TWO"
+else
+    output "NONE"
+end if</code></pre>What is printed?`,
+  choices:["ALL","TWO","NONE","ALLTWO","None of the above"], ans:0,
+  check:`
+A, B, C = 7, 7, 7
+if A == B:
+    if B == C:
+        R = "ALL"
+    else:
+        R = "TWO"
+elif A == C or B == C:
+    R = "TWO"
+else:
+    R = "NONE"
+RESULT = R`,
+  why:`All three values agree, so the outer condition holds and control enters the inner branch
+rather than testing the else if at all. Inside, B equals C as well, so ALL is printed. Exactly one
+output line ever runs in a structure like this, which is why ALLTWO can be ruled out before doing any
+work.` },
+
+{ id:"wb-12", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>N = 0
+for I = 1 to 10
+    if I % 2 == 0 || I % 3 == 0 then
+        N = N + 1
+    end if
+next I
+output N</code></pre>What is printed?`,
+  choices:["7","8","5","3","None of the above"], ans:0,
+  check:`
+N = 0
+for I in range(1,11):
+    if I % 2 == 0 or I % 3 == 0:
+        N += 1
+RESULT = N`,
+  why:`Count each group and then remove the overlap. The multiples of 2 up to 10 are 2, 4, 6, 8,
+and 10, which is five, and the multiples of 3 are 3, 6, and 9, which is three, but 6 belongs to both
+and would otherwise be counted twice. So the answer is 5 plus 3 minus 1. Adding the two counts without
+removing the overlap gives 8, which is the distractor sitting right beside the answer.` },
+
+{ id:"wb-13", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>X = 15
+if X &gt; 10 then
+    X = X - 10
+end if
+if X &gt; 10 then
+    X = X - 10
+else
+    X = X + 100
+end if
+output X</code></pre>What is printed?`,
+  choices:["105","5","-5","115","None of the above"], ans:0,
+  check:`
+X = 15
+if X > 10:
+    X = X - 10
+if X > 10:
+    X = X - 10
+else:
+    X = X + 100
+RESULT = X`,
+  why:`The first branch fires and leaves X holding 5. The second structure then tests that new
+value, and since 5 is not greater than 10 the else runs instead, adding 100 to give 105. The else
+belongs to the second if only, so it is not an alternative to the first one, and reading it that way is
+what produces the distractor 5.` },
+
+{ id:"wb-14", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>A = 6
+B = 4
+if !(A &lt; B || A == B) then
+    output A * B
+else
+    output A + B
+end if</code></pre>What is printed?`,
+  choices:["24","10","2","64","None of the above"], ans:0,
+  check:`
+A, B = 6, 4
+if not (A < B or A == B):
+    R = A * B
+else:
+    R = A + B
+RESULT = R`,
+  why:`Work inside the brackets first: A less than B is false and A equal to B is false, so the
+or is false, and the negation in front of it makes the whole condition true. The first branch therefore
+runs and prints 24. Read another way, the condition says not less and not equal, which is simply A
+greater than B, and rewriting it that way is quicker than evaluating it piece by piece.` },
+
+{ id:"wb-15", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>S = 0
+for I = 1 to 7
+    if I % 2 == 1 then
+        S = S + I
+    else if I % 4 == 0 then
+        S = S - I
+    end if
+next I
+output S</code></pre>What is printed?`,
+  choices:["12","16","10","28","None of the above"], ans:0,
+  check:`
+S = 0
+for I in range(1,8):
+    if I % 2 == 1:
+        S = S + I
+    elif I % 4 == 0:
+        S = S - I
+RESULT = S`,
+  why:`The odd values 1, 3, 5, and 7 add 16 between them. Among the even values only 4 is a
+multiple of 4, so it subtracts 4, while 2 and 6 match neither test and change nothing at all. The total
+is 16 minus 4. A chain of this shape leaves values that match no branch untouched, and forgetting that
+is what produces 10.` },
+
+{ id:"wb-16", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>G = 83
+if G &gt;= 90 then
+    output "A"
+else if G &gt;= 80 then
+    output "B"
+else if G &gt;= 70 then
+    output "C"
+else
+    output "F"
+end if</code></pre>What is printed?`,
+  choices:["B","A","C","BC","None of the above"], ans:0,
+  check:`
+G = 83
+if G >= 90: R = "A"
+elif G >= 80: R = "B"
+elif G >= 70: R = "C"
+else: R = "F"
+RESULT = R`,
+  why:`83 fails the first test and passes the second, so B is printed and the rest of the chain
+is skipped entirely. The 83 also satisfies the third condition, and the only reason C is not printed as
+well is that an else if chain stops at the first match. Written as three separate if statements the
+same program would print both B and C.` },
+
+{ id:"wb-17", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>A = 4
+B = 9
+C = 2
+if A &gt; B then
+    M = A
+else
+    M = B
+end if
+if C &gt; M then
+    M = C
+end if
+output M</code></pre>What is printed?`,
+  choices:["9","4","2","15","None of the above"], ans:0,
+  check:`
+A, B, C = 4, 9, 2
+if A > B:
+    M = A
+else:
+    M = B
+if C > M:
+    M = C
+RESULT = M`,
+  why:`The first structure picks the larger of A and B, which is 9, and the second gives C a
+chance to displace it, which it does not, since 2 is smaller. The program is therefore the maximum of
+three values built two at a time. Extending it to a fourth value needs one more if of the same shape,
+which is why the pattern is worth recognizing rather than tracing.` },
+
+{ id:"wb-18", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>C = 0
+for I = 1 to 6
+    for J = 1 to 6
+        if I &lt; J &amp;&amp; (I + J) % 3 == 0 then
+            C = C + 1
+        end if
+    next J
+next I
+output C</code></pre>What is printed?`,
+  choices:["5","6","10","3","None of the above"], ans:0,
+  check:`
+C = 0
+for I in range(1,7):
+    for J in range(1,7):
+        if I < J and (I+J) % 3 == 0:
+            C += 1
+RESULT = C`,
+  why:`The first half of the condition means each unordered pair is counted at most once, with
+the smaller value in I. Listing the pairs whose total is a multiple of 3 gives (1, 2), (1, 5), (2, 4),
+(3, 6), and (4, 5), which is 5. Dropping the I less than J test would count every pair twice and give
+10, which is the distractor.` },
+
+{ id:"wb-19", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>X = 12
+if X % 2 == 0 &amp;&amp; X % 3 == 0 then
+    output X / 6
+else if X % 2 == 0 then
+    output X / 2
+else
+    output X
+end if</code></pre>What is printed?`,
+  choices:["2","6","12","4","None of the above"], ans:0,
+  check:`
+X = 12
+if X % 2 == 0 and X % 3 == 0:
+    R = X // 6
+elif X % 2 == 0:
+    R = X // 2
+else:
+    R = X
+RESULT = R`,
+  why:`12 is divisible by both 2 and 3, so the first branch runs and prints 12 divided by 6,
+which is 2. The second branch would also have matched, since 12 is even, and the only reason it never
+runs is that the chain stops at the first true condition. Ordering matters in a chain like this: put the
+more specific test second and it can never fire.` },
+
+{ id:"wb-20", kind:"problem", topic:"wdtpd-branching", level:"j",
+  q:`<pre><code>A = 5
+B = 0
+if A &gt; 0 then
+    B = B + 1
+end if
+if A &gt; 3 then
+    B = B + 2
+end if
+if A &gt; 7 then
+    B = B + 4
+else
+    B = B + 8
+end if
+output B</code></pre>What is printed?`,
+  choices:["3", "7", "15", "9", "None of the above"], ans:4,
+  check:`
+A = 5
+B = 0
+if A > 0:
+    B = B + 1
+if A > 3:
+    B = B + 2
+if A > 7:
+    B = B + 4
+else:
+    B = B + 8
+RESULT = B`,
+  why:`These are three separate structures rather than a chain, so every one of them is
+evaluated. The first two conditions hold, adding 1 and then 2, and the third fails, so its else adds 8.
+The total is 11. The distractor 3 is what you get by treating the three as a chain in which only the
+first match runs. Since 11 is not among the four choices offered, the answer is None of the above.` }
+
+]);

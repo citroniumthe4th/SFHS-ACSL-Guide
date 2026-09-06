@@ -194,3 +194,215 @@ traversal?</p>`,
 the left child of 10. Read the resulting tree in root-left-right order.` }
 
 ]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"ds-21", kind:"concept", topic:"data-structures", level:"b",
+  q:`The same set of distinct values is inserted into two empty binary search trees in two
+different orders. Which traversal is guaranteed to give the same output for both trees?`,
+  choices:["inorder","preorder","postorder","level order","None of the above"], ans:0,
+  why:`An inorder walk of a binary search tree always produces the values in sorted order,
+whatever shape the insertions happened to build, so two trees holding the same values agree on it. The
+other three all begin or end at the root, and the root is decided by whichever value was inserted
+first. That makes inorder useless for telling two trees apart and very useful as a check on your own
+work, since an inorder walk that is not sorted means the tree itself is wrong.` },
+
+{ id:"ds-22", kind:"problem", topic:"data-structures", level:"b",
+  q:`The values 15, 9, 23, 4, 12, 19, 30, 2 are inserted into an empty binary search tree in that
+order. What is the preorder traversal?`,
+  choices:["15 9 4 2 12 23 19 30","2 4 9 12 15 19 23 30","2 12 4 9 19 30 23 15","15 9 23 4 12 19 30 2","None of the above"], ans:0,
+  check:`trav("+15 +9 +23 +4 +12 +19 +30 +2".split(), "pre")`,
+  why:`Build the tree first: 15 at the root, 9 and 23 below it, 4 and 12 under 9, 19 and 30 under
+23, and 2 as the left child of 4. Preorder writes the root, then the entire left subtree, then the
+entire right, so it reads 15, then 9 4 2 12, then 23 19 30. The sorted sequence is the inorder walk and
+the fourth choice is simply the insertion order, which is level order only by coincidence here.` },
+
+{ id:"ds-23", kind:"problem", topic:"data-structures", level:"s",
+  q:`Using the same tree built from 15, 9, 23, 4, 12, 19, 30, 2, what is the postorder traversal?`,
+  choices:["2 4 12 9 19 30 23 15","15 9 4 2 12 23 19 30","2 4 9 12 19 23 30 15","2 4 12 19 30 9 23 15","None of the above"], ans:0,
+  check:`trav("+15 +9 +23 +4 +12 +19 +30 +2".split(), "post")`,
+  why:`Postorder visits both subtrees before the root, which means the root is always the last
+value written. Working from the inside out, the left subtree gives 2 4 12 9 and the right gives
+19 30 23, with 15 finishing the sequence. If your answer does not end on the root, whatever you did it
+was not postorder.` },
+
+{ id:"ds-24", kind:"problem", topic:"data-structures", level:"b",
+  q:`The values 7, 3, 9, 1, 5, 8, 11, 2 are inserted into an empty binary search tree in that
+order. What is the height of the tree, counting the root as height 0?`,
+  choices:["3","4","2","8","None of the above"], ans:0,
+  check:`str(trav("+7 +3 +9 +1 +5 +8 +11 +2".split(), "height"))`,
+  why:`Seven of the eight values form a balanced tree three levels deep, and the last value, 2,
+goes right of 1 and sits one level below it. The deepest node is therefore three edges from the root.
+Height counts edges rather than nodes here, so a single node alone has height 0, and a tree of eight
+nodes could have any height from 3 up to 7 depending on the order they arrived in.` },
+
+{ id:"ds-25", kind:"problem", topic:"data-structures", level:"s",
+  q:`The values 40, 20, 60, 10, 30, 50, 70 are inserted into an empty binary search tree in that
+order. What is its internal path length, counting the root at depth 0?`,
+  choices:["12", "8", "14", "7", "None of the above"], ans:4,
+  check:`str(trav("+40 +20 +60 +10 +30 +50 +70".split(), "ipl"))`,
+  why:`Internal path length is the sum of the depths of every node. The insertions build a
+perfectly balanced tree, so the root contributes 0, the two nodes below it contribute 1 each, and the
+four leaves contribute 2 each, for a total of 10. As a check, the external path length of a tree with N
+nodes is always the internal path length plus 2N, which here is 10 plus 14. Since 10 is not among the
+four choices offered, the answer is None of the above.` },
+
+{ id:"ds-26", kind:"problem", topic:"data-structures", level:"s",
+  q:`Insert 50, 30, 70, 20, 40, 60, 80 into an empty binary search tree, then delete 70 using
+ACSL's deletion rule: promote the left subtree and attach the original right subtree at its rightmost
+node. What is the preorder traversal?`,
+  choices:["50 30 20 40 60 80","50 30 20 40 80 60","50 30 20 40 60","50 30 20 40 70 60 80","None of the above"], ans:0,
+  check:`trav("+50 +30 +70 +20 +40 +60 +80 -70".split(), "pre")`,
+  why:`The node holding 70 has two children, so its left child 60 is promoted into its place and
+the old right subtree, which is just 80, is attached at the rightmost node of the promoted subtree.
+Since 60 has no right child, 80 becomes its right child directly. Preorder then reads 50, 30, 20, 40,
+60, 80. Copying the successor into the node instead, which is what most textbooks do, would leave 80 in
+that position and give the second choice.` },
+
+{ id:"ds-27", kind:"problem", topic:"data-structures", level:"b",
+  q:`Insert 9, 4, 7, 1, 8, 2 into a min heap one at a time, sifting each new value up from the
+bottom. What does the heap array look like, reading level by level?`,
+  choices:["1 4 2 9 8 7","1 2 4 7 8 9","1 4 2 7 8 9","1 2 4 9 8 7","None of the above"], ans:0,
+  check:`minheap([9,4,7,1,8,2])`,
+  why:`Insert 9. Insert 4, which beats 9 and swaps to the root, giving 4 9. Insert 7, which stays
+put, giving 4 9 7. Insert 1 under 9, and it swaps with 9 and then with 4, giving 1 4 7 9. Insert 8
+under 4, which stays put, giving 1 4 7 9 8. Insert 2 under 7, and it swaps with 7, giving 1 4 2 9 8 7.
+A heap is not sorted, which is why the tidy sorted choice is wrong; it only promises that every parent
+beats its children.` },
+
+{ id:"ds-28", kind:"problem", topic:"data-structures", level:"b",
+  q:`Insert 3, 6, 1, 9, 2 into a min heap one at a time, sifting each new value up from the
+bottom. What does the heap array look like, reading level by level?`,
+  choices:["1 2 3 9 6","1 2 3 6 9","1 3 2 9 6","1 6 3 9 2","None of the above"], ans:0,
+  check:`minheap([3,6,1,9,2])`,
+  why:`Insert 3, then 6 as its left child, which stays put. Insert 1 as the right child, and it
+beats 3 and swaps to the root, giving 1 6 3. Insert 9 under 6, which stays put, giving 1 6 3 9. Insert
+2 as the right child of 6, where it swaps with 6 and then stops, since its new parent 1 is smaller,
+giving 1 2 3 9 6. Sifting halts as soon as the parent no longer loses, which is why a value does not
+always travel all the way to the root.` },
+
+{ id:"ds-29", kind:"problem", topic:"data-structures", level:"s",
+  q:`Run these commands, where S pushes onto a stack, Q adds to a queue, P pops the stack, and D
+removes from the front of the queue. A removal from an empty structure writes X.
+For SA SB SC P QD QE D P D, what is written, in order?`,
+  choices:["C D B E","A D B E","C D E B","C B D E","None of the above"], ans:0,
+  check:`stack_queue("SA SB SC P QD QE D P D".split())`,
+  why:`The three pushes leave C on top of the stack, so the first P writes C. D and E then join
+the queue in that order, and the first D writes D from the front. The second P writes B, which is now
+on top, and the final D writes E. The two structures are entirely independent, so it helps to draw them
+side by side and update only the one each command names.` },
+
+{ id:"ds-30", kind:"problem", topic:"data-structures", level:"s",
+  q:`Using the same commands, where P and D write X when the structure is empty, what does
+Q1 S2 Q3 S4 P D P D D write, in order?`,
+  choices:["4 1 2 3 X","4 2 1 3 X","1 2 3 4 X","4 1 2 3","None of the above"], ans:0,
+  check:`stack_queue("Q1 S2 Q3 S4 P D P D D".split())`,
+  why:`The queue receives 1 and then 3, and the stack receives 2 and then 4. The first P takes 4
+from the top of the stack, the first D takes 1 from the front of the queue, the second P takes 2, and
+the second D takes 3. The last D finds the queue empty, and the rule is to write X rather than to stop,
+so the output ends with an X. Forgetting that final step is what produces the fourth choice.` },
+
+{ id:"ds-31", kind:"problem", topic:"data-structures", level:"b",
+  q:`In a heap stored in an array with the root at index 1, where do the two children of the node
+at index 6 sit?`,
+  choices:["12 and 13","7 and 8","3 and 12","11 and 12","None of the above"], ans:0,
+  check:`str(2*6)+' and '+str(2*6+1)`,
+  why:`With the root at index 1, the children of index i sit at 2i and 2i + 1, so the children of
+6 are 12 and 13. Checking backwards is quicker than trusting the formula: the parent of 12 is 12
+divided by 2, which is 6, and the parent of 13 is 13 divided by 2 with the fraction discarded, which is
+also 6. This arithmetic is why a heap needs no pointers at all.` },
+
+{ id:"ds-32", kind:"problem", topic:"data-structures", level:"b",
+  q:`The value 5 is inserted into an empty binary search tree three times. Under ACSL's rule that
+a value equal to the node it is compared against goes left, what is the height of the resulting tree,
+counting the root as height 0?`,
+  choices:["2","0","1","3","None of the above"], ans:0,
+  check:`str(trav("+5 +5 +5".split(), "height"))`,
+  why:`Duplicates are kept rather than discarded, and each one goes left, so the three nodes form
+a chain leaning to the left and the deepest sits two edges below the root. Some textbooks and libraries
+send equal keys right, and some drop them entirely, which would give a height of 0 here. ACSL's own
+page is explicit about which convention applies, and it is worth checking before building any tree that
+contains a repeat.` },
+
+{ id:"ds-33", kind:"problem", topic:"data-structures", level:"s",
+  q:`Insert 60, 40, 80, 20, 50, 70, 90 into an empty binary search tree, then delete 40 using
+ACSL's deletion rule. What is the inorder traversal?`,
+  choices:["20 50 60 70 80 90","20 50 60 80 70 90","50 20 60 70 80 90","20 40 50 60 70 80 90","None of the above"], ans:0,
+  check:`trav("+60 +40 +80 +20 +50 +70 +90 -40".split(), "in")`,
+  why:`An inorder walk of a binary search tree is always sorted, and a correct deletion leaves it
+a binary search tree, so the answer is simply the remaining six values in order. That makes this
+question a check on whether the deletion was done legally rather than on the traversal itself: if your
+inorder walk is not sorted, the tree you built is not a search tree. The preorder would have told the
+two deletion conventions apart; the inorder cannot.` },
+
+{ id:"ds-34", kind:"problem", topic:"data-structures", level:"b",
+  q:`The values 1, 2, 3, 4, 5, 6 are inserted into an empty binary search tree in that order. What
+is its internal path length, counting the root at depth 0?`,
+  choices:["21", "10", "6", "12", "None of the above"], ans:4,
+  check:`str(trav("+1 +2 +3 +4 +5 +6".split(), "ipl"))`,
+  why:`Each value is larger than everything already present, so every one hangs off the right of
+the previous and the tree is a chain of six nodes. The depths run 0, 1, 2, 3, 4, and 5, which add to 15.
+A chain is the worst case for internal path length, and a balanced tree on the same six values would
+give 8 instead. Since 15 is not among the four choices offered, the answer is None of the above.` },
+
+{ id:"ds-35", kind:"problem", topic:"data-structures", level:"s",
+  q:`Insert 10, 5, 15, 3, 7 into an empty binary search tree, then delete 10 using ACSL's deletion
+rule. What is the preorder traversal?`,
+  choices:["5 3 7 15","15 5 3 7","5 3 15 7","7 5 3 15","None of the above"], ans:0,
+  check:`trav("+10 +5 +15 +3 +7 -10".split(), "pre")`,
+  why:`Deleting the root lands on the two child case. ACSL promotes the left child, so 5 becomes
+the root, and the old right subtree, which is the single node 15, is attached at the rightmost node of
+the promoted subtree, which is 7. The tree is therefore 5 with left child 3 and right child 7, and 7
+carries 15 on its right. Preorder reads 5, 3, 7, 15. Note that the result is legal but no longer
+balanced, which is a general side effect of this rule.` },
+
+{ id:"ds-36", kind:"problem", topic:"data-structures", level:"j",
+  q:`Push 4, then 8, then 15 onto a stack, then pop twice. What is written, in order?`,
+  choices:["15 8","4 8","8 15","15 4","None of the above"], ans:0,
+  check:`stack_queue("S4 S8 S15 P P".split())`,
+  why:`A stack is last in, first out, so the values come off in the reverse of the order they
+went on. The most recent push was 15, so it leaves first, and 8 follows. The 4 is still sitting at the
+bottom untouched. Drawing the stack as a column with the top of the stack at the top of the page keeps
+this obvious rather than something to reason about.` },
+
+{ id:"ds-37", kind:"problem", topic:"data-structures", level:"b",
+  q:`Insert 10, 20, 30, 5, 1 into a min heap one at a time, sifting each new value up from the
+bottom. What does the heap array look like, reading level by level?`,
+  choices:["1 5 30 20 10","1 5 10 20 30","1 5 30 10 20","1 10 30 20 5","None of the above"], ans:0,
+  check:`minheap([10,20,30,5,1])`,
+  why:`The first three values arrive in increasing order and each stays where it lands, giving
+10 20 30. Inserting 5 puts it under 20, where it swaps with 20 and then with 10, giving 5 10 30 20.
+Inserting 1 puts it under 10, where it swaps with 10 and then with 5, giving 1 5 30 20 10. Each of the
+last two values travels all the way to the root, which is the worst case for an insertion and takes
+about the height of the heap in swaps.` },
+
+{ id:"ds-38", kind:"problem", topic:"data-structures", level:"b",
+  q:`The values 50, 25, 75, 12, 37, 62, 87, 6 are inserted into an empty binary search tree in that
+order. What is the height of the tree, counting the root as height 0?`,
+  choices:["3","2","4","8","None of the above"], ans:0,
+  check:`str(trav("+50 +25 +75 +12 +37 +62 +87 +6".split(), "height"))`,
+  why:`The first seven values build a perfectly balanced tree two levels deep, and the last value,
+6, goes left of 12 and sits one level below it. The deepest node is therefore three edges from the
+root. Only one node lives at depth 3, and height is decided by the single deepest node rather than by
+how many nodes are down there.` },
+
+{ id:"ds-39", kind:"problem", topic:"data-structures", level:"b",
+  q:`The values 8, 4, 12, 2, 6, 10, 14 are inserted into an empty binary search tree in that order.
+What is the postorder traversal?`,
+  choices:["2 6 4 10 14 12 8","8 4 2 6 12 10 14","2 4 6 8 10 12 14","2 6 10 14 4 12 8","None of the above"], ans:0,
+  check:`trav("+8 +4 +12 +2 +6 +10 +14".split(), "post")`,
+  why:`The insertions build a perfectly balanced tree with 8 at the root. Postorder finishes each
+subtree before writing its root, so the left side gives 2 6 4, the right gives 10 14 12, and 8 comes
+last. The second choice is the preorder and the third is the inorder, so all three walks of this one
+tree are sitting in the choices together.` },
+
+{ id:"ds-40", kind:"problem", topic:"data-structures", level:"j",
+  q:`Add A, then B, then C to a queue, then remove twice. What is written, in order?`,
+  choices:["A B","C B","B A","A C","None of the above"], ans:0,
+  check:`stack_queue("QA QB QC D D".split())`,
+  why:`A queue is first in, first out, so the values leave in the order they arrived. A was added
+first and so leaves first, then B, while C is still waiting at the back. Set this beside the same three
+values on a stack, which would come off C then B, and the two structures differ in exactly that one
+respect.` }
+
+]);

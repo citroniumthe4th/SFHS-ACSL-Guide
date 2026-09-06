@@ -170,3 +170,184 @@ edges.</p>`,
 row 1, column 4 entry of the squared adjacency matrix.` }
 
 ]);
+
+window.MCQ = (window.MCQ || []).concat([
+
+{ id:"gt-19", kind:"problem", topic:"graph-theory", level:"s",
+  q:`Five vertices A through E form a cycle in alphabetical order, with E joined back to A. How
+many paths of length 3 go from A back to A?`,
+  choices:["2", "3", "5", "6", "None of the above"], ans:4,
+  check:`str(walks(5,3,'A','A','0100110100010100010110010'))`,
+  why:`Every step around a cycle moves one position clockwise or counterclockwise, so after three
+steps the net displacement is 3, 1, -1, or -3. Returning to A needs a displacement that is a multiple
+of 5, and none of those four is, so no such path exists. The count is 0. On an odd cycle the parity
+argument that settles even cycles does not apply, and this displacement argument is the one that does.
+Since 0 is not among the four choices offered, the answer is None of the above.` },
+
+{ id:"gt-20", kind:"problem", topic:"graph-theory", level:"b",
+  q:`Five vertices A through E form a cycle in alphabetical order, with E joined back to A. How
+many paths of length 2 go from A to C?`,
+  choices:["1","2","0","3","None of the above"], ans:0,
+  check:`str(walks(5,2,'A','C','0100110100010100010110010'))`,
+  why:`A two step path needs a single middle vertex adjacent to both endpoints. The neighbors of A
+are B and E, and the neighbors of C are B and D, so B is the only vertex in both sets and the route
+A to B to C is the only one. Intersecting the two neighbor sets is the fastest way to answer any
+question about paths of length 2.` },
+
+{ id:"gt-21", kind:"problem", topic:"graph-theory", level:"s",
+  q:`In the complete graph on 4 vertices, how many paths of length 3 go from A to B?`,
+  choices:["7","6","9","27","None of the above"], ans:0,
+  check:`str(walks(4,3,'A','B','0111101111011110'))`,
+  why:`Track two numbers rather than a whole matrix. Let r be the number of paths of a given
+length ending back at A and o the number ending at one particular other vertex. At each step r becomes
+3o and o becomes r plus 2o. Starting from r equal to 1 and o equal to 0, three steps give o equal to 7.
+There is a closed form for the complete graph on n vertices too: the count between distinct vertices
+after k steps is ((n - 1) to the k, minus (-1) to the k) divided by n, which here is (27 + 1) over 4.` },
+
+{ id:"gt-22", kind:"problem", topic:"graph-theory", level:"b",
+  q:`Four vertices A, B, C, and D form a chain, each joined to the next. How many paths of length 3
+go from A to D?`,
+  choices:["1","2","3","0","None of the above"], ans:0,
+  check:`str(walks(4,3,'A','D','0100101001010010'))`,
+  why:`A and D sit three edges apart, which is exactly the length allowed, so the only way to get
+there is to walk straight down the chain without ever doubling back. That is A to B to C to D, and
+there is one such route. Whenever the path length equals the distance between the endpoints, the count
+is the number of shortest routes, and on a chain there is only ever one.` },
+
+{ id:"gt-23", kind:"problem", topic:"graph-theory", level:"b",
+  q:`Vertices A and B are each joined to every one of C, D, and E, and there are no other edges.
+How many paths of length 2 go from A to B?`,
+  choices:["3","1","6","2","None of the above"], ans:0,
+  check:`str(walks(5,2,'A','B','0011100111110001100011000'))`,
+  why:`This is the complete bipartite graph with A and B on one side and C, D, and E on the other.
+A two step path from A to B passes through a single vertex adjacent to both, and all three of C, D, and
+E qualify, so the count is 3. In general the number of two step paths between two vertices is the
+number of common neighbors they have.` },
+
+{ id:"gt-24", kind:"problem", topic:"graph-theory", level:"b",
+  q:`In a graph on 5 vertices where A is joined to every other vertex and there are no other edges,
+how many paths of length 3 go from A to B?`,
+  choices:["4","1","3","8","None of the above"], ans:0,
+  check:`str(walks(5,3,'A','B','0111110000100001000010000'))`,
+  why:`This is a star with A at the center, so every edge touches A and any walk alternates
+between A and a leaf. A path of length 3 from A therefore goes out to some leaf, back to A, and out to
+B, and the first leaf may be any of the four including B itself. That gives 4. Every walk on a star is
+forced into this alternating shape, which is why the counts are so easy to reason about directly.` },
+
+{ id:"gt-25", kind:"problem", topic:"graph-theory", level:"s",
+  q:`Six vertices A through F form a cycle in alphabetical order, with F joined back to A. How many
+paths of length 4 go from A to C?`,
+  choices:["5","4","6","2","None of the above"], ans:0,
+  check:`str(walks(6,4,'A','C','010001101000010100001010000101100010'))`,
+  why:`Count by how many of the four steps go clockwise. With p clockwise steps and 4 minus p the
+other way, the net displacement is 2p minus 4, and reaching C needs that to be 2 more than a multiple
+of 6, which happens for p equal to 0 and p equal to 3. Those contribute 1 and 4 arrangements
+respectively, giving 5. This displacement count is far quicker than raising a 6 by 6 matrix to the
+fourth power.` },
+
+{ id:"gt-26", kind:"problem", topic:"graph-theory", level:"s",
+  q:`In the complete graph on 4 vertices, how many paths of length 4 start and end at A?`,
+  choices:["27", "24", "18", "81", "None of the above"], ans:4,
+  check:`str(walks(4,4,'A','A','0111101111011110'))`,
+  why:`Track the return count r and the count o ending at one particular other vertex. At each
+step r becomes 3o and o becomes r plus 2o. Starting from r equal to 1 and o equal to 0, four steps give
+r equal to 21. The closed form for the complete graph on n vertices agrees: the return count after k
+steps is ((n - 1) to the k, plus (n - 1) times (-1) to the k) divided by n, which here is (81 + 3) over
+4. The distractor 81 is the total number of length 4 paths from A to anywhere at all. Since 21 is not
+among the four choices offered, the answer is None of the above.` },
+
+{ id:"gt-27", kind:"problem", topic:"graph-theory", level:"s",
+  q:`Five vertices A through E form a cycle in alphabetical order, with E joined back to A. How
+many paths of length 5 go from A back to A?`,
+  choices:["2","5","10","0","None of the above"], ans:0,
+  check:`str(walks(5,5,'A','A','0100110100010100010110010'))`,
+  why:`With p of the five steps going clockwise, the net displacement is 2p minus 5, and returning
+to A needs that to be a multiple of 5. That forces p to be 0 or 5, meaning the walk goes all the way
+round in one direction or the other. Each of those can happen in exactly one way, so the count is 2.
+The distractor 10 counts the walks with p equal to 1 or 4, which land one place short of A.` },
+
+{ id:"gt-28", kind:"problem", topic:"graph-theory", level:"s",
+  q:`Vertices A and B are each joined to every one of C, D, and E, and there are no other edges.
+How many paths of length 3 go from A to C?`,
+  choices:["6","3","9","2","None of the above"], ans:0,
+  check:`str(walks(5,3,'A','C','0011100111110001100011000'))`,
+  why:`The graph is bipartite with A and B on one side and C, D, and E on the other, and every
+edge crosses between the sides, so a walk alternates sides at every step. A length 3 walk from A ends
+on the far side, which is where C lives, so odd lengths are allowed here. The route is A to one of C,
+D, E, then back to A or B, then to C, giving 3 times 2 choices.` },
+
+{ id:"gt-29", kind:"problem", topic:"graph-theory", level:"b",
+  q:`Four vertices A, B, C, and D form a chain, each joined to the next. How many paths of length 2
+go from B back to B?`,
+  choices:["2","1","3","0","None of the above"], ans:0,
+  check:`str(walks(4,2,'B','B','0100101001010010'))`,
+  why:`A there-and-back path leaves along one edge and returns along the same one, so the number
+of them is exactly the degree of the vertex. B is joined to A and to C, so its degree is 2 and the count
+is 2. That is the general fact behind every diagonal entry of the squared adjacency matrix: it always
+equals the degree of that vertex.` },
+
+{ id:"gt-30", kind:"problem", topic:"graph-theory", level:"s",
+  q:`Six vertices A through F form a cycle in alphabetical order, with F joined back to A. How many
+paths of length 3 go from A to D?`,
+  choices:["2","1","3","0","None of the above"], ans:0,
+  check:`str(walks(6,3,'A','D','010001101000010100001010000101100010'))`,
+  why:`A and D sit directly opposite each other on the cycle, three steps apart in either
+direction, and three is exactly the length allowed. So the only routes are the two that walk straight
+round without doubling back, one clockwise and one counterclockwise. Doubling back anywhere would waste
+two of the three steps and leave the walk short.` },
+
+{ id:"gt-31", kind:"problem", topic:"graph-theory", level:"b",
+  q:`How many edges does the complete graph on 12 vertices have?`,
+  choices:["66","132","144","78","None of the above"], ans:0,
+  check:`str(12*11//2)`,
+  why:`Every pair of distinct vertices contributes exactly one edge, and there are 12 times 11
+over 2 such pairs, which is 66. The division by two is there because the pair A and B describes the
+same edge as the pair B and A. Omitting it gives 132, which would be the count for a directed graph
+carrying an arrow each way.` },
+
+{ id:"gt-32", kind:"problem", topic:"graph-theory", level:"b",
+  q:`A graph has 7 vertices and every vertex has degree 4. How many edges does it have?`,
+  choices:["14","28","7","11","None of the above"], ans:0,
+  check:`str(7*4//2)`,
+  why:`The degrees add to 7 times 4, or 28, and the sum of all the degrees is always twice the
+number of edges, since each edge adds 1 to each of its two endpoints. So the edge count is 28 over 2.
+The handshake lemma turns every question about degrees into a question about edges, and it works in
+either direction.` },
+
+{ id:"gt-33", kind:"problem", topic:"graph-theory", level:"b",
+  q:`A graph on 10 vertices has no cycles and exactly 3 connected components. How many edges does
+it have?`,
+  choices:["7","9","10","3","None of the above"], ans:0,
+  check:`str(10-3)`,
+  why:`An acyclic graph is a forest and each component is a tree, and a tree on k vertices has
+k minus 1 edges. Summing over the three components, a forest on N vertices with C components has N
+minus C edges, so this one has 10 minus 3. The relation works in any direction, so it will recover
+whichever of the three numbers a question leaves out.` },
+
+{ id:"gt-34", kind:"concept", topic:"graph-theory", level:"b",
+  q:`In the adjacency matrix of a directed graph, what does the sum of a column tell you?`,
+  choices:["the indegree of that vertex","the outdegree of that vertex","the number of edges","the number of vertices reachable from it","None of the above"], ans:0,
+  why:`Entry (i, j) is 1 when an arrow runs from vertex i to vertex j, so a column collects every
+arrow arriving at one vertex and its sum is the indegree. The row sum is the outdegree by the same
+argument. The two agree only when the matrix is symmetric, which is to say only when the graph is
+undirected, and in that case both are simply the degree.` },
+
+{ id:"gt-35", kind:"concept", topic:"graph-theory", level:"s",
+  q:`For an undirected graph with no loops, what does the sum of the diagonal entries of the
+squared adjacency matrix equal?`,
+  choices:["twice the number of edges","the number of edges","the number of vertices","the number of triangles","None of the above"], ans:0,
+  why:`A diagonal entry of the squared matrix counts the paths of length 2 from a vertex back to
+itself, and each of those leaves along an edge and returns along the same one, so it equals the degree
+of that vertex. Summing the diagonal therefore adds up all the degrees, which the handshake lemma makes
+twice the number of edges. Triangles are counted by the diagonal of the cubed matrix instead, and each
+one is counted six times there.` },
+
+{ id:"gt-36", kind:"concept", topic:"graph-theory", level:"b",
+  q:`Why can no graph have vertices of degrees 1, 2, 3, 4, and 5?`,
+  choices:["the degrees add to an odd number","5 is too large for a graph on 5 vertices","no two vertices may share a degree","the degrees must be consecutive","None of the above"], ans:0,
+  why:`The sum of all the degrees is always twice the number of edges and is therefore even, but
+1 + 2 + 3 + 4 + 5 is 15. No graph can have that degree sequence, whatever its size. A corollary worth
+carrying is that the number of vertices of odd degree is always even, which is often the quickest way to
+rule a proposed graph out.` }
+
+]);
